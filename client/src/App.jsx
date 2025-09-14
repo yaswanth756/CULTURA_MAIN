@@ -1,15 +1,21 @@
 import { useState } from 'react'
-
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import Home from './pages/Home';
+import MainLayout from './components/MainLayout';
 
 
 function App() {
- 
 
   return (
-    <>
-      <div className='bg-black text-white'>Welcome bro!</div>
-    </>
-  )
+    
+    <MainLayout>
+        <Routes>
+          <Route path="/" element={<Home/>} />
+        </Routes>
+    </MainLayout>
+
+  
+  );
 }
 
 export default App
