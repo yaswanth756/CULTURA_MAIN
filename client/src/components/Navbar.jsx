@@ -22,7 +22,7 @@ const Navbar = () => {
               alt="Cultura logo"
               className="h-12 w-auto rounded-full object-cover"
             />
-            <h1 className="text-2xl font-bold text-anzac-500">Cultura</h1>
+            <h1 className="text-2xl font-bold text-anzac-500">Utsavlokam</h1>
           </div>
 
           {/* Desktop Nav */}
