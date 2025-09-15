@@ -21,7 +21,7 @@ const HeroSection = () => {
         data-aos="fade-up"
         data-aos-duration="1000"
       >
-        <h1 className="text-4xl md:text-5xl font-bold mb-6">
+        <h1 className="text-4xl md:text-6xl font-bold mb-6">
           Find Everything for Your Event
         </h1>
         <p className="text-lg md:text-xl mb-8">

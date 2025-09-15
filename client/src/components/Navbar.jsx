@@ -4,7 +4,7 @@ import { Menu, X } from "lucide-react";
 
 const navLinks = [
   { path: "/browse", label: "Browse Events", type: "route" },
-  { path: "/#work", label: "Recent Work", type: "hash" },
+  { path: "/#work", label: "Work Showcase", type: "hash" },
   { path: "/#about", label: "About Us", type: "hash" },
 ];
 
@@ -12,7 +12,7 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <nav className="border-b sticky top-0 z-50 bg-white">
+    <nav className="sticky top-0 z-50 bg-white">
       <div className="px-10 py-6 flex justify-between items-center">
         {/* Logo + Brand */}
         <div className="flex items-center gap-16">
@@ -32,20 +32,20 @@ const Navbar = () => {
                 {type === "route" ? (
                   <Link
                     to={path}
-                    className="pb-1 text-gray-600 hover:text-gray-900 transition-colors duration-300"
+                    className="pb-1 text-black hover:text-anzac-500 transition-colors duration-300 font-medium"
                   >
                     {label}
                   </Link>
                 ) : (
                   <a
                     href={path}
-                    className="pb-1 text-gray-600 hover:text-gray-900 transition-colors duration-300"
+                    className="pb-1 text-black hover:text-anzac-500 transition-colors duration-300 font-medium"
                   >
                     {label}
                   </a>
                 )}
                 {/* underline animation only on hover */}
-                <span className="absolute left-0 -bottom-1 h-[2px] bg-anzac-500 rounded-full w-0 group-hover:w-full transition-all duration-300"></span>
+                
               </li>
             ))}
           </ul>
@@ -53,7 +53,7 @@ const Navbar = () => {
 
         {/* Buttons */}
         <div className="hidden md:flex items-center gap-5">
-          <button className="h-12 px-4 rounded-full bg-gray-50 text-gray-800 font-medium transition-all duration-300 hover:bg-gray-100 hover:shadow-md">
+          <button className="h-12 px-4 rounded-full bg-gray-50 text-gray-800 transition-all duration-300 hover:bg-gray-100">
             Become Host
           </button>
 
