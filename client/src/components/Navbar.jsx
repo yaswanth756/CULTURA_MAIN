@@ -53,7 +53,7 @@ const Navbar = () => {
 
         {/* Buttons */}
         <div className="hidden md:flex items-center gap-5">
-          <button className="h-12 px-4 rounded-full bg-gray-50 text-gray-800 transition-all duration-300 hover:bg-gray-100">
+          <button className="h-12 px-4 rounded-full  text-gray-800 transition-all duration-300 hover:bg-gray-100">
             Become Host
           </button>
 

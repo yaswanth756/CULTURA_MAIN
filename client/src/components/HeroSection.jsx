@@ -25,7 +25,7 @@ const HeroSection = () => {
           Find Everything for Your Event
         </h1>
         <p className="text-lg md:text-xl mb-8">
-          Book venues, catering, photography, décor & more in one place
+        Discover vendors, book instantly, celebrate endlessly.
         </p>
 
         {/* Extracted Search Form */}
