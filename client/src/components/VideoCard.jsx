@@ -5,7 +5,7 @@ const VideoCard = ({ item, onPlay }) => {
   return (
     <div
       onClick={() => onPlay()}
-      className="min-w-[300px] max-w-[300px] flex-shrink-0 bg-white rounded-2xl shadow-lg transition-transform duration-300 cursor-pointer overflow-hidden"
+      className="min-w-[300px] max-w-[350px] flex-shrink-0 bg-white rounded-2xl shadow-lg transition-transform duration-300 cursor-pointer overflow-hidden"
     >
       {/* Video Thumbnail */}
       <div className="relative h-48 overflow-hidden group">
@@ -55,7 +55,7 @@ const VideoCard = ({ item, onPlay }) => {
       </div>
 
       {/* Content */}
-      <div className="p-5 bg-gradient-to-tr from-anzac-50 via-white to-anzac-100 shadow-sm hover:shadow-md transition-all space-y-4">
+      <div className="p-5 shadow-sm hover:shadow-md transition-all space-y-4">
         {/* Title */}
         <h3 className="font-bold text-gray-900 text-lg mb-3 line-clamp-1">
           {item.title}

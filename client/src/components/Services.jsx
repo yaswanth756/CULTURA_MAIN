@@ -150,7 +150,7 @@ const Services = () => {
                 </div>
 
                 <button
-                  onClick={() => (window.location.href = `/browse?type=${service.slug}`)}
+                  onClick={() => (window.location.href = `/browse?servicetype=${service.slug}`)}
                   className="px-6 py-2 bg-anzac-500 text-white rounded-full shadow-md hover:bg-anzac-600 hover:scale-105 transition-all duration-300 ease-out"
                 >
                   Plan Now

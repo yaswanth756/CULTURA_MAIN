@@ -12,7 +12,7 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <nav className="sticky top-0 z-50 bg-white">
+    <nav className="sticky top-0 z-30 bg-white">
       <div className="px-10 py-6 flex justify-between items-center">
         {/* Logo + Brand */}
         <div className="flex items-center gap-16">

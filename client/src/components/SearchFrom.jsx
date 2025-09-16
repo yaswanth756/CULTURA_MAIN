@@ -1,21 +1,20 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { useEventContext } from "../context/EventContext";
 import {
   Search,
   MapPin,
-  Locate,
   PartyPopper,
-  // chip icons
   Camera,
-  ChefHat,
-  Soup,
-  Bed,
-  Timer,
-  Brush,
-  Scissors,
-  Flower2,
   Utensils,
-  Sparkles,
+  Cake,
+  Music,
+  Building2,
+  Video,
+  Tent,
+  Mic2,
+  Brush,
+  Flower2,
   X,
 } from "lucide-react";
 import CustomDatePicker from "./CustomDatePicker";
@@ -24,11 +23,7 @@ const SearchForm = () => {
   const navigate = useNavigate();
 
   // Keep date empty so placeholder "Add dates" shows
-  const [formData, setFormData] = useState({
-    location: "",
-    date: "",
-    eventType: "",
-  });
+  const { formData, setFormData } = useEventContext();
 
   const [locationSuggestions, setLocationSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -42,16 +37,16 @@ const SearchForm = () => {
 
   // Services for chip menu
   const services = [
-    { value: "photography", label: "Photography", Icon: Camera },
-    { value: "chefs", label: "Chefs", Icon: ChefHat },
-    { value: "prepared-meals", label: "Prepared meals", Icon: Soup },
-    { value: "massage", label: "Massage", Icon: Bed },
-    { value: "training", label: "Training", Icon: Timer },
-    { value: "makeup", label: "Make-up", Icon: Brush },
-    { value: "hair", label: "Hair", Icon: Scissors },
-    { value: "spa", label: "Spa treatments", Icon: Flower2 },
+    { value: "venues", label: "Venues", Icon: Building2 },
     { value: "catering", label: "Catering", Icon: Utensils },
-    { value: "nails", label: "Nails", Icon: Sparkles },
+    { value: "cakes", label: "Cakes", Icon: Cake },
+    { value: "decorations", label: "Decorations", Icon: Flower2 },
+    { value: "photography", label: "Photography", Icon: Camera },
+    { value: "videography", label: "Videography", Icon: Video },
+    { value: "music", label: "Music / DJ", Icon: Music },
+    { value: "makeup", label: "Make-up", Icon: Brush },
+    { value: "mandap", label: "Mandap Setup", Icon: Tent },
+    { value: "hosts", label: "Hosts / Anchors", Icon: Mic2 },
   ];
 
   // OpenStreetMap Nominatim search
@@ -96,45 +91,6 @@ const SearchForm = () => {
     setLocationSuggestions([]);
   };
 
-  const handleCurrentLocation = () => {
-    if (!navigator.geolocation) {
-      alert("Geolocation is not supported by this browser.");
-      return;
-    }
-    setLoadingLocation(true);
-    navigator.geolocation.getCurrentPosition(
-      async ({ coords }) => {
-        const { latitude, longitude } = coords;
-        try {
-          const response = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1&countrycodes=in`
-          );
-          const data = await response.json();
-          setFormData((prev) => ({
-            ...prev,
-            location:
-              data.display_name ||
-              `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`,
-          }));
-        } catch (error) {
-          console.error("Error fetching reverse geocode:", error);
-          setFormData((prev) => ({
-            ...prev,
-            location: `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`,
-          }));
-        } finally {
-          setLoadingLocation(false);
-          setShowSuggestions(false);
-        }
-      },
-      () => {
-        alert("Unable to retrieve your location. Please try manually.");
-        setLoadingLocation(false);
-      },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
-    );
-  };
-
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (locationRef.current && !locationRef.current.contains(event.target)) {
@@ -157,7 +113,7 @@ const SearchForm = () => {
     e.preventDefault();
     const q = `/browse?location=${encodeURIComponent(
       formData.location
-    )}&date=${formData.date}&eventType=${formData.eventType}`;
+    )}&date=${formData.date}&servicetype=${formData.eventType}`;
     navigate(q);
   };
 
@@ -175,39 +131,27 @@ const SearchForm = () => {
         <div ref={locationRef} className="relative flex-1 min-w-0">
           <div className="flex items-center gap-3 px-5 py-3">
             <MapPin className="w-5 h-5 text-gray-500 flex-shrink-0" />
+
+            {/* Updated placeholder to reflect vendor search in area */}
             <input
               type="text"
               name="location"
-              placeholder="Where?"
+              placeholder="Service Needed In"
               value={formData.location}
               onChange={handleLocationChange}
-              className="flex-1 min-w-0 bg-transparent placeholder:text-gray-400 text-gray-900 outline-none"
-              autoComplete="off"
+              className="flex-1 min-w-0 bg-transparent placeholder:text-gray-400 text-gray-900 outline-none truncate"
+              autoComplete="on"
               aria-autocomplete="list"
               aria-expanded={showSuggestions}
               aria-controls="location-suggestions"
             />
-            <button
-              type="button"
-              onClick={handleCurrentLocation}
-              disabled={loadingLocation}
-              className="p-2 text-gray-500 hover:text-anzac-500 disabled:opacity-50 flex-shrink-0"
-              aria-label="Use current location"
-              title="Use current location"
-            >
-              {loadingLocation ? (
-                <div className="w-4 h-4 border-2 border-anzac-500 border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <Locate className="w-5 h-5" />
-              )}
-            </button>
           </div>
 
           {showSuggestions && (
             <ul
               id="location-suggestions"
               role="listbox"
-              className="absolute z-20 w-full bg-white border border-gray-200 rounded-3xl mt-5 max-h-64 overflow-y-auto shadow-xl px-5 py-4"
+              className="absolute z-20 w-[500px] bg-white border border-gray-200 rounded-3xl mt-5 max-h-64 overflow-y-auto shadow-xl px-5 py-4"
             >
               {loadingLocation ? (
                 <li className="px-4 py-3 text-gray-500 text-sm">Searching...</li>
@@ -217,7 +161,8 @@ const SearchForm = () => {
                     key={idx}
                     role="option"
                     onClick={() => handleSelectLocation(s)}
-                    className="px-4 py-3 hover:bg-gray-100 cursor-pointer text-sm text-gray-800 rounded-xl"
+                    className="px-4 py-3 hover:bg-gray-100 cursor-pointer text-sm text-gray-800 rounded-xl truncate"
+                    title={s.display_name}
                   >
                     {s.display_name}
                   </li>
@@ -229,9 +174,9 @@ const SearchForm = () => {
           )}
         </div>
 
-        {/* Date (fixed width, no resize) */}
-        <div className="px-5 py-3 shrink-0 basis-[220px]">
-          <div className="w-[220px]">
+        {/* Date (fixed width on md+, full on mobile) */}
+        <div className="px-5 py-3 shrink-0 md:basis-[220px]">
+          <div className="w-full md:w-[200px]">
             <CustomDatePicker
               value={formData.date}
               onChange={handleDateChange}
@@ -240,27 +185,35 @@ const SearchForm = () => {
           </div>
         </div>
 
-        {/* Service (fixed width, truncate label) */}
-        <div ref={serviceRef} className="relative shrink-0 basis-[260px]">
-          <button
-            type="button"
-            onClick={() => setShowServiceMenu((v) => !v)}
-            className="w-[260px] flex items-center gap-3 px-5 py-3 text-left overflow-hidden"
-            aria-haspopup="menu"
-            aria-expanded={showServiceMenu}
-          >
-            {selectedService ? (
-              <>
-                <selectedService.Icon className="w-5 h-5 text-gray-500 flex-shrink-0" />
-                <span className="text-gray-900 truncate">{selectedService.label}</span>
-              </>
-            ) : (
-              <>
-                <PartyPopper className="w-5 h-5 text-gray-500 flex-shrink-0" />
-                <span className="text-gray-400 truncate">Service</span>
-              </>
-            )}
-          </button>
+        {/* Service (show icon only on mobile, label truncates on md+) */}
+        <div ref={serviceRef} className="relative shrink-0 md:basis-[260px]">
+        <button
+  type="button"
+  onClick={() => setShowServiceMenu((v) => !v)}
+  className="w-full md:w-[200px] px-5 py-3 text-left overflow-hidden"
+  aria-haspopup="menu"
+  aria-expanded={showServiceMenu}
+>
+  <div className="inline-flex items-center gap-3 align-middle">
+    {selectedService ? (
+      <selectedService.Icon className="w-5 h-5 text-gray-500 flex-shrink-0" />
+    ) : (
+      <PartyPopper className="w-5 h-5 text-gray-500 flex-shrink-0" />
+    )}
+
+    {/* Label */}
+    {selectedService ? (
+      <span className="hidden md:block text-gray-900 truncate max-w-[160px]">
+        {selectedService.label}
+      </span>
+    ) : (
+      <span className="hidden md:block text-gray-400 truncate max-w-[160px]">
+        Service
+      </span>
+    )}
+  </div>
+</button>
+
 
           {showServiceMenu && (
             <div
@@ -295,14 +248,11 @@ const SearchForm = () => {
                             ? "border-gray-900 text-gray-900"
                             : "border-gray-300 text-gray-800 hover:border-gray-400",
                           "transition-colors",
+                          "max-w-full"
                         ].join(" ")}
                       >
-                        <Icon
-                          className={
-                            active ? "w-5 h-5 text-gray-900" : "w-5 h-5 text-gray-600"
-                          }
-                        />
-                        <span className="whitespace-nowrap text-sm">{label}</span>
+                        <Icon className={active ? "w-5 h-5 text-gray-900" : "w-5 h-5 text-gray-600"} />
+                        <span className="truncate max-w-[200px]" title={label}>{label}</span>
                       </button>
                     </li>
                   );
@@ -319,7 +269,8 @@ const SearchForm = () => {
             className="flex items-center gap-2 bg-anzac-500 hover:bg-anzac-600 text-white px-6 py-3 rounded-full transition-all duration-300 shadow-md"
           >
             <Search className="w-5 h-5" />
-            Search
+            {/* Hide text on mobile, keep accessible; show from md+ */}
+            <span className="sr-only md:not-sr-only">Search</span>
           </button>
         </div>
       </div>

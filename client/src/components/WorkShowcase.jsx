@@ -135,22 +135,7 @@ const WorkShowcase = ({ items = dummyData }) => {
   };
 
   // Auto-scroll
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-
-    if (autoScrollRef.current) clearInterval(autoScrollRef.current);
-
-    autoScrollRef.current = setInterval(() => {
-      if (el.scrollLeft + el.clientWidth >= el.scrollWidth - 10) {
-        el.scrollTo({ left: 0, behavior: "smooth" });
-      } else {
-        el.scrollBy({ left: 320, behavior: "smooth" });
-      }
-    }, 3000);
-
-    return () => clearInterval(autoScrollRef.current);
-  }, [items.length]);
+  
 
   // Keyboard navigation
   useEffect(() => {

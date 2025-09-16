@@ -42,6 +42,12 @@ const fmtDisplay = (d) =>
     year: "numeric",
   }).format(d);
 
+const fmtDisplayMobile = (d) =>
+  new Intl.DateTimeFormat("en", {
+    month: "short",
+    day: "numeric",
+  }).format(d);
+
 const parseISO = (s) => {
   if (!s) return null;
   const [y, m, d] = s.split("-").map((n) => parseInt(n, 10));
@@ -55,6 +61,7 @@ export default function CustomDatePicker({
   value,
   onChange,
   placeholder = "Add dates",
+  isMobile = false,
 }) {
   const selected = useMemo(() => (value ? parseISO(value) : null), [value]);
   const [open, setOpen] = useState(false);
@@ -80,7 +87,7 @@ export default function CustomDatePicker({
     setOpen(false);
   };
 
-  const isPast = (d) => stripTime(d) < today; // keep past dates disabled like the mock
+  const isPast = (d) => stripTime(d) < today;
 
   // Weekday header data
   const weekdayHeader = [
@@ -102,11 +109,21 @@ export default function CustomDatePicker({
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-label="Add dates"
-        className="inline-flex items-center gap-3 rounded-full  border-gray-200 px-4 py-2 bg-white "
+        className="inline-flex items-center gap-2 sm:gap-3 rounded-full border-gray-200 px-2 sm:px-4 py-1 sm:py-2 bg-white w-full"
       >
-        <CalendarIcon className="w-5 h-5 text-gray-500" />
-        <span className={selected ? "text-gray-900" : "text-gray-400"}>
-          {selected ? fmtDisplay(selected) : placeholder}
+        <CalendarIcon className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500 flex-shrink-0" />
+        <span className={`${selected ? "text-gray-900" : "text-gray-400"} truncate text-sm sm:text-base`}>
+          {selected ? (
+            <>
+              <span className="sm:hidden">{fmtDisplayMobile(selected)}</span>
+              <span className="hidden sm:inline">{fmtDisplay(selected)}</span>
+            </>
+          ) : (
+            <>
+              <span className="sm:hidden">Dates</span>
+              <span className="hidden sm:inline">{placeholder}</span>
+            </>
+          )}
         </span>
       </button>
 
@@ -116,49 +133,49 @@ export default function CustomDatePicker({
           role="dialog"
           aria-modal="true"
           aria-label="Choose date"
-          className="absolute left-1/2 -translate-x-1/2 z-30 mt-8 w-[450px] rounded-2xl border border-gray-200 bg-white  p-8 shadow-2xl"
+          className="absolute left-1/2 -translate-x-1/2 z-30 mt-2 sm:mt-8 w-[320px] sm:w-[450px] rounded-2xl border border-gray-200 bg-white p-4 sm:p-8 shadow-2xl"
         >
           {/* Header */}
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center justify-between mb-2 sm:mb-3">
             <button
               type="button"
               onClick={() => setViewMonth((m) => addMonths(m, -1))}
-              className="p-2 rounded-full hover:bg-gray-100"
+              className="p-1.5 sm:p-2 rounded-full hover:bg-gray-100"
               aria-label="Previous month"
             >
-              <ChevronLeft className="w-5 h-5 text-gray-700" />
+              <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 text-gray-700" />
             </button>
 
-            <h2 className="text-base font-semibold text-gray-900" aria-live="polite">
+            <h2 className="text-sm sm:text-base font-semibold text-gray-900" aria-live="polite">
               {fmtMonthYear(viewMonth)}
             </h2>
 
             <button
               type="button"
               onClick={() => setViewMonth((m) => addMonths(m, 1))}
-              className="p-2 rounded-full hover:bg-gray-100"
+              className="p-1.5 sm:p-2 rounded-full hover:bg-gray-100"
               aria-label="Next month"
             >
-              <ChevronRight className="w-5 h-5 text-gray-700" />
+              <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-gray-700" />
             </button>
           </div>
 
-          {/* Weekdays (single-letter with airy spacing) */}
-          <div role="row" className="grid grid-cols-7 text-center text-xs text-gray-400 mb-2 select-none">
+          {/* Weekdays */}
+          <div role="row" className="grid grid-cols-7 text-center text-xs text-gray-400 mb-1 sm:mb-2 select-none">
             {weekdayHeader.map((d) => (
               <div
                 key={d.full}
                 role="columnheader"
                 aria-label={d.full}
-                className="uppercase tracking-widest h-6 flex items-center justify-center"
+                className="uppercase tracking-widest h-5 sm:h-6 flex items-center justify-center"
               >
                 {d.short}
               </div>
             ))}
           </div>
 
-          {/* Days Grid with outside days hidden as blanks */}
-          <div role="grid" className="grid grid-cols-7 gap-1">
+          {/* Days Grid */}
+          <div role="grid" className="grid grid-cols-7 gap-0.5 sm:gap-1">
             {days.map((d, i) => {
               const inMonth = d.getMonth() === viewMonth.getMonth();
 
@@ -169,7 +186,7 @@ export default function CustomDatePicker({
                     key={i}
                     role="gridcell"
                     aria-hidden="true"
-                    className="h-9 w-9 mx-auto"
+                    className="h-8 w-8 sm:h-9 sm:w-9 mx-auto"
                   />
                 );
               }
@@ -177,7 +194,7 @@ export default function CustomDatePicker({
               const selectedDay = selected && sameDay(d, selected);
               const disabled = isPast(d);
               const base =
-                "h-9 w-9 mx-auto flex items-center justify-center text-sm rounded-full transition";
+                "h-8 w-8 sm:h-9 sm:w-9 mx-auto flex items-center justify-center text-xs sm:text-sm rounded-full transition";
               const tone = selectedDay
                 ? "bg-gray-900 text-white"
                 : "text-gray-900 hover:bg-gray-100";
