@@ -15,6 +15,7 @@ const Navbar = () => {
     <nav className="sticky top-0 z-30 bg-white">
       <div className="px-10 py-6 flex justify-between items-center">
         {/* Logo + Brand */}
+        <Link to="/">
         <div className="flex items-center gap-16">
           <div className="flex items-center gap-3">
             <img
@@ -50,6 +51,8 @@ const Navbar = () => {
             ))}
           </ul>
         </div>
+        </Link>
+        
 
         {/* Buttons */}
         <div className="hidden md:flex items-center gap-5">

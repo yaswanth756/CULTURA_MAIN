@@ -149,7 +149,7 @@ const WorkShowcase = ({ items = dummyData }) => {
   }, []);
 
   return (
-    <div className="w-full max-w-8xl  px-10 py-16" id="work">
+    <div className="w-full max-w-8xl  px-10 py-20" id="work">
       {/* Header */}
       <div data-aos="fade-up" className="flex items-center justify-between mb-8">
         <div>

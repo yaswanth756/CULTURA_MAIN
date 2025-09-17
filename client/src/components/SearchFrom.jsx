@@ -111,11 +111,23 @@ const SearchForm = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    const q = `/browse?location=${encodeURIComponent(
-      formData.location
-    )}&date=${formData.date}&servicetype=${formData.eventType}`;
+  
+    const params = new URLSearchParams();
+  
+    if (formData.location) {
+      params.append("location", formData.location);
+    }
+    if (formData.date) {
+      params.append("date", formData.date);
+    }
+    if (formData.eventType) {
+      params.append("servicetype", formData.eventType);
+    }
+  
+    const q = `/browse?${params.toString()}`;
     navigate(q);
   };
+  
 
   const selectedService = services.find((s) => s.value === formData.eventType);
 

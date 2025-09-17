@@ -96,7 +96,7 @@ const Services = () => {
         }
       `}</style>
 
-      <div className="py-16 px-6 bg-gray-50 pb-28">
+      <div className="py-20 px-6 bg-gray-50 pb-28">
         <div 
           className="mb-14 space-y-2" 
           data-aos="smooth-fade-up"
