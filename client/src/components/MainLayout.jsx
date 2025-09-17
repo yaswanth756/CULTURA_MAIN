@@ -1,10 +1,17 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Navbar from './Navbar'
-const MainLayout = ({children}) => {
+import LoginModal from './LoginModel';
+
+const MainLayout = ({ children }) => {
+  const [isModelOpen, setModelOpen] = useState(false);
+
   return (
-    <div className='flex flex-col min-h-screen'>
-      <Navbar/>
+    <div className="flex flex-col min-h-screen">
+      <Navbar />
       <main className="flex-grow">{children}</main>
+
+      {/* Pass props */}
+      <LoginModal isModelOpen={isModelOpen}  setModelOpen={setModelOpen} />
     </div>
   )
 }

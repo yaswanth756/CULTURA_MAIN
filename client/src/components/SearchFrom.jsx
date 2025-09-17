@@ -21,21 +21,17 @@ import CustomDatePicker from "./CustomDatePicker";
 
 const SearchForm = () => {
   const navigate = useNavigate();
-
-  // Keep date empty so placeholder "Add dates" shows
   const { formData, setFormData } = useEventContext();
 
   const [locationSuggestions, setLocationSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [loadingLocation, setLoadingLocation] = useState(false);
-
   const [showServiceMenu, setShowServiceMenu] = useState(false);
 
   const locationRef = useRef(null);
   const serviceRef = useRef(null);
   const debounceTimer = useRef(null);
 
-  // Services for chip menu
   const services = [
     { value: "venues", label: "Venues", Icon: Building2 },
     { value: "catering", label: "Catering", Icon: Utensils },
@@ -49,7 +45,6 @@ const SearchForm = () => {
     { value: "hosts", label: "Hosts / Anchors", Icon: Mic2 },
   ];
 
-  // OpenStreetMap Nominatim search
   const fetchLocations = async (query) => {
     setLoadingLocation(true);
     try {
@@ -111,40 +106,27 @@ const SearchForm = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
-  
     const params = new URLSearchParams();
-  
-    if (formData.location) {
-      params.append("location", formData.location);
-    }
-    if (formData.date) {
-      params.append("date", formData.date);
-    }
-    if (formData.eventType) {
-      params.append("servicetype", formData.eventType);
-    }
-  
-    const q = `/browse?${params.toString()}`;
-    navigate(q);
+    if (formData.location) params.append("location", formData.location);
+    if (formData.date) params.append("date", formData.date.toISOString().split('T')[0]);
+    if (formData.eventType) params.append("servicetype", formData.eventType);
+    navigate(`/browse?${params.toString()}`);
   };
-  
 
   const selectedService = services.find((s) => s.value === formData.eventType);
 
   return (
     <form
       onSubmit={handleSearch}
-      className="bg-white rounded-full border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 p-2 max-w-6xl w-full mx-auto"
+      className="bg-white rounded-3xl md:rounded-full border border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300 p-2 max-w-6xl w-full mx-auto"
       data-aos="zoom-in"
       data-aos-duration="1200"
     >
-      <div className="flex flex-col md:flex-row md:items-center divide-y md:divide-y-0 md:divide-x divide-gray-200">
-        {/* Location (flexible) */}
+      <div className="flex flex-col md:flex-row md:items-center md:divide-x divide-gray-200">
+        {/* Location */}
         <div ref={locationRef} className="relative flex-1 min-w-0">
-          <div className="flex items-center gap-3 px-5 py-3">
+          <div className="flex items-center gap-3 px-4 py-3 md:px-5">
             <MapPin className="w-5 h-5 text-gray-500 flex-shrink-0" />
-
-            {/* Updated placeholder to reflect vendor search in area */}
             <input
               type="text"
               name="location"
@@ -152,119 +134,88 @@ const SearchForm = () => {
               value={formData.location}
               onChange={handleLocationChange}
               className="flex-1 min-w-0 bg-transparent placeholder:text-gray-400 text-gray-900 outline-none truncate"
-              autoComplete="on"
-              aria-autocomplete="list"
-              aria-expanded={showSuggestions}
-              aria-controls="location-suggestions"
+              autoComplete="off"
             />
           </div>
-
           {showSuggestions && (
-            <ul
-              id="location-suggestions"
-              role="listbox"
-              className="absolute z-20 w-[500px] bg-white border border-gray-200 rounded-3xl mt-5 max-h-64 overflow-y-auto shadow-xl px-5 py-4"
-            >
+            <ul className="absolute z-20 w-full md:w-[500px] bg-white border border-gray-200 rounded-2xl mt-2 max-h-64 overflow-y-auto shadow-xl p-2">
               {loadingLocation ? (
-                <li className="px-4 py-3 text-gray-500 text-sm">Searching...</li>
+                <li className="px-4 py-2 text-gray-500 text-sm">Searching...</li>
               ) : locationSuggestions.length > 0 ? (
                 locationSuggestions.map((s, idx) => (
                   <li
                     key={idx}
-                    role="option"
                     onClick={() => handleSelectLocation(s)}
-                    className="px-4 py-3 hover:bg-gray-100 cursor-pointer text-sm text-gray-800 rounded-xl truncate"
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm text-gray-800 rounded-lg truncate"
                     title={s.display_name}
                   >
                     {s.display_name}
                   </li>
                 ))
               ) : (
-                <li className="px-4 py-3 text-gray-500 text-sm">No results</li>
+                <li className="px-4 py-2 text-gray-500 text-sm">No results</li>
               )}
             </ul>
           )}
         </div>
 
-        {/* Date (fixed width on md+, full on mobile) */}
-        <div className="px-5 py-3 shrink-0 md:basis-[220px]">
-          <div className="w-full md:w-[200px]">
-            <CustomDatePicker
-              value={formData.date}
-              onChange={handleDateChange}
-              placeholder="Add dates"
-            />
-          </div>
+        {/* Date */}
+        <div className="shrink-0 md:basis-[220px] border-t md:border-t-0 border-gray-200">
+            <div className="px-4 py-1 md:py-3 md:w-[200px]">
+                 <CustomDatePicker
+                    value={formData.date}
+                    onChange={handleDateChange}
+                    placeholder="Add dates"
+                />
+            </div>
         </div>
 
-        {/* Service (show icon only on mobile, label truncates on md+) */}
-        <div ref={serviceRef} className="relative shrink-0 md:basis-[260px]">
-        <button
-  type="button"
-  onClick={() => setShowServiceMenu((v) => !v)}
-  className="w-full md:w-[200px] px-5 py-3 text-left overflow-hidden"
-  aria-haspopup="menu"
-  aria-expanded={showServiceMenu}
->
-  <div className="inline-flex items-center gap-3 align-middle">
-    {selectedService ? (
-      <selectedService.Icon className="w-5 h-5 text-gray-500 flex-shrink-0" />
-    ) : (
-      <PartyPopper className="w-5 h-5 text-gray-500 flex-shrink-0" />
-    )}
 
-    {/* Label */}
-    {selectedService ? (
-      <span className="hidden md:block text-gray-900 truncate max-w-[160px]">
-        {selectedService.label}
-      </span>
-    ) : (
-      <span className="hidden md:block text-gray-400 truncate max-w-[160px]">
-        Service
-      </span>
-    )}
-  </div>
-</button>
-
-
+        {/* Service */}
+        <div ref={serviceRef} className="relative shrink-0 md:basis-[260px] border-t md:border-t-0 border-gray-200">
+          <button
+            type="button"
+            onClick={() => setShowServiceMenu((v) => !v)}
+            className="w-full text-left px-4 py-3 md:px-5"
+          >
+            <div className="inline-flex items-center gap-3">
+              {selectedService ? (
+                <selectedService.Icon className="w-5 h-5 text-gray-500" />
+              ) : (
+                <PartyPopper className="w-5 h-5 text-gray-500" />
+              )}
+              <span className="text-gray-900 md:text-gray-400 truncate">
+                {selectedService ? selectedService.label : "Service"}
+              </span>
+            </div>
+          </button>
           {showServiceMenu && (
             <div
-              role="menu"
-              aria-label="Choose a service"
-              className="absolute left-1/2 -translate-x-1/2 z-30 mt-7 w-[600px] max-w-[92vw] rounded-3xl border border-gray-200 bg-white shadow-xl p-10"
+              className="absolute left-1/2 -translate-x-1/2 z-30 mt-4 w-[90vw] max-w-[600px] rounded-2xl border bg-white shadow-xl p-6 md:p-8"
             >
-              {/* Close */}
               <button
                 type="button"
                 onClick={() => setShowServiceMenu(false)}
                 className="absolute top-3 right-3 p-2 rounded-full hover:bg-gray-100"
-                aria-label="Close services menu"
               >
                 <X className="w-4 h-4 text-gray-600" />
               </button>
-
-              <ul className="flex flex-wrap gap-4" role="none">
+              <ul className="flex flex-wrap gap-3">
                 {services.map(({ value, label, Icon }) => {
                   const active = formData.eventType === value;
                   return (
-                    <li key={value} role="none">
+                    <li key={value}>
                       <button
                         type="button"
-                        role="menuitem"
                         onClick={() => handleSelectService(value)}
-                        className={[
-                          "inline-flex items-center gap-2",
-                          "rounded-full border px-5 py-3",
-                          "text-base",
+                        className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm ${
                           active
-                            ? "border-gray-900 text-gray-900"
-                            : "border-gray-300 text-gray-800 hover:border-gray-400",
-                          "transition-colors",
-                          "max-w-full"
-                        ].join(" ")}
+                            ? "border-gray-900 bg-gray-900 text-white"
+                            : "border-gray-300 text-gray-800 hover:border-gray-500"
+                        } transition-colors`}
                       >
-                        <Icon className={active ? "w-5 h-5 text-gray-900" : "w-5 h-5 text-gray-600"} />
-                        <span className="truncate max-w-[200px]" title={label}>{label}</span>
+                        <Icon className="w-4 h-4" />
+                        <span>{label}</span>
                       </button>
                     </li>
                   );
@@ -275,14 +226,13 @@ const SearchForm = () => {
         </div>
 
         {/* Submit */}
-        <div className="px-3 py-2 md:py-0 md:pl-4 md:pr-2 flex items-center justify-end">
+        <div className="p-2 md:p-0 md:pl-2">
           <button
             type="submit"
-            className="flex items-center gap-2 bg-anzac-500 hover:bg-anzac-600 text-white px-6 py-3 rounded-full transition-all duration-300 shadow-md"
+            className="w-full md:w-auto flex items-center justify-center gap-2 bg-anzac-500 hover:bg-anzac-600 text-white px-6 py-3 rounded-full transition-all duration-300 shadow-md"
           >
             <Search className="w-5 h-5" />
-            {/* Hide text on mobile, keep accessible; show from md+ */}
-            <span className="sr-only md:not-sr-only">Search</span>
+            <span className="sm:not-sr-only">Search</span>
           </button>
         </div>
       </div>
