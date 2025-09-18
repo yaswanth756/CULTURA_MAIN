@@ -9,10 +9,12 @@ export const EventProvider = ({ children }) => {
     date: "",
     eventType: "",
   });
-
+  const [isModelOpen,setModelOpen]=useState(false);
   const value = {
     formData,
     setFormData,
+    isModelOpen,
+    setModelOpen
   };
 
   return <EventContext.Provider value={value}>{children}</EventContext.Provider>;

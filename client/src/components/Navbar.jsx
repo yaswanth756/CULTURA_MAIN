@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
-
+import { useEventContext } from "../context/EventContext";
 const navLinks = [
   { path: "/browse", label: "Browse Events", type: "route" },
   { path: "/#work", label: "Work Showcase", type: "hash" },
@@ -10,7 +10,8 @@ const navLinks = [
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-
+  
+  const {setModelOpen}=useEventContext();
   return (
     <nav className="sticky top-0 z-30 bg-white">
       <div className="px-10 py-6 flex justify-between items-center">
@@ -60,7 +61,7 @@ const Navbar = () => {
             Become Host
           </button>
 
-          <button className="relative h-12 px-5 rounded-full text-anzac-500 overflow-hidden group border border-anzac-500">
+          <button className="relative h-12 px-5 rounded-full text-anzac-500 overflow-hidden group border border-anzac-500" onClick={()=>{setModelOpen(true)}}>
             <span className="relative z-10 transition-colors duration-300 group-hover:text-white">
               Sign Up
             </span>

@@ -9,7 +9,7 @@ AOS.init(); // Initialize once
 const HeroSection = () => {
   return (
     <section
-      className="relative h-[90vh] flex items-center justify-center bg-cover bg-center"
+      className="relative h-[65vh] sm:h-[75vh] md:h-[90vh] flex items-center justify-center bg-cover bg-center"
       style={{ backgroundImage: `url(${herobg})` }}
     >
       {/* Overlay */}
@@ -21,11 +21,11 @@ const HeroSection = () => {
         data-aos="fade-up"
         data-aos-duration="1000"
       >
-        <h1 className="text-4xl md:text-6xl font-bold mb-6">
+        <h1 className="text-3xl md:text-6xl font-bold mb-4">
           Find Everything for Your Event
         </h1>
-        <p className="text-lg md:text-xl mb-8">
-        Discover vendors, book instantly, celebrate endlessly.
+        <p className="text-base md:text-xl mb-6">
+          Discover vendors, book instantly, celebrate endlessly.
         </p>
 
         {/* Extracted Search Form */}
