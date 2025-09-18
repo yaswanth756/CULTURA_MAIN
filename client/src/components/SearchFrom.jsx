@@ -191,7 +191,7 @@ const SearchForm = () => {
           </button>
           {showServiceMenu && (
             <div
-              className="absolute left-1/2 -translate-x-1/2 z-30 mt-4 w-[90vw] max-w-[600px] rounded-2xl border bg-white shadow-xl p-6 md:p-8"
+              className="absolute left-[40%] -translate-x-1/2 z-30 mt-6 w-[90vw] max-w-[600px] rounded-2xl border bg-white shadow-xl p-6 md:p-8"
             >
               <button
                 type="button"

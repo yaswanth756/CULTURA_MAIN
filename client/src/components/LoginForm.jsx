@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axios from "axios";
 import {
   Mail,
   Lock,
@@ -47,20 +48,17 @@ const LoginForm = ({ setModelOpen }) => {
 
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:3000/api/auth/send-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: formData.email }),
-      });
-
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message || "Failed to send OTP");
+      const { data } = await axios.post(
+        "http://localhost:3000/api/auth/send-otp",
+        { email: formData.email },
+        { headers: { "Content-Type": "application/json" } }
+      );
 
       setIsSignup(!data.isExistingUser);
       setStep(2);
       setSuccess(data.message);
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.message || "Failed to send OTP");
     } finally {
       setLoading(false);
     }
@@ -84,19 +82,16 @@ const LoginForm = ({ setModelOpen }) => {
 
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:3000/api/auth/verify-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      const { data } = await axios.post(
+        "http://localhost:3000/api/auth/verify-otp",
+        {
           email: formData.email,
           otp: formData.otp,
           firstName: formData.name,
           phone: formData.phone,
-        }),
-      });
-
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message || "Failed to verify OTP");
+        },
+        { headers: { "Content-Type": "application/json" } }
+      );
 
       localStorage.setItem("token", data.token);
       setSuccess(data.message);
@@ -110,7 +105,7 @@ const LoginForm = ({ setModelOpen }) => {
         window.location.href = "/";
       }, 1000);
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.message || "Failed to verify OTP");
     } finally {
       setLoading(false);
     }
@@ -129,9 +124,7 @@ const LoginForm = ({ setModelOpen }) => {
         className="space-y-5"
       >
         {error && (
-          <p className="text-red-600 text-sm rounded-md">
-            {error}
-          </p>
+          <p className="text-red-600 text-sm rounded-md">{error}</p>
         )}
 
         {step === 1 ? (

@@ -1,65 +1,48 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import axios, { AxiosError } from "axios";
 
-import {jwtDecode} from "jwt-decode";
-
-const AuthContext = createContext();
-
-
+const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-    
-const login = (token) => {
-    try {
-      const decoded = jwtDecode(token);
-      localStorage.setItem("token", token);
-      setUser(decoded);
-  
+  const [isLoading, setIsLoading] = useState(true);
 
-      // Optional: Auto logout on token expiry
-      const expiresIn = decoded.exp * 1000 - Date.now();
-      setTimeout(() => {
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    
+    if (token) {
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      fetchUser();
+    } else {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const fetchUser = async () => {
+    try {
+      setIsLoading(true);
+      const response = await axios.get("http://localhost:3000/api/auth/profile");
+      setUser(response.data);
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        console.error("Error fetching user profile:", error.response?.data || error.message);
+      } else {
+        console.error("Error fetching user profile:", error);
+      }
         logout();
-      }, expiresIn);
-      
-    } catch (err) {
-      console.error("Invalid token", err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const logout = () => {
     localStorage.removeItem("token");
-    window.location.href = "/"; // Redirect to login page
     setUser(null);
+    window.location.href = "/"; // Redirect to login page
   };
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    if (token) {
-      try {
-        const decoded = jwtDecode(token);
-        const isExpired = decoded.exp < Math.floor(Date.now() / 1000);
-
-        if (isExpired) {
-          logout();
-        } else {
-          setUser(decoded);
-          console.log(decoded)
-        }
-      } catch (err) {
-        logout();
-      }
-    }
-    setTimeout(() => {
-      setLoading(false);
-    }, 1000); // Simulate loading delay
-   
-  }, []);
-
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
   );

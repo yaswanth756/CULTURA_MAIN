@@ -135,52 +135,59 @@ export const verifyOTPAndAuth = async (req, res) => {
   }
 };
 
-export const resendOTP = async (req, res) => {
-  try {
-    const { email } = req.body;
-    if (!email) {
-      return res.status(400).json({ success: false, message: 'Email is required' });
-    }
+// export const resendOTP = async (req, res) => {
+//   try {
+//     const { email } = req.body;
+//     if (!email) {
+//       return res.status(400).json({ success: false, message: 'Email is required' });
+//     }
 
-    const emailLower = email.toLowerCase();
-    const existingOTPData = otpStore.get(emailLower);
+//     const emailLower = email.toLowerCase();
+//     const existingOTPData = otpStore.get(emailLower);
 
-    // Prevent spam: allow resend only after 2 minutes
-    if (
-      existingOTPData &&
-      new Date() < new Date(existingOTPData.expiry.getTime() - 8 * 60 * 1000)
-    ) {
-      return res
-        .status(400)
-        .json({ success: false, message: 'Please wait before requesting a new OTP' });
-    }
+//     // Prevent spam: allow resend only after 2 minutes
+//     if (
+//       existingOTPData &&
+//       new Date() < new Date(existingOTPData.expiry.getTime() - 8 * 60 * 1000)
+//     ) {
+//       return res
+//         .status(400)
+//         .json({ success: false, message: 'Please wait before requesting a new OTP' });
+//     }
 
-    const existingUser = await User.findOne({ email: emailLower });
-    const isExistingUser = !!existingUser;
+//     const existingUser = await User.findOne({ email: emailLower });
+//     const isExistingUser = !!existingUser;
 
-    const otp = generateOTP();
-    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
+//     const otp = generateOTP();
+//     const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
 
-    otpStore.set(emailLower, {
-      otp,
-      expiry: otpExpiry,
-      isExistingUser,
-      attempts: 0,
-    });
+//     otpStore.set(emailLower, {
+//       otp,
+//       expiry: otpExpiry,
+//       isExistingUser,
+//       attempts: 0,
+//     });
 
-    await sendOTPEmail(email, otp, isExistingUser ? 'login' : 'signup');
+//     await sendOTPEmail(email, otp, isExistingUser ? 'login' : 'signup');
 
-    return res.status(200).json({
-      success: true,
-      message: 'New OTP sent successfully',
-      isExistingUser,
-      email: emailLower,
-    });
-  } catch (error) {
-    console.error('Resend OTP Error:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Failed to resend OTP. Please try again.',
-    });
-  }
+//     return res.status(200).json({
+//       success: true,
+//       message: 'New OTP sent successfully',
+//       isExistingUser,
+//       email: emailLower,
+//     });
+//   } catch (error) {
+//     console.error('Resend OTP Error:', error);
+//     return res.status(500).json({
+//       success: false,
+//       message: 'Failed to resend OTP. Please try again.',
+//     });
+//   }
+// };
+
+
+export const getUserProfile = async (req, res) => {
+ 
+    const user = await User.findById(req.user._id); // keep as doc, not .lean()
+    res.json(user);
 };

@@ -122,7 +122,7 @@ const Services = () => {
               data-aos-delay={index * 150}
               data-aos-duration="1000"
               data-aos-easing="ease-out-cubic"
-              className="smooth-card relative bg-gradient-to-tr from-anzac-50 via-white to-anzac-100 rounded-2xl shadow-lg overflow-hidden group"
+              className="smooth-card relative bg-gradient-to-tr from-anzac-50 via-white to-anzac-100 rounded-sm overflow-hidden group"
               style={{ '--stagger-delay': index }}
             >
               <div className="h-56 overflow-hidden">
