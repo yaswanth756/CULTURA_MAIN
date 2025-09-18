@@ -109,7 +109,7 @@ const SearchForm = () => {
     const params = new URLSearchParams();
     if (formData.location) params.append("location", formData.location);
     if (formData.date) params.append("date", formData.date.toISOString().split('T')[0]);
-    if (formData.eventType) params.append("servicetype", formData.eventType);
+    if (formData.eventType) params.append("category", formData.eventType);
     navigate(`/browse?${params.toString()}`);
   };
 

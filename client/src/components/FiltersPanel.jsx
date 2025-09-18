@@ -4,42 +4,41 @@ import { X, MapPin, Filter, Star } from "lucide-react";
 import Slider from "rc-slider";
 import "rc-slider/assets/index.css";
 
+// Popular locations (Andhra Pradesh & Telangana only)
+const popularLocations = [
+  "Hyderabad",
+  "Visakhapatnam",
+  "Vijayawada",
+  "Guntur",
+  "Kurnool",
+  "Nellore",
+  "Kadapa",
+  "Tirupati",
+  "Warangal",
+  "Nizamabad",
+  "Karimnagar",
+  "Khammam",
+  "Mahbubnagar",
+];
+
 const ratingOptions = [
   { value: 0, label: "Any Rating" },
   { value: 4, label: "4★ & above" },
   { value: 4.5, label: "4.5★ & above" },
 ];
 
-// Indian states and cities data
-const statesAndCities = {
-  "Andhra Pradesh": ["Hyderabad", "Visakhapatnam", "Vijayawada", "Guntur", "Kurnool", "Nellore", "Kadapa", "Tirupati"],
-  "Telangana": ["Hyderabad", "Warangal", "Nizamabad", "Karimnagar", "Khammam", "Mahbubnagar"],
-  "Karnataka": ["Bangalore", "Mysore", "Hubli", "Mangalore", "Belgaum", "Gulbarga", "Davanagere"],
-  "Tamil Nadu": ["Chennai", "Coimbatore", "Madurai", "Salem", "Tiruchirappalli", "Tirunelveli"],
-  "Maharashtra": ["Mumbai", "Pune", "Nagpur", "Nashik", "Aurangabad", "Solapur"],
-  "Kerala": ["Thiruvananthapuram", "Kochi", "Kozhikode", "Thrissur", "Kollam"],
-  "Gujarat": ["Ahmedabad", "Surat", "Vadodara", "Rajkot", "Bhavnagar"],
-};
-
 const FiltersPanel = ({ isOpen, onClose, onApply }) => {
   const [price, setPrice] = useState([500, 50000]);
   const [rating, setRating] = useState(0);
-  const [selectedState, setSelectedState] = useState("");
-  const [selectedCity, setSelectedCity] = useState("");
   const [location, setLocation] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const debounceTimer = useRef(null);
   const locationRef = useRef(null);
 
-  // Get cities for selected state
-  const getCitiesForState = () => {
-    return selectedState ? statesAndCities[selectedState] || [] : [];
-  };
-
-  // Fetch location suggestions from OpenStreetMap
+  // Fetch location suggestions (OpenStreetMap)
   const fetchLocations = async (query) => {
     setIsLoading(true);
     try {
@@ -49,7 +48,7 @@ const FiltersPanel = ({ isOpen, onClose, onApply }) => {
         )}&limit=5&addressdetails=1&countrycodes=in&accept-language=en-IN`
       );
       const data = await response.json();
-      
+
       const formatted = data.map((s) => {
         const { road, neighbourhood, suburb, city, town, village, state, postcode } =
           s.address || {};
@@ -57,11 +56,11 @@ const FiltersPanel = ({ isOpen, onClose, onApply }) => {
           road || neighbourhood || suburb,
           city || town || village,
           state,
-          postcode
+          postcode,
         ].filter(Boolean);
         return {
           ...s,
-          displayFormatted: displayParts.join(", ") || s.display_name
+          displayFormatted: displayParts.join(", ") || s.display_name,
         };
       });
       setSuggestions(formatted);
@@ -80,10 +79,7 @@ const FiltersPanel = ({ isOpen, onClose, onApply }) => {
     setLocation(value);
     if (debounceTimer.current) clearTimeout(debounceTimer.current);
     if (value.trim().length > 2) {
-      debounceTimer.current = setTimeout(
-        () => fetchLocations(value.trim()),
-        300
-      );
+      debounceTimer.current = setTimeout(() => fetchLocations(value.trim()), 300);
     } else {
       setShowSuggestions(false);
       setSuggestions([]);
@@ -96,23 +92,8 @@ const FiltersPanel = ({ isOpen, onClose, onApply }) => {
     setSuggestions([]);
   };
 
-  const handleStateChange = (e) => {
-    const state = e.target.value;
-    setSelectedState(state);
-    setSelectedCity(""); // Reset city when state changes
-    if (state) {
-      setLocation(state);
-    }
-  };
-
-  const handleCityChange = (e) => {
-    const city = e.target.value;
-    setSelectedCity(city);
-    if (city && selectedState) {
-      setLocation(`${city}, ${selectedState}`);
-    } else if (selectedState) {
-      setLocation(selectedState);
-    }
+  const handlePopularSelect = (e) => {
+    setLocation(e.target.value);
   };
 
   useEffect(() => {
@@ -126,24 +107,12 @@ const FiltersPanel = ({ isOpen, onClose, onApply }) => {
   }, []);
 
   const handleApply = () => {
-    const finalLocation = selectedCity && selectedState 
-      ? `${selectedCity}, ${selectedState}` 
-      : selectedState || location;
-      
-    onApply({ 
-      location: finalLocation, 
-      price, 
-      rating,
-      state: selectedState,
-      city: selectedCity
-    });
+    onApply({ location, price, rating });
     onClose();
   };
 
   const clearFilters = () => {
     setLocation("");
-    setSelectedState("");
-    setSelectedCity("");
     setPrice([500, 50000]);
     setRating(0);
   };
@@ -154,7 +123,7 @@ const FiltersPanel = ({ isOpen, onClose, onApply }) => {
     <>
       {/* Backdrop */}
       <div className="fixed inset-0 bg-black/40 z-40" onClick={onClose} />
-      
+
       {/* Panel */}
       <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-white rounded-3xl shadow-lg z-50 overflow-hidden">
         {/* Header */}
@@ -179,70 +148,53 @@ const FiltersPanel = ({ isOpen, onClose, onApply }) => {
               <MapPin className="w-4 h-4 text-anzac-600" />
               Location
             </h3>
-            
-            {/* State Selection */}
-            <div className="space-y-3">
-              <select
-                value={selectedState}
-                onChange={handleStateChange}
+
+            {/* Popular Locations */}
+            <select
+              value={location}
+              onChange={handlePopularSelect}
+              className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm mb-3
+                         focus:border-anzac-500 focus:ring-2 focus:ring-anzac-100 outline-none"
+            >
+              <option value="">Select Popular Location</option>
+              {popularLocations.map((loc) => (
+                <option key={loc} value={loc}>
+                  {loc}
+                </option>
+              ))}
+            </select>
+
+            {/* OR custom search input */}
+            <div className="text-center text-xs text-gray-400 mb-2">OR</div>
+            <div ref={locationRef} className="relative">
+              <input
+                type="text"
+                value={location}
+                onChange={handleLocationChange}
+                placeholder="Enter specific location..."
                 className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm
                            focus:border-anzac-500 focus:ring-2 focus:ring-anzac-100 outline-none"
-              >
-                <option value="">Select State</option>
-                {Object.keys(statesAndCities).map((state) => (
-                  <option key={state} value={state}>{state}</option>
-                ))}
-              </select>
-
-              {/* City Selection */}
-              {selectedState && (
-                <select
-                  value={selectedCity}
-                  onChange={handleCityChange}
-                  className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm
-                             focus:border-anzac-500 focus:ring-2 focus:ring-anzac-100 outline-none"
-                >
-                  <option value="">Select City (Optional)</option>
-                  {getCitiesForState().map((city) => (
-                    <option key={city} value={city}>{city}</option>
-                  ))}
-                </select>
+              />
+              {isLoading && (
+                <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                  <div className="animate-spin h-4 w-4 border-2 border-anzac-500 border-t-transparent rounded-full"></div>
+                </div>
               )}
-            </div>
 
-            {/* OR custom location input */}
-            <div className="mt-3">
-              <div className="text-center text-xs text-gray-400 mb-2">OR</div>
-              <div ref={locationRef} className="relative">
-                <input
-                  type="text"
-                  value={location}
-                  onChange={handleLocationChange}
-                  placeholder="Enter specific location..."
-                  className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm
-                             focus:border-anzac-500 focus:ring-2 focus:ring-anzac-100 outline-none"
-                />
-                {isLoading && (
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                    <div className="animate-spin h-4 w-4 border-2 border-anzac-500 border-t-transparent rounded-full"></div>
-                  </div>
-                )}
-                
-                {showSuggestions && suggestions.length > 0 && (
-                  <div className="absolute z-50 mt-1 w-full bg-white rounded-lg border shadow-lg max-h-40 overflow-y-auto">
-                    {suggestions.map((s) => (
-                      <div
-                        key={s.place_id}
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => handleSuggestionClick(s)}
-                        className="px-3 py-2 cursor-pointer hover:bg-anzac-50 text-sm border-b border-gray-100 last:border-b-0"
-                      >
-                        {s.displayFormatted}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+              {showSuggestions && suggestions.length > 0 && (
+                <div className="absolute z-50 mt-1 w-full bg-white rounded-lg border shadow-lg max-h-40 overflow-y-auto">
+                  {suggestions.map((s) => (
+                    <div
+                      key={s.place_id}
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => handleSuggestionClick(s)}
+                      className="px-3 py-2 cursor-pointer hover:bg-anzac-50 text-sm border-b border-gray-100 last:border-b-0"
+                    >
+                      {s.displayFormatted}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 

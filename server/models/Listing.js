@@ -47,7 +47,7 @@ const listingSchema = new mongoose.Schema({
     },
     type: {
       type: String,
-      enum: ['fixed', 'per_person', 'per_event'],
+      enum: ['fixed', 'per_person', 'per_event','per_day','per_hour'],
       default: 'fixed'
     },
     currency: {
@@ -109,15 +109,19 @@ listingSchema.index({ vendorId: 1, status: 1 });
 
 // Text search index for search filter
 listingSchema.index({
-  title: 'text',
-  description: 'text',
-  tags: 'text'
-}, {
-  weights: {
-    title: 10,
-    tags: 5,
-    description: 1
-  }
-});
+    title: 'text',
+    description: 'text',
+    tags: 'text',
+    serviceAreas: 'text',  // ✅ ADDED!
+    subcategory: 'text'    // ✅ BONUS!
+  }, {
+    weights: {
+      title: 10,
+      serviceAreas: 8,       // High weight for locations
+      tags: 5,
+      subcategory: 3,
+      description: 1
+    }
+  });
 
 export default mongoose.model('Listing', listingSchema);

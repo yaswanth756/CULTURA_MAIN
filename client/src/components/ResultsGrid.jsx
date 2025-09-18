@@ -1,26 +1,30 @@
 /* src/components/ResultsGrid.jsx */
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
+import axios from 'axios';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import SearchComponent from "./SearchComponent";
 import ResultsComponent from "./ResultsComponent";
 import FiltersPanel from "./FiltersPanel";
 import { updateSearchParams } from "../utils/updateSearchParams";
-import { generateVendorDataByCategory } from '../utils/generateVendorDataByCategory';
 import LoadingDots from "./LoadingDots";
+
+const API_BASE = import.meta.env.VITE_BACKEND_API || 'http://localhost:3000/api';
+const ITEMS_PER_PAGE = 9; // Load 9 items per page
 
 const ResultsGrid = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
 
   // Initialize AOS
   useEffect(() => {
     AOS.init({
       duration: 800,
       easing: 'ease-out-cubic',
-      once: true, // Animation happens only once
-      offset: 100, // Trigger animation 100px before element comes into view
+      once: true,
+      offset: 100,
       delay: 100
     });
   }, []);
@@ -40,57 +44,92 @@ const ResultsGrid = () => {
   // Local UI state
   const [showFilters, setShowFilters] = useState(false);
   const [favorites, setFavorites] = useState(new Set());
-  const [vendorsByCategory] = useState(generateVendorDataByCategory());
   const [displayedVendors, setDisplayedVendors] = useState([]);
+  const [pagination, setPagination] = useState(null);
+  const [error, setError] = useState(null);
 
-  // Dummy data filtering logic
-  useEffect(() => {
-    setLoading(true); 
-    let result = [];
-    const activeCategory = filtersFromUrl.category;
-    
-    if (activeCategory === 'all') {
-      Object.keys(vendorsByCategory).forEach(category => {
-        const categoryVendors = vendorsByCategory[category] || [];
-        result = [...result, ...categoryVendors];
-      });
+  // Fetch listings from backend API
+  const fetchListings = async (pageNum = 1, append = false) => {
+    if (pageNum === 1) {
+      setLoading(true);
     } else {
-      result = vendorsByCategory[activeCategory] || [];
+      setLoadingMore(true);
     }
     
-    const applyDummyFilters = (vendors) => {
-      let filtered = vendors;
-      if (filtersFromUrl.search) {
-        filtered = filtered.filter(v => v.name.toLowerCase().includes(filtersFromUrl.search.toLowerCase()));
-      }
-      if (filtersFromUrl.location) {
-        filtered = filtered.filter(v => v.location.toLowerCase().includes(filtersFromUrl.location.toLowerCase()));
-      }
-      if (filtersFromUrl.vendor) {
-        filtered = filtered.filter(v => v.name.toLowerCase().includes(filtersFromUrl.vendor.toLowerCase()));
-      }
-      if (filtersFromUrl.priceMin) {
-        filtered = filtered.filter(v => v.price >= parseInt(filtersFromUrl.priceMin));
-      }
-      if (filtersFromUrl.priceMax) {
-        filtered = filtered.filter(v => v.price <= parseInt(filtersFromUrl.priceMax));
-      }
-      if (filtersFromUrl.rating) {
-        filtered = filtered.filter(v => parseFloat(v.rating) >= parseFloat(filtersFromUrl.rating));
-      }
-      return filtered;
-    };
-    
-    result = applyDummyFilters(result);
-    setTimeout(() => {
-      setDisplayedVendors(result);
-      setLoading(false);
-      // Refresh AOS when new content loads
-      AOS.refresh();
-    }, 300); // Reduced from 8000ms to 300ms for better UX
-  }, [searchParams, vendorsByCategory]);
+    setError(null);
 
-  // Handlers (keeping your existing handlers unchanged)
+    try {
+      const params = {
+        q: filtersFromUrl.search || undefined,
+        category: filtersFromUrl.category !== 'all' ? filtersFromUrl.category : undefined,
+        location: filtersFromUrl.location || undefined,
+        vendor: filtersFromUrl.vendor || undefined,
+        priceMin: filtersFromUrl.priceMin || undefined,
+        priceMax: filtersFromUrl.priceMax || undefined,
+        rating: filtersFromUrl.rating || undefined,
+        page: pageNum,
+        limit: ITEMS_PER_PAGE,
+        sortBy: 'newest'
+      };
+
+      // Remove undefined params
+      Object.keys(params).forEach(key => {
+        if (params[key] === undefined) {
+          delete params[key];
+        }
+      });
+
+      const response = await axios.get(`${API_BASE}/listings`, { params });
+
+      if (response.data.success) {
+        const newVendors = response.data.data;
+        console.log(newVendors);
+        
+        if (append && pageNum > 1) {
+          // Append to existing vendors for Load More
+          setDisplayedVendors(prev => [...prev, ...newVendors]);
+        } else {
+          // Replace vendors for new search/filter
+          setDisplayedVendors(newVendors);
+        }
+        
+        setPagination(response.data.pagination);
+      } else {
+        setError('Failed to fetch listings');
+      }
+    } catch (err) {
+      console.error('API Error:', err);
+      setError('Failed to connect to server');
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+      // Refresh AOS when new content loads
+      setTimeout(() => AOS.refresh(), 100);
+    }
+  };
+
+  // Initial load and when filters change
+  useEffect(() => {
+    fetchListings(1, false);
+  }, [
+    filtersFromUrl.search,
+    filtersFromUrl.category,
+    filtersFromUrl.location,
+    filtersFromUrl.vendor,
+    filtersFromUrl.priceMin,
+    filtersFromUrl.priceMax,
+    filtersFromUrl.rating
+  ]);
+
+  // Load More functionality
+  const handleLoadMore = () => {
+    if (pagination && pagination.hasNextPage && !loadingMore) {
+      const nextPage = pagination.currentPage + 1;
+      fetchListings(nextPage, true);
+    }
+  };
+
+  // Event handlers
   const handleSearchChange = (e) => {
     const newSearch = e.target.value;
     const newParams = updateSearchParams(searchParams, { q: newSearch, page: 1 });
@@ -139,7 +178,7 @@ const ResultsGrid = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Search Component with fade-down animation */}
+      {/* Search Component */}
       <div data-aos="fade-down" data-aos-duration="600">
         <SearchComponent
           filtersFromUrl={filtersFromUrl}
@@ -151,10 +190,23 @@ const ResultsGrid = () => {
         />
       </div>
       
-      {/* Results Component with staggered animations */}
+      {/* Results Component */}
       {loading ? (
         <div data-aos="fade-in">
           <LoadingDots />
+        </div>
+      ) : error ? (
+        <div className="max-w-6xl mx-auto px-4 py-12 text-center" data-aos="fade-up">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+            <h3 className="text-lg font-medium text-red-800 mb-2">Error Loading Results</h3>
+            <p className="text-red-600 mb-4">{error}</p>
+            <button 
+              onClick={() => fetchListings(1, false)}
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+            >
+              Try Again
+            </button>
+          </div>
         </div>
       ) : (
         <div data-aos="fade-up" data-aos-duration="800" data-aos-delay="200">
@@ -163,25 +215,68 @@ const ResultsGrid = () => {
             displayedVendors={displayedVendors}
             favorites={favorites}
             onToggleFavorite={toggleFavorite}
+            pagination={pagination}
           />
+          
+          {/* Load More Button */}
+          {pagination && pagination.hasNextPage && (
+            <div className="max-w-6xl mx-auto px-4 py-8 text-center" data-aos="fade-up">
+              <button
+                onClick={handleLoadMore}
+                disabled={loadingMore}
+                className="inline-flex items-center px-8 py-3 bg-anzac-600 hover:bg-anzac-700 
+                           disabled:bg-anzac-400 disabled:cursor-not-allowed text-white font-semibold 
+                           rounded-full transition-all duration-200 shadow-lg hover:shadow-xl 
+                           transform hover:-translate-y-0.5 disabled:transform-none"
+              >
+                {loadingMore ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Loading More...
+                  </>
+                ) : (
+                  <>
+                    Load More 
+                    <span className="ml-2 bg-anzac-500 text-anzac-100 px-2 py-1 rounded-full text-sm">
+                      +{getRemainingCount()}
+                    </span>
+                  </>
+                )}
+              </button>
+              
+              {/* Show progress indicator */}
+              <div className="mt-4 text-sm text-gray-500">
+                Showing {displayedVendors.length} of {pagination.totalCount} results
+              </div>
+            </div>
+          )}
         </div>
       )}
 
-      {/* Filters Panel with slide animation */}
-    
-        <FiltersPanel
-          isOpen={showFilters}
-          onClose={() => setShowFilters(false)}
-          onApply={handleFiltersApply}
-          initialFilters={{
-            price: (filtersFromUrl.priceMin && filtersFromUrl.priceMax) ? [parseInt(filtersFromUrl.priceMin), parseInt(filtersFromUrl.priceMax)] : null,
-            rating: filtersFromUrl.rating ? parseFloat(filtersFromUrl.rating) : null,
-            location: filtersFromUrl.location
-          }}
-        />
-      </div>
-
+      {/* Filters Panel */}
+      <FiltersPanel
+        isOpen={showFilters}
+        onClose={() => setShowFilters(false)}
+        onApply={handleFiltersApply}
+        initialFilters={{
+          price: (filtersFromUrl.priceMin && filtersFromUrl.priceMax) 
+            ? [parseInt(filtersFromUrl.priceMin), parseInt(filtersFromUrl.priceMax)] 
+            : null,
+          rating: filtersFromUrl.rating ? parseFloat(filtersFromUrl.rating) : null,
+          location: filtersFromUrl.location
+        }}
+      />
+    </div>
   );
+
+  // Helper function to calculate remaining items
+  function getRemainingCount() {
+    if (!pagination) return 0;
+    return Math.min(ITEMS_PER_PAGE, pagination.totalCount - displayedVendors.length);
+  }
 };
 
 export default ResultsGrid;

@@ -57,13 +57,16 @@ export const getListings = async (req, res) => {
     }
     
     // Text search
-    if (search) {
-      filter.$or = [
-        { title: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } },
-        { tags: { $regex: search, $options: 'i' } }
-      ];
-    }
+    // In controllers/listing.controller.js - UPDATE THIS SECTION:
+        if (search && search.trim()) {
+            filter.$or = [
+            { title: { $regex: search.trim(), $options: 'i' } },
+            { description: { $regex: search.trim(), $options: 'i' } },
+            { tags: { $regex: search.trim(), $options: 'i' } },
+            { serviceAreas: { $elemMatch: { $regex: search.trim(), $options: 'i' } } }, // ✅ ADD THIS LINE
+            { subcategory: { $regex: search.trim(), $options: 'i' } } // ✅ ADD THIS LINE
+            ];
+        }
 
     // Sorting
     let sortOption = { createdAt: -1 }; // default newest
