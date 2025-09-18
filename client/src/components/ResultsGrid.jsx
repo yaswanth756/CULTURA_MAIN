@@ -13,6 +13,13 @@ import LoadingDots from "./LoadingDots";
 const API_BASE = import.meta.env.VITE_BACKEND_API || 'http://localhost:3000/api';
 const ITEMS_PER_PAGE = 9; // Load 9 items per page
 
+// Popular cities for location selection
+const popularCitiesApTs = [
+  'Tirupati', 'Hyderabad', 'Visakhapatnam', 'Vijayawada', 
+  'Guntur', 'Nellore', 'Kurnool', 'Rajahmundry', 
+  'Kakinada', 'Anantapur', 'Chittoor', 'Warangal'
+];
+
 const ResultsGrid = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
@@ -141,6 +148,12 @@ const ResultsGrid = () => {
     setSearchParams(newParams);
   };
 
+  // Location selection handler
+  const handleLocationSelect = (location) => {
+    const newParams = updateSearchParams(searchParams, { location: location, page: 1 });
+    setSearchParams(newParams);
+  };
+
   const handleFiltersApply = (applied) => {
     const newFilters = {
       priceMin: applied.price ? applied.price[0] : null,
@@ -177,7 +190,20 @@ const ResultsGrid = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-100">
+      {/* Location Selector */}
+      <div className="flex py-2 px-7 gap-4 overflow-x-auto justify-between">
+        {popularCitiesApTs.map((city) => (
+          <button
+            key={city}
+            onClick={() => handleLocationSelect(city)}
+            className={`text-[15px] whitespace-nowrap px-3 py-1  hover:text-anzac-500 duration-200 transition-all`}
+          >
+            {city}
+          </button>
+        ))}
+      </div>
+
       {/* Search Component */}
       <div data-aos="fade-down" data-aos-duration="600">
         <SearchComponent
@@ -224,9 +250,9 @@ const ResultsGrid = () => {
               <button
                 onClick={handleLoadMore}
                 disabled={loadingMore}
-                className="inline-flex items-center px-8 py-3 bg-anzac-600 hover:bg-anzac-700 
+                className="inline-flex items-center px-3 py-2 bg-anzac-600 hover:bg-anzac-700 
                            disabled:bg-anzac-400 disabled:cursor-not-allowed text-white font-semibold 
-                           rounded-full transition-all duration-200 shadow-lg hover:shadow-xl 
+                           rounded-md transition-all duration-200 shadow-lg hover:shadow-xl 
                            transform hover:-translate-y-0.5 disabled:transform-none"
               >
                 {loadingMore ? (

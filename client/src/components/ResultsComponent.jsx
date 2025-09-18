@@ -1,8 +1,15 @@
 /* src/components/ResultsComponent.jsx */
 import React from "react";
 import { Search, Star, Heart, MapPin, Camera } from "lucide-react";
+const priceTypeLabels = {
+  fixed: "",
+  per_person: "/ person",
+  per_event: "/ event",
+  per_day: "/ day",
+  per_hour: "/ hour",
+};
 
-// Categories mapping
+
 const categories = [
   { value: "all", label: "All Services" },
   { value: "venues", label: "Venues" },
@@ -19,8 +26,8 @@ const categories = [
 
 const ResultsComponent = ({
   filtersFromUrl,
-  displayedVendors, // pass the array you shared here
-  favorites,
+  displayedVendors,
+  favorites = [],
   onToggleFavorite,
   pagination,
 }) => {
@@ -32,6 +39,8 @@ const ResultsComponent = ({
     }
     return "All Services";
   };
+
+  const isFavorited = (id) => Array.isArray(favorites) && favorites.includes(id);
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
@@ -62,103 +71,144 @@ const ResultsComponent = ({
         </div>
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {displayedVendors.map((vendor, index) => (
-            <div
-              key={vendor._id}
-              className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden cursor-pointer group"
-              data-aos="fade-up"
-              data-aos-delay={index * 50}
-            >
-              {/* Image Section */}
-              <div className="relative h-48 bg-gray-100">
-  {vendor.images && vendor.images.length > 0 ? (
-    <img
-      src={vendor.images[0]}
-      alt={vendor.title}
-      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-      onError={(e) => {
-        e.target.style.display = "none"; // hide broken image
-        const fallback = e.target.nextSibling;
-        if (fallback) fallback.style.display = "flex"; // show fallback
-      }}
-    />
-  ) : null}
+          {displayedVendors.map((vendor, index) => {
+            const fav = isFavorited(vendor._id);
+            const priceLabel =
+              vendor.formattedPrice ||
+              `₹${vendor.price?.base?.toLocaleString("en-IN") || "0"}`;
+            return (
+              <div
+                key={vendor._id}
+                className="group bg-white rounded-2xl ring-1 ring-gray-200 shadow-sm hover:shadow-md hover:ring-anzac-200 transition-all duration-300 overflow-hidden cursor-pointer"
+                data-aos="fade-up"
+                data-aos-delay={index * 50}
+              >
+                {/* Media */}
+                <div className="relative h-48 bg-gray-100 overflow-hidden">
+                  {/* Favorite Heart */}
+                  <button
+                    type="button"
+                    aria-label={fav ? "Remove from favorites" : "Add to favorites"}
+                    aria-pressed={fav}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onToggleFavorite && onToggleFavorite(vendor._id);
+                    }}
+                    className="absolute top-2 right-2 z-10 inline-flex items-center justify-center p-2 rounded-full
+                               bg-white/85 border border-white/70 shadow-sm backdrop-blur-sm
+                               text-gray-700 hover:text-rose-600 hover:scale-105 transition"
+                  >
+                    <Heart
+                      className={`w-5 h-5 ${fav ? "text-rose-600" : ""}`}
+                      fill={fav ? "currentColor" : "none"}
+                      stroke="currentColor"
+                    />
+                  </button>
 
-  {/* Fallback placeholder */}
-  <div
-    className="absolute inset-0 bg-gray-100 items-center justify-center flex"
-    style={{ display: vendor.images && vendor.images.length > 0 ? "none" : "flex" }}
-  >
-    <Camera className="w-10 h-10 text-gray-400" />
-  </div>
-</div>
+                  {/* Image */}
+                  {vendor.images && vendor.images.length > 0 ? (
+                    <img
+                      src={vendor.images[0]}
+                      alt={vendor.title || "Service image"}
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      loading="lazy"
+                      decoding="async"
+                      onError={(e) => {
+                        e.currentTarget.style.display = "none";
+                        const fallback = e.currentTarget.nextSibling;
+                        if (fallback) fallback.style.display = "flex";
+                      }}
+                    />
+                  ) : null}
 
-
-              {/* Content Section */}
-              <div className="p-4">
-                <h3 className="font-semibold text-gray-800 text-lg mb-1 group-hover:text-anzac-600 transition-colors">
-                  {vendor.title}
-                </h3>
-
-                <p className="text-sm text-gray-600 line-clamp-2 mb-3">{vendor.description}</p>
-
-                {vendor.vendorName && (
-                  <div className="text-xs text-gray-500 mb-2">
-                    By {vendor.vendorName}
-                    {vendor.vendorVerified && <span className="ml-1 text-green-600">✓</span>}
+                  {/* Fallback */}
+                  <div
+                    className="absolute inset-0 bg-gray-100 items-center justify-center flex"
+                    style={{ display: vendor.images && vendor.images.length > 0 ? "none" : "flex" }}
+                  >
+                    <Camera className="w-10 h-10 text-gray-400" />
                   </div>
-                )}
 
-                <div className="flex items-center text-sm text-gray-500 gap-1 mb-3">
-                  <MapPin className="w-4 h-4" />
-                  <span className="truncate">
-                    {vendor.serviceAreas && vendor.serviceAreas.length > 0
-                      ? vendor.serviceAreas.slice(0, 2).join(", ") +
-                        (vendor.serviceAreas.length > 2 ? "..." : "")
-                      : "Multiple locations"}
-                  </span>
+                  {/* Bottom Gradient + Price Badge */}
+                  <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/40 to-transparent" />
+                  <div className="absolute left-2 bottom-2 z-10">
+                    <span className="inline-flex items-center px-2.5 py-1 font-medium rounded-full text-sm  bg-white  text-black ring-1 ">
+                      From <span className="text-gray-800 pl-2">{priceLabel} {priceTypeLabels[vendor?.price?.type]}</span>
+                    </span>
+                  </div>
                 </div>
 
-                <div className="flex items-center justify-between">
-                  <div className="flex flex-col">
-                    <span className="text-anzac-600 font-bold text-lg">
-                      {vendor.formattedPrice || `₹${vendor.price?.base?.toLocaleString("en-IN") || "0"}`}
+                {/* Content */}
+                {/* Content */}
+              <div className="p-4 space-y-3">
+                {/* Title + Rating */}
+                <div className="flex items-start justify-between gap-3">
+                  <h3 className="font-semibold text-gray-900 text-lg sm:text-xl leading-snug line-clamp-1">
+                    {vendor.title}
+                  </h3>
+                  <div className="shrink-0 flex items-center gap-1.5 text-sm bg-white border rounded-full px-3 py-1 shadow-sm">
+                    <Star className="w-4 h-4 text-anzac-500" />
+                    <span className="font-medium text-gray-900">
+                      {vendor.ratings?.average?.toFixed(1) || "0.0"}
                     </span>
-                    {vendor.price?.type && vendor.price.type !== "fixed" && (
-                      <span className="text-xs text-gray-500">
-                        {vendor.price.type === "per_person"
-                          ? "per person"
-                          : vendor.price.type === "per_event"
-                          ? "per event"
-                          : vendor.price.type}
+                    <span className="text-gray-500">({vendor.ratings?.count || 0})</span>
+                  </div>
+                </div>
+
+                {/* Vendor */}
+                {vendor.vendorName && (
+                  <div className="text-sm text-gray-600 flex items-center gap-1 py-2">
+                    <span>By {vendor.vendorName}</span>
+                    {vendor.vendorVerified && (
+                      <span className="ml-1 inline-flex items-center text-green-600 text-xs font-medium">
+                        ✓ Verified
                       </span>
                     )}
                   </div>
+                )}
 
-                  <div className="flex items-center gap-1 text-sm bg-gradient-to-r from-anzac-50 to-anzac-100 px-3 py-1.5 rounded-full">
-                    <Star className="w-4 h-4 text-anzac-500 fill-anzac-500" />
-                    <span className="font-medium text-anzac-700">
-                      {vendor.ratings?.average?.toFixed(1) || "0.0"}
-                    </span>
-                    <span className="text-anzac-500">({vendor.ratings?.count || 0})</span>
+                {/* Locations */}
+                <div>
+                  <div className="text-xs font-medium text-gray-500 mb-1 flex items-center gap-1">
+                    <MapPin className="w-4 h-4 text-gray-400" />
+                    <span>Available at</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {(vendor.serviceAreas && vendor.serviceAreas.length > 0
+                      ? vendor.serviceAreas
+                      : ["Multiple locations"]
+                    ).map((loc, i) => (
+                      <span
+                        key={i}
+                        className="px-3 py-1 rounded-full text-xs font-medium bg-gray-50 text-gray-700 border"
+                      >
+                        {loc}
+                      </span>
+                    ))}
                   </div>
                 </div>
 
-                <div className="mt-3">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                {/* Footer chips */}
+                <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-anzac-50 text-anzac-700">
                     {vendor.category}
                   </span>
+                  <button className="text-sm text-anzac-700 hover:text-anzac-800 font-medium transition">
+                    View details →
+                  </button>
                 </div>
               </div>
-            </div>
-          ))}
+
+              </div>
+            );
+          })}
         </div>
       )}
 
       <style jsx>{`
-        .line-clamp-2 {
+        .line-clamp-1 {
           display: -webkit-box;
-          -webkit-line-clamp: 2;
+          -webkit-line-clamp: 1;
           -webkit-box-orient: vertical;
           overflow: hidden;
         }

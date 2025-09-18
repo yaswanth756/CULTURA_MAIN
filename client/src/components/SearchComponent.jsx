@@ -154,7 +154,7 @@ const SearchComponent = ({
               <span className="text-sm font-medium text-gray-700">Active filters:</span>
               
               {filtersFromUrl.search && (
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-anzac-100 text-anzac-800 rounded-full text-sm font-medium">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-anzac-100 text-anzac-800 rounded-lg text-sm font-medium">
                   <Search className="w-3 h-3" />
                   <span>"{filtersFromUrl.search}"</span>
                   <button onClick={() => onClearSingleFilter('q')} className="ml-1 p-0.5 rounded-full hover:bg-anzac-200">
@@ -164,7 +164,7 @@ const SearchComponent = ({
               )}
 
               {filtersFromUrl.location && (
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-anzac-100 text-anzac-800 rounded-full text-sm font-medium">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-anzac-50 text-anzac-800 rounded-lg text-sm font-medium">
                   <MapPin className="w-3 h-3" />
                   <span>{filtersFromUrl.location}</span>
                   <button onClick={() => onClearSingleFilter('location')} className="ml-1 p-0.5 rounded-full hover:bg-anzac-200">
@@ -174,7 +174,7 @@ const SearchComponent = ({
               )}
 
               {filtersFromUrl.vendor && (
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-anzac-100 text-anzac-800 rounded-full text-sm font-medium">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-anzac-50 text-anzac-800 rounded-lg text-sm font-medium">
                   <User className="w-3 h-3" />
                   <span>{filtersFromUrl.vendor}</span>
                   <button onClick={() => onClearSingleFilter('vendor')} className="ml-1 p-0.5 rounded-full hover:bg-anzac-200">
@@ -184,7 +184,7 @@ const SearchComponent = ({
               )}
 
               {filtersFromUrl.priceMin && (
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-anzac-100 text-anzac-800 rounded-full text-sm font-medium">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-anzac-50 text-anzac-800 rounded-lg text-sm font-medium">
                   <IndianRupee className="w-3 h-3" />
                   <span>₹{parseInt(filtersFromUrl.priceMin).toLocaleString()} - ₹{parseInt(filtersFromUrl.priceMax).toLocaleString()}</span>
                   <button onClick={() => onClearSingleFilter('price')} className="ml-1 p-0.5 rounded-full hover:bg-anzac-200">
@@ -194,7 +194,7 @@ const SearchComponent = ({
               )}
 
               {filtersFromUrl.rating && (
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-anzac-100 text-anzac-800 rounded-full text-sm font-medium">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-anzac-50 text-anzac-800 rounded-lg text-sm font-medium">
                   <Star className="w-3 h-3" />
                   <span>{filtersFromUrl.rating}+ rating</span>
                   <button onClick={() => onClearSingleFilter('rating')} className="ml-1 p-0.5 rounded-full hover:bg-anzac-200">
@@ -205,7 +205,7 @@ const SearchComponent = ({
 
               <button
                 onClick={onClearAll}
-                className="inline-flex items-center gap-1 px-3 py-1.5 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-full text-sm font-medium transition-colors"
+                className="inline-flex items-center gap-1 px-3 py-1.5 text-gray-600 hover:text-gray-900  rounded-full text-sm  transition-colors"
               >
                 <RotateCcw className="w-3 h-3" />
                 Clear all

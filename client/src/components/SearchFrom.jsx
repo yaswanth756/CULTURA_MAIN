@@ -108,7 +108,7 @@ const SearchForm = () => {
     e.preventDefault();
     const params = new URLSearchParams();
     if (formData.location) params.append("location", formData.location);
-    if (formData.date) params.append("date", formData.date.toISOString().split('T')[0]);
+    if (formData.date) params.append("date", formData.date);
     if (formData.eventType) params.append("category", formData.eventType);
     navigate(`/browse?${params.toString()}`);
   };
@@ -161,18 +161,20 @@ const SearchForm = () => {
 
         {/* Date */}
         <div className="shrink-0 md:basis-[220px] border-t md:border-t-0 border-gray-200">
-            <div className="px-4 py-1 md:py-3 md:w-[200px]">
-                 <CustomDatePicker
-                    value={formData.date}
-                    onChange={handleDateChange}
-                    placeholder="Add dates"
-                />
-            </div>
+          <div className="px-4 py-1 md:py-3 md:w-[200px]">
+            <CustomDatePicker
+              value={formData.date}
+              onChange={handleDateChange}
+              placeholder="Add dates"
+            />
+          </div>
         </div>
 
-
         {/* Service */}
-        <div ref={serviceRef} className="relative shrink-0 md:basis-[260px] border-t md:border-t-0 border-gray-200">
+        <div
+          ref={serviceRef}
+          className="relative shrink-0 md:basis-[200px] border-t md:border-t-0 border-gray-200"
+        >
           <button
             type="button"
             onClick={() => setShowServiceMenu((v) => !v)}
@@ -182,17 +184,19 @@ const SearchForm = () => {
               {selectedService ? (
                 <selectedService.Icon className="w-5 h-5 text-gray-500" />
               ) : (
-                <PartyPopper className="w-5 h-5 text-gray-500" />
+                <PartyPopper className="w-5 h-5 text-gray-400" />
               )}
-              <span className="text-gray-900 md:text-gray-400 truncate">
+              <span
+                className={`truncate ${
+                  selectedService ? "text-gray-900" : "text-gray-400"
+                }`}
+              >
                 {selectedService ? selectedService.label : "Service"}
               </span>
             </div>
           </button>
           {showServiceMenu && (
-            <div
-              className="absolute left-[40%] -translate-x-1/2 z-30 mt-6 w-[90vw] max-w-[600px] rounded-2xl border bg-white shadow-xl p-6 md:p-8"
-            >
+            <div className="absolute left-[40%] -translate-x-1/2 z-30 mt-6 w-[90vw] max-w-[600px] rounded-2xl border bg-white shadow-xl p-6 md:p-8">
               <button
                 type="button"
                 onClick={() => setShowServiceMenu(false)}
