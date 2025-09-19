@@ -2,7 +2,10 @@ import express from "express";
 import {
   sendOTP,
   verifyOTPAndAuth,
-  getUserProfile
+  getUserProfile,
+  getUserFavorites,
+  toggleFavorites
+  
 } from "../controllers/auth.controller.js";
 import { authenticate,allowRoles } from "../middleware/auth.middleware.js";
 
@@ -18,5 +21,9 @@ router.post("/verify-otp", verifyOTPAndAuth);
 //router.post("/resend-otp", resendOTP);
 
 router.get("/profile", authenticate, allowRoles("customer"), getUserProfile);
+
+router.get("/getuserfav",authenticate, getUserFavorites);
+
+router.post("/favoritetoggle",authenticate,toggleFavorites);
 
 export default router;

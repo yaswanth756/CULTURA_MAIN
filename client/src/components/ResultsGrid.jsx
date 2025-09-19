@@ -9,6 +9,8 @@ import ResultsComponent from "./ResultsComponent";
 import FiltersPanel from "./FiltersPanel";
 import { updateSearchParams } from "../utils/updateSearchParams";
 import LoadingDots from "./LoadingDots";
+import { useAuth } from "../context/AuthContext";
+import { useEventContext } from "../context/EventContext";
 
 const API_BASE = import.meta.env.VITE_BACKEND_API || 'http://localhost:3000/api';
 const ITEMS_PER_PAGE = 9; // Load 9 items per page
@@ -21,9 +23,12 @@ const popularCitiesApTs = [
 ];
 
 const ResultsGrid = () => {
+  const {user}=useAuth();
+  const {setModelOpen}=useEventContext();
   const [searchParams, setSearchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+
 
   // Initialize AOS
   useEffect(() => {
@@ -54,6 +59,28 @@ const ResultsGrid = () => {
   const [displayedVendors, setDisplayedVendors] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (!user) return;
+  
+    const fetchUserFav = async () => {
+      try {
+        const response = await axios.get(`${API_BASE}/auth/getuserfav`);
+        if (response.data.success && Array.isArray(response.data.data)) {
+          // Convert array of strings to Set for fast lookup
+          setFavorites(new Set(response.data.data));
+        } else {
+          setFavorites(new Set());
+        }
+      } catch (err) {
+        console.error("Failed to fetch user favorites:", err);
+        setFavorites(new Set()); // fallback to empty Set
+      }
+    };
+  
+    fetchUserFav();
+  }, [user]);
+  
 
   // Fetch listings from backend API
   const fetchListings = async (pageNum = 1, append = false) => {
@@ -183,10 +210,23 @@ const ResultsGrid = () => {
     setSearchParams({ category: 'all', page: 1 });
   };
 
-  const toggleFavorite = (id) => {
+  const toggleFavorite = async(listingId) => {
+    console.log("hi")
+    if(!user){
+        setModelOpen(true);
+        return;
+    }
     const updated = new Set(favorites);
-    updated.has(id) ? updated.delete(id) : updated.add(id);
+    updated.has(listingId) ? updated.delete(listingId) : updated.add(listingId);
     setFavorites(updated);
+
+    try {
+      await axios.post(`${API_BASE}/auth/favoritetoggle`,{listingId})
+    } catch (error) {
+      console.error("Failed to toggle favorite:", error);
+    }
+
+    
   };
 
   return (

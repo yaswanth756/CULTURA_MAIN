@@ -133,7 +133,7 @@ export default function CustomDatePicker({
           role="dialog"
           aria-modal="true"
           aria-label="Choose date"
-          className="absolute left-1/2 -translate-x-1/2 z-30 mt-2 sm:mt-8 w-[320px] sm:w-[450px] rounded-2xl border border-gray-200 bg-white p-4 sm:p-8 shadow-2xl"
+          className="absolute left-1/2 -translate-x-1/2 z-30 mt-2 sm:mt-6 w-[320px] sm:w-[450px] rounded-2xl border border-gray-200 bg-white p-4 sm:p-8 shadow-2xl"
         >
           {/* Header */}
           <div className="flex items-center justify-between mb-2 sm:mb-3">
@@ -179,7 +179,6 @@ export default function CustomDatePicker({
             {days.map((d, i) => {
               const inMonth = d.getMonth() === viewMonth.getMonth();
 
-              // Render empty placeholder when not in current month
               if (!inMonth) {
                 return (
                   <div
@@ -193,11 +192,15 @@ export default function CustomDatePicker({
 
               const selectedDay = selected && sameDay(d, selected);
               const disabled = isPast(d);
+              const todayDay = sameDay(d, today); // Today check
+
               const base =
                 "h-8 w-8 sm:h-9 sm:w-9 mx-auto flex items-center justify-center text-xs sm:text-sm rounded-full transition";
-              const tone = selectedDay
-                ? "bg-gray-900 text-white"
-                : "text-gray-900 hover:bg-gray-100";
+
+              let tone = "text-gray-900 hover:bg-gray-100";
+              if (todayDay) tone = "bg-gray-200 text-black"; // Today background
+              else if (selectedDay) tone = "bg-gray-900 text-white"; // Selected
+
               const state = disabled ? "opacity-40" : "";
 
               return (

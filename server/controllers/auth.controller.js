@@ -191,3 +191,59 @@ export const getUserProfile = async (req, res) => {
     const user = await User.findById(req.user._id); // keep as doc, not .lean()
     res.json(user);
 };
+
+
+export const getUserFavorites = async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Convert ObjectIds to strings
+    const favorites = (req.user.favorites || []).map(fav => fav.toString());
+    console.log(favorites); // Should now be like ['68cbb877671ad6e27ce9e81c']
+
+    return res.status(200).json({
+      success: true,
+      data: favorites,
+    });
+  } catch (err) {
+    console.error("getUserFavorites error →", err);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Toggle favorite for a user
+export const toggleFavorites = async (req, res) => {
+  try {
+    if (!req.user) return res.status(404).json({ message: "User not found" });
+
+    const { listingId } = req.body;
+    if (!listingId) return res.status(400).json({ message: "listingId is required" });
+
+    const user = await User.findById(req.user._id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // Toggle: remove if exists, add if not
+    const index = user.favorites.findIndex(fav => fav.toString() === listingId);
+    if (index > -1) {
+      user.favorites.splice(index, 1); // remove
+    } else {
+      user.favorites.push(listingId); // add
+    }
+
+    await user.save(); // save changes
+
+    // No return data needed, just status
+    res.sendStatus(200);
+  } catch (err) {
+    console.error("toggleFavorites error →", err);
+    res.sendStatus(500);
+  }
+};
+
+
+
+
+
+

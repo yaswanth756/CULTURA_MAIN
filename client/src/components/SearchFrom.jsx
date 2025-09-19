@@ -16,6 +16,7 @@ import {
   Brush,
   Flower2,
   X,
+  Locate
 } from "lucide-react";
 import CustomDatePicker from "./CustomDatePicker";
 
@@ -125,39 +126,71 @@ const SearchForm = () => {
       <div className="flex flex-col md:flex-row md:items-center md:divide-x divide-gray-200">
         {/* Location */}
         <div ref={locationRef} className="relative flex-1 min-w-0">
-          <div className="flex items-center gap-3 px-4 py-3 md:px-5">
-            <MapPin className="w-5 h-5 text-gray-500 flex-shrink-0" />
-            <input
-              type="text"
-              name="location"
-              placeholder="Service Needed In"
-              value={formData.location}
-              onChange={handleLocationChange}
-              className="flex-1 min-w-0 bg-transparent placeholder:text-gray-400 text-gray-900 outline-none truncate"
-              autoComplete="off"
-            />
-          </div>
-          {showSuggestions && (
-            <ul className="absolute z-20 w-full md:w-[500px] bg-white border border-gray-200 rounded-2xl mt-2 max-h-64 overflow-y-auto shadow-xl p-2">
-              {loadingLocation ? (
-                <li className="px-4 py-2 text-gray-500 text-sm">Searching...</li>
-              ) : locationSuggestions.length > 0 ? (
-                locationSuggestions.map((s, idx) => (
-                  <li
-                    key={idx}
-                    onClick={() => handleSelectLocation(s)}
-                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm text-gray-800 rounded-lg truncate"
-                    title={s.display_name}
-                  >
-                    {s.display_name}
-                  </li>
-                ))
-              ) : (
-                <li className="px-4 py-2 text-gray-500 text-sm">No results</li>
-              )}
-            </ul>
-          )}
+  <div className="flex items-center gap-3 px-4 py-3 md:px-5">
+    <MapPin className="w-5 h-5 text-gray-500 flex-shrink-0" />
+    <input
+      type="text"
+      name="location"
+      placeholder="Where Needed"
+      value={formData.location}
+      onChange={handleLocationChange}
+      className="flex-1 min-w-0 bg-transparent placeholder:text-gray-400 text-gray-900 outline-none truncate"
+      autoComplete="off"
+    />
+
+    {/* Loader container with fixed size */}
+    <div className="w-5 h-5 ml-2 flex items-center justify-center">
+      {loadingLocation && (
+        <svg
+          className="animate-spin h-4 w-4 text-gray-400"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          ></circle>
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+          ></path>
+        </svg>
+      )}
+    </div>
+  </div>
+
+  {showSuggestions && (
+  <ul className="absolute z-20 w-full md:w-[420px] bg-white border border-gray-100 rounded-xl mt-5 max-h-72 overflow-y-auto shadow-[0_4px_12px_rgba(0,0,0,0.08)]">
+    {loadingLocation ? (
+      <li className="px-4 py-3 text-gray-500 text-sm">Searching...</li>
+    ) : locationSuggestions.length > 0 ? (
+      locationSuggestions.map((s, idx) => (
+        <li
+          key={idx}
+          onClick={() => handleSelectLocation(s)}
+          className="flex items-center gap-3 px-4 py-3 cursor-pointer text-[15px] text-gray-800 hover:bg-gray-50 transition-colors"
+          title={s.display_name}
+        >
+          <MapPin className="w-5 h-5 text-gray-400 flex-shrink-0" />
+          <span className="truncate">{s.display_name}</span>
+        </li>
+      ))
+    ) : (
+      <li className="px-4 py-3 text-gray-500 text-sm">No results</li>
+    )}
+  </ul>
+)}
+
+
         </div>
+
+
 
         {/* Date */}
         <div className="shrink-0 md:basis-[220px] border-t md:border-t-0 border-gray-200">
@@ -196,7 +229,7 @@ const SearchForm = () => {
             </div>
           </button>
           {showServiceMenu && (
-            <div className="absolute left-[40%] -translate-x-1/2 z-30 mt-6 w-[90vw] max-w-[600px] rounded-2xl border bg-white shadow-xl p-6 md:p-8">
+            <div className="absolute md:left-[20%] left-[50%] -translate-x-1/2 z-30 mt-5 w-[90vw] max-w-[600px] rounded-2xl border bg-white shadow-xl p-6 md:p-8">
               <button
                 type="button"
                 onClick={() => setShowServiceMenu(false)}

@@ -4,7 +4,7 @@ import Home from './pages/Home';
 import MainLayout from './components/MainLayout';
 import Test from './pages/Test';
 import Listings from './pages/Listings';
-
+import ListingDetails from './pages/ListingDetails';
 function App() {
 
   return (
@@ -14,7 +14,7 @@ function App() {
           <Route path="/" element={<Home/>} />
           <Route path="/test" element={<Test/>} />
           <Route path="/browse" element={<Listings/>} />
-        
+          <Route path="/listing/:id" element={<ListingDetails/>} />
         </Routes>
     </MainLayout>
 

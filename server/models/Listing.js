@@ -67,6 +67,14 @@ const listingSchema = new mongoose.Schema({
     index: true
   }],
   
+  // ✅ ADDED: Features/amenities offered by the service
+  features: [{
+    type: String,
+    trim: true,
+    maxlength: 100,  // Limit individual feature length
+    index: 'text'    // For search functionality
+  }],
+  
   tags: [{
     type: String,
     lowercase: true,
@@ -107,17 +115,19 @@ listingSchema.index({ serviceAreas: 1, status: 1 });
 listingSchema.index({ 'ratings.average': -1, status: 1 });
 listingSchema.index({ vendorId: 1, status: 1 });
 
-// Text search index for search filter
+// ✅ UPDATED: Text search index now includes features
 listingSchema.index({
     title: 'text',
     description: 'text',
+    features: 'text',        // ✅ ADDED!
     tags: 'text',
-    serviceAreas: 'text',  // ✅ ADDED!
-    subcategory: 'text'    // ✅ BONUS!
+    serviceAreas: 'text',
+    subcategory: 'text'
   }, {
     weights: {
       title: 10,
-      serviceAreas: 8,       // High weight for locations
+      serviceAreas: 8,
+      features: 7,             // ✅ High weight for features
       tags: 5,
       subcategory: 3,
       description: 1

@@ -23,7 +23,7 @@ const generateVendorTestData = async () => {
         profile: {
           firstName: 'Ramesh',
           businessName: 'Ramesh Royal Catering',
-          avatar: 'https://example.com/avatars/ramesh.jpg'
+          avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face'
         },
         location: {
           city: 'Tirupati',
@@ -44,7 +44,7 @@ const generateVendorTestData = async () => {
         profile: {
           firstName: 'Lakshmi',
           businessName: 'Lakshmi Photography Studio',
-          avatar: 'https://example.com/avatars/lakshmi.jpg'
+          avatar: 'https://images.unsplash.com/photo-1494790108755-2616b332029c?w=150&h=150&fit=crop&crop=face'
         },
         location: {
           city: 'Chittoor',
@@ -65,7 +65,7 @@ const generateVendorTestData = async () => {
         profile: {
           firstName: 'Krishna',
           businessName: 'Krishna Palace Venues',
-          avatar: 'https://example.com/avatars/krishna.jpg'
+          avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face'
         },
         location: {
           city: 'Tirupati',
@@ -86,7 +86,7 @@ const generateVendorTestData = async () => {
         profile: {
           firstName: 'Priya',
           businessName: 'Priya Beauty Studio',
-          avatar: 'https://example.com/avatars/priya.jpg'
+          avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face'
         },
         location: {
           city: 'Kadapa',
@@ -107,7 +107,7 @@ const generateVendorTestData = async () => {
         profile: {
           firstName: 'Venkat',
           businessName: 'Venkat Music & DJ Services',
-          avatar: 'https://example.com/avatars/venkat.jpg'
+          avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face'
         },
         location: {
           city: 'Nellore',
@@ -128,7 +128,7 @@ const generateVendorTestData = async () => {
         profile: {
           firstName: 'Sita',
           businessName: 'Sita Flower Decorations',
-          avatar: 'https://example.com/avatars/sita.jpg'
+          avatar: 'https://images.unsplash.com/photo-1524250502761-1ac6f2e30d43?w=150&h=150&fit=crop&crop=face'
         },
         location: {
           city: 'Tirupati',
@@ -149,7 +149,7 @@ const generateVendorTestData = async () => {
         profile: {
           firstName: 'Ravi',
           businessName: 'Ravi Sweet Cakes',
-          avatar: 'https://example.com/avatars/ravi.jpg'
+          avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&h=150&fit=crop&crop=face'
         },
         location: {
           city: 'Chittoor',
@@ -170,7 +170,7 @@ const generateVendorTestData = async () => {
         profile: {
           firstName: 'Meera',
           businessName: 'Meera Cinematic Videos',
-          avatar: 'https://example.com/avatars/meera.jpg'
+          avatar: 'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=150&h=150&fit=crop&crop=face'
         },
         location: {
           city: 'Tirupati',
@@ -191,7 +191,7 @@ const generateVendorTestData = async () => {
         profile: {
           firstName: 'Suresh',
           businessName: 'Suresh Traditional Mandaps',
-          avatar: 'https://example.com/avatars/suresh.jpg'
+          avatar: 'https://images.unsplash.com/photo-1519744346361-7a029b427a59?w=150&h=150&fit=crop&crop=face'
         },
         location: {
           city: 'Kadapa',
@@ -212,7 +212,7 @@ const generateVendorTestData = async () => {
         profile: {
           firstName: 'Anjali',
           businessName: 'Anjali Event Hosts',
-          avatar: 'https://example.com/avatars/anjali.jpg'
+          avatar: 'https://images.unsplash.com/photo-1489424731084-a5d8b219a5bb?w=150&h=150&fit=crop&crop=face'
         },
         location: {
           city: 'Nellore',
@@ -248,170 +248,259 @@ const generateVendorTestData = async () => {
     
     console.log(`✅ Total vendors ready: ${createdVendors.length}`);
 
-    // Sample listings data corresponding to vendors
+    // ✅ UPDATED: Sample listings data with real images and features
     const sampleListings = [
-        {
-          vendorId: createdVendors[0]._id, // Ramesh Catering
-          title: 'Traditional South Indian Wedding Catering',
-          description: 'Authentic Telugu cuisine with variety of traditional dishes. Serves up to 1000 guests with experienced chefs and quality ingredients. Specializes in wedding feasts with customizable menus.',
-          category: 'catering',
-          subcategory: 'Wedding Catering',
-          price: { base: 350, type: 'per_person', currency: 'INR' },
-          images: [
-            'https://plus.unsplash.com/premium_photo-1681830320344-6e7a2a8726c3?w=700&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8ZXZlbnQlMjBpbWFnZXN8ZW58MHx8MHx8fDA%3D',
-            'https://images.unsplash.com/photo-1601050696436-8df9b47c4f02?auto=format&fit=crop&w=800&q=80'
-          ],
-          serviceAreas: ['Tirupati', 'Chittoor', 'Kadapa'],
-          tags: ['traditional', 'south indian', 'wedding', 'vegetarian', 'non-vegetarian'],
-          ratings: { average: 4.5, count: 45 },
-          status: 'active'
-        },
-        {
-          vendorId: createdVendors[1]._id, // Lakshmi Photography
-          title: 'Professional Wedding Photography & Candid Shots',
-          description: 'Capture your special moments with professional photography services. Includes pre-wedding, wedding day, and reception photography with high-resolution images and custom albums.',
-          category: 'photography',
-          subcategory: 'Wedding Photography',
-          price: { base: 25000, type: 'per_event', currency: 'INR' },
-          images: [
-            'https://images.unsplash.com/photo-1470229538611-16ba8c7ffbd7?w=700&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8ZXZlbnQlMjBpbWFnZXN8ZW58MHx8MHx8fDA%3D',
-            'https://images.unsplash.com/photo-1497807576460-89d7f03b6091?auto=format&fit=crop&w=800&q=80'
-          ],
-          serviceAreas: ['Chittoor', 'Tirupati', 'Vellore'],
-          tags: ['candid', 'traditional', 'pre-wedding', 'portraits', 'albums'],
-          ratings: { average: 4.8, count: 67 },
-          status: 'active'
-        },
-        {
-          vendorId: createdVendors[2]._id, // Krishna Venues
-          title: 'Spacious Wedding Hall with AC and Parking',
-          description: 'Beautiful air-conditioned wedding hall accommodating 500+ guests. Includes stage decoration, sound system, parking facility, and catering area. Perfect for weddings and receptions.',
-          category: 'venues',
-          subcategory: 'Wedding Halls',
-          price: { base: 45000, type: 'per_event', currency: 'INR' },
-          images: [
-            'https://plus.unsplash.com/premium_photo-1729163257698-46e2d17d7b45?w=700&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjF8fGV2ZW50JTIwaW1hZ2VzfGVufDB8fDB8fHww',
-            'https://images.unsplash.com/photo-1572373674298-f5f1190aefc4?auto=format&fit=crop&w=800&q=80'
-          ],
-          serviceAreas: ['Tirupati', 'Chittoor'],
-          tags: ['ac hall', 'parking', 'stage', 'sound system', '500 capacity'],
-          ratings: { average: 4.2, count: 23 },
-          status: 'active'
-        },
-        {
-          vendorId: createdVendors[3]._id, // Priya Makeup
-          title: 'Bridal Makeup & Hair Styling Services',
-          description: 'Professional bridal makeup artist specializing in traditional and contemporary looks. Includes trial session, bridal makeup, hair styling, and touch-up services throughout the event.',
-          category: 'makeup',
-          subcategory: 'Bridal Makeup',
-          price: { base: 8000, type: 'per_person', currency: 'INR' },
-          images: [
-            'https://plus.unsplash.com/premium_photo-1672642064354-9fda98878976?w=700&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mjl8fGV2ZW50JTIwaW1hZ2VzfGVufDB8fDB8fHww',
-            'https://images.unsplash.com/photo-1629655391376-52f25281f4a2?auto=format&fit=crop&w=800&q=80'
-          ],
-          serviceAreas: ['Kadapa', 'Tirupati', 'Kurnool'],
-          tags: ['bridal', 'hair styling', 'trial session', 'traditional', 'contemporary'],
-          ratings: { average: 4.6, count: 34 },
-          status: 'active'
-        },
-        {
-          vendorId: createdVendors[4]._id, // Venkat Music
-          title: 'DJ Services & Live Music for Weddings',
-          description: 'Complete music entertainment with DJ services, sound system, and live band options. Includes wedding songs, dance music, and announcements with professional equipment.',
-          category: 'music',
-          subcategory: 'DJ & Live Music',
-          price: { base: 15000, type: 'per_event', currency: 'INR' },
-          images: [
-            'https://plus.unsplash.com/premium_photo-1681409178587-381f10eff3af?w=700&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MzN8fGV2ZW50JTIwaW1hZ2VzfGVufDB8fDB8fHww',
-            'https://images.unsplash.com/photo-1531058020387-3be344556be6?auto=format&fit=crop&w=800&q=80'
-          ],
-          serviceAreas: ['Nellore', 'Tirupati', 'Ongole'],
-          tags: ['dj', 'live music', 'dance', 'sound system', 'announcements'],
-          ratings: { average: 4.3, count: 28 },
-          status: 'active'
-        },
-        {
-          vendorId: createdVendors[5]._id, // Sita Decorations
-          title: 'Traditional Flower Decorations & Stage Setup',
-          description: 'Beautiful flower decorations for weddings including stage decoration, entrance arch, car decoration, and venue decoration with fresh flowers and traditional designs.',
-          category: 'decorations',
-          subcategory: 'Flower Decorations',
-          price: { base: 12000, type: 'per_event', currency: 'INR' },
-          images: [
-            'https://plus.unsplash.com/premium_photo-1681409178587-381f10eff3af?w=700&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MzN8fGV2ZW50JTIwaW1hZ2VzfGVufDB8fDB8fHww',
-            'https://images.unsplash.com/photo-1618220382210-13f2fc73f541?auto=format&fit=crop&w=800&q=80'
-          ],
-          serviceAreas: ['Tirupati', 'Chittoor', 'Vellore'],
-          tags: ['flowers', 'stage decoration', 'entrance arch', 'car decoration', 'traditional'],
-          ratings: { average: 4.7, count: 52 },
-          status: 'active'
-        },
-        {
-          vendorId: createdVendors[6]._id, // Ravi Cakes
-          title: 'Custom Wedding Cakes & Sweet Boxes',
-          description: 'Delicious custom wedding cakes and traditional sweet boxes. Multi-tier cakes with custom designs, flavors, and decorations. Also provides traditional sweets and dessert tables.',
-          category: 'cakes',
-          subcategory: 'Wedding Cakes',
-          price: { base: 2500, type: 'fixed', currency: 'INR' },
-          images: [
-            'https://images.unsplash.com/photo-1596649300028-340ad0ec6146?w=700&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mzl8fGV2ZW50JTIwaW1hZ2VzfGVufDB8fDB8fHww',
-            'https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&w=800&q=80'
-          ],
-          serviceAreas: ['Chittoor', 'Tirupati', 'Vellore'],
-          tags: ['custom cakes', 'multi-tier', 'traditional sweets', 'dessert table', 'wedding'],
-          ratings: { average: 4.4, count: 41 },
-          status: 'active'
-        },
-        {
-          vendorId: createdVendors[7]._id, // Meera Video
-          title: 'Cinematic Wedding Videography',
-          description: 'Professional wedding videography with cinematic style filming. Includes pre-wedding videos, ceremony coverage, reception highlights, and edited final video with drone shots.',
-          category: 'videography',
-          subcategory: 'Wedding Videos',
-          price: { base: 35000, type: 'per_event', currency: 'INR' },
-          images: [
-            'https://images.unsplash.com/photo-1596649300028-340ad0ec6146?w=700&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mzl8fGV2ZW50JTIwaW1hZ2VzfGVufDB8fDB8fHww',
-            'https://images.unsplash.com/photo-1582719478141-6b6f20c89be2?auto=format&fit=crop&w=800&q=80'
-          ],
-          serviceAreas: ['Tirupati', 'Chittoor', 'Kadapa'],
-          tags: ['cinematic', 'drone shots', 'pre-wedding', 'highlights', 'editing'],
-          ratings: { average: 4.9, count: 78 },
-          status: 'active'
-        },
-        {
-          vendorId: createdVendors[8]._id, // Suresh Mandap
-          title: 'Traditional Wedding Mandap Setup',
-          description: 'Beautiful traditional mandap decorations with authentic designs. Includes mandap construction, floral decorations, lighting, and traditional elements for Hindu wedding ceremonies.',
-          category: 'mandap',
-          subcategory: 'Traditional Mandap',
-          price: { base: 18000, type: 'per_event', currency: 'INR' },
-          images: [
-            'https://plus.unsplash.com/premium_photo-1753327853288-c412aea7c08c?w=700&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NDV8fGV2ZW50JTIwaW1hZ2VzfGVufDB8fDB8fHww',
-            'https://images.unsplash.com/photo-1582719477921-3c8b7c57d3e1?auto=format&fit=crop&w=800&q=80'
-          ],
-          serviceAreas: ['Kadapa', 'Kurnool', 'Tirupati'],
-          tags: ['traditional', 'hindu wedding', 'floral', 'lighting', 'authentic'],
-          ratings: { average: 4.1, count: 19 },
-          status: 'active'
-        },
-        {
-          vendorId: createdVendors[9]._id, // Anjali Hosts
-          title: 'Professional Wedding Hosts & Anchors',
-          description: 'Experienced wedding hosts and anchors for ceremonies and receptions. Bilingual hosting in Telugu and English with engaging commentary and smooth event coordination.',
-          category: 'hosts',
-          subcategory: 'Wedding Anchors',
-          price: { base: 5000, type: 'per_event', currency: 'INR' },
-          images: [
-            'https://plus.unsplash.com/premium_photo-1753327853288-c412aea7c08c?w=700&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NDV8fGV2ZW50JTIwaW1hZ2VzfGVufDB8fDB8fHww',
-            'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80'
-          ],
-          serviceAreas: ['Nellore', 'Tirupati', 'Ongole'],
-          tags: ['bilingual', 'telugu', 'english', 'ceremonies', 'coordination'],
-          ratings: { average: 4.0, count: 15 },
-          status: 'active'
-        }
-      ];
-      
+      {
+        vendorId: createdVendors[0]._id, // Ramesh Catering
+        title: 'Traditional South Indian Wedding Catering',
+        description: 'Authentic Telugu cuisine with variety of traditional dishes. Serves up to 1000 guests with experienced chefs and quality ingredients. Specializes in wedding feasts with customizable menus.',
+        category: 'catering',
+        subcategory: 'Wedding Catering',
+        price: { base: 350, type: 'per_person', currency: 'INR' },
+        images: [
+          'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800&auto=format&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&auto=format&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=800&auto=format&fit=crop&q=80'
+        ],
+        serviceAreas: ['Tirupati', 'Chittoor', 'Kadapa'],
+        features: [
+          'Live Cooking Stations',
+          'Traditional Banana Leaf Service',
+          'Multi-Cuisine Options',
+          'Experienced Chefs',
+          'Hygiene Certified Kitchen',
+          'Custom Menu Planning'
+        ],
+        tags: ['traditional', 'south indian', 'wedding', 'vegetarian', 'non-vegetarian'],
+        ratings: { average: 4.5, count: 45 },
+        status: 'active'
+      },
+      {
+        vendorId: createdVendors[1]._id, // Lakshmi Photography
+        title: 'Professional Wedding Photography & Candid Shots',
+        description: 'Capture your special moments with professional photography services. Includes pre-wedding, wedding day, and reception photography with high-resolution images and custom albums.',
+        category: 'photography',
+        subcategory: 'Wedding Photography',
+        price: { base: 25000, type: 'per_event', currency: 'INR' },
+        images: [
+          'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=800&auto=format&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1519741497674-611481863552?w=800&auto=format&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=800&auto=format&fit=crop&q=80'
+        ],
+        serviceAreas: ['Chittoor', 'Tirupati', 'Vellore'],
+        features: [
+          'High Resolution Photos',
+          'Candid Photography',
+          'Pre-Wedding Shoot',
+          'Digital Albums',
+          'Photo Editing',
+          'Quick Delivery'
+        ],
+        tags: ['candid', 'traditional', 'pre-wedding', 'portraits', 'albums'],
+        ratings: { average: 4.8, count: 67 },
+        status: 'active'
+      },
+      {
+        vendorId: createdVendors[2]._id, // Krishna Venues
+        title: 'Spacious Wedding Hall with AC and Parking',
+        description: 'Beautiful air-conditioned wedding hall accommodating 500+ guests. Includes stage decoration, sound system, parking facility, and catering area. Perfect for weddings and receptions.',
+        category: 'venues',
+        subcategory: 'Wedding Halls',
+        price: { base: 45000, type: 'per_event', currency: 'INR' },
+        images: [
+          'https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=800&auto=format&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1519167758481-83f29da8c89f?w=800&auto=format&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=800&auto=format&fit=crop&q=80'
+        ],
+        serviceAreas: ['Tirupati', 'Chittoor'],
+        features: [
+          'AC Hall (500+ Capacity)',
+          'Free Parking',
+          'Stage Setup',
+          'Sound System',
+          'Catering Area',
+          'Bridal Room'
+        ],
+        tags: ['ac hall', 'parking', 'stage', 'sound system', '500 capacity'],
+        ratings: { average: 4.2, count: 23 },
+        status: 'active'
+      },
+      {
+        vendorId: createdVendors[3]._id, // Priya Makeup
+        title: 'Bridal Makeup & Hair Styling Services',
+        description: 'Professional bridal makeup artist specializing in traditional and contemporary looks. Includes trial session, bridal makeup, hair styling, and touch-up services throughout the event.',
+        category: 'makeup',
+        subcategory: 'Bridal Makeup',
+        price: { base: 8000, type: 'per_person', currency: 'INR' },
+        images: [
+          'https://images.unsplash.com/photo-1522337360788-dee21abb3848?w=800&auto=format&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=800&auto=format&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=800&auto=format&fit=crop&q=80'
+        ],
+        serviceAreas: ['Kadapa', 'Tirupati', 'Kurnool'],
+        features: [
+          'HD Makeup',
+          'Hair Styling',
+          'Trial Session',
+          'Touch-up Service',
+          'Premium Products',
+          'Traditional & Modern Looks'
+        ],
+        tags: ['bridal', 'hair styling', 'trial session', 'traditional', 'contemporary'],
+        ratings: { average: 4.6, count: 34 },
+        status: 'active'
+      },
+      {
+        vendorId: createdVendors[4]._id, // Venkat Music
+        title: 'DJ Services & Live Music for Weddings',
+        description: 'Complete music entertainment with DJ services, sound system, and live band options. Includes wedding songs, dance music, and announcements with professional equipment.',
+        category: 'music',
+        subcategory: 'DJ & Live Music',
+        price: { base: 15000, type: 'per_event', currency: 'INR' },
+        images: [
+          'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&auto=format&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1571974599782-87624638275c?w=800&auto=format&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=800&auto=format&fit=crop&q=80'
+        ],
+        serviceAreas: ['Nellore', 'Tirupati', 'Ongole'],
+        features: [
+          'Professional DJ Setup',
+          'Live Band Option',
+          'Sound System',
+          'Wireless Microphones',
+          'Dance Floor Lighting',
+          'Music Library'
+        ],
+        tags: ['dj', 'live music', 'dance', 'sound system', 'announcements'],
+        ratings: { average: 4.3, count: 28 },
+        status: 'active'
+      },
+      {
+        vendorId: createdVendors[5]._id, // Sita Decorations
+        title: 'Traditional Flower Decorations & Stage Setup',
+        description: 'Beautiful flower decorations for weddings including stage decoration, entrance arch, car decoration, and venue decoration with fresh flowers and traditional designs.',
+        category: 'decorations',
+        subcategory: 'Flower Decorations',
+        price: { base: 12000, type: 'per_event', currency: 'INR' },
+        images: [
+          'https://images.unsplash.com/photo-1478146896981-b80fe463b330?w=800&auto=format&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1519167758481-83f29da8c89f?w=800&auto=format&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1606800052052-a08af7148866?w=800&auto=format&fit=crop&q=80'
+        ],
+        serviceAreas: ['Tirupati', 'Chittoor', 'Vellore'],
+        features: [
+          'Fresh Flower Decorations',
+          'Stage Backdrop',
+          'Entrance Arch',
+          'Car Decoration',
+          'Table Centerpieces',
+          'Traditional Designs'
+        ],
+        tags: ['flowers', 'stage decoration', 'entrance arch', 'car decoration', 'traditional'],
+        ratings: { average: 4.7, count: 52 },
+        status: 'active'
+      },
+      {
+        vendorId: createdVendors[6]._id, // Ravi Cakes
+        title: 'Custom Wedding Cakes & Sweet Boxes',
+        description: 'Delicious custom wedding cakes and traditional sweet boxes. Multi-tier cakes with custom designs, flavors, and decorations. Also provides traditional sweets and dessert tables.',
+        category: 'cakes',
+        subcategory: 'Wedding Cakes',
+        price: { base: 2500, type: 'fixed', currency: 'INR' },
+        images: [
+          'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&auto=format&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?w=800&auto=format&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=800&auto=format&fit=crop&q=80'
+        ],
+        serviceAreas: ['Chittoor', 'Tirupati', 'Vellore'],
+        features: [
+          'Custom Cake Design',
+          'Multiple Flavors',
+          'Multi-Tier Cakes',
+          'Traditional Sweets',
+          'Dessert Table Setup',
+          'Home Delivery'
+        ],
+        tags: ['custom cakes', 'multi-tier', 'traditional sweets', 'dessert table', 'wedding'],
+        ratings: { average: 4.4, count: 41 },
+        status: 'active'
+      },
+      {
+        vendorId: createdVendors[7]._id, // Meera Video
+        title: 'Cinematic Wedding Videography',
+        description: 'Professional wedding videography with cinematic style filming. Includes pre-wedding videos, ceremony coverage, reception highlights, and edited final video with drone shots.',
+        category: 'videography',
+        subcategory: 'Wedding Videos',
+        price: { base: 35000, type: 'per_event', currency: 'INR' },
+        images: [
+          'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800&auto=format&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=800&auto=format&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=800&auto=format&fit=crop&q=80'
+        ],
+        serviceAreas: ['Tirupati', 'Chittoor', 'Kadapa'],
+        features: [
+          '4K Ultra HD Recording',
+          'Drone Footage',
+          'Same Day Highlights',
+          'Professional Editing',
+          'Multiple Cameras',
+          'Audio Recording'
+        ],
+        tags: ['cinematic', 'drone shots', 'pre-wedding', 'highlights', 'editing'],
+        ratings: { average: 4.9, count: 78 },
+        status: 'active'
+      },
+      {
+        vendorId: createdVendors[8]._id, // Suresh Mandap
+        title: 'Traditional Wedding Mandap Setup',
+        description: 'Beautiful traditional mandap decorations with authentic designs. Includes mandap construction, floral decorations, lighting, and traditional elements for Hindu wedding ceremonies.',
+        category: 'mandap',
+        subcategory: 'Traditional Mandap',
+        price: { base: 18000, type: 'per_event', currency: 'INR' },
+        images: [
+          'https://images.unsplash.com/photo-1587271636175-90d58cdad458?w=800&auto=format&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1519167758481-83f29da8c89f?w=800&auto=format&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1606800052052-a08af7148866?w=800&auto=format&fit=crop&q=80'
+        ],
+        serviceAreas: ['Kadapa', 'Kurnool', 'Tirupati'],
+        features: [
+          'Traditional Mandap Construction',
+          'Coconut & Banana Decorations',
+          'Sacred Fire Setup',
+          'Priest Seating Arrangement',
+          'Traditional Lighting',
+          'Flower Garlands'
+        ],
+        tags: ['traditional', 'hindu wedding', 'floral', 'lighting', 'authentic'],
+        ratings: { average: 4.1, count: 19 },
+        status: 'active'
+      },
+      {
+        vendorId: createdVendors[9]._id, // Anjali Hosts
+        title: 'Professional Wedding Hosts & Anchors',
+        description: 'Experienced wedding hosts and anchors for ceremonies and receptions. Bilingual hosting in Telugu and English with engaging commentary and smooth event coordination.',
+        category: 'hosts',
+        subcategory: 'Wedding Anchors',
+        price: { base: 5000, type: 'per_event', currency: 'INR' },
+        images: [
+          'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=800&auto=format&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=800&auto=format&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1519167758481-83f29da8c89f?w=800&auto=format&fit=crop&q=80'
+        ],
+        serviceAreas: ['Nellore', 'Tirupati', 'Ongole'],
+        features: [
+          'Bilingual Hosting',
+          'Event Coordination',
+          'Microphone & Sound Setup',
+          'Ceremony Guidance',
+          'Reception Management',
+          'Interactive Activities'
+        ],
+        tags: ['bilingual', 'telugu', 'english', 'ceremonies', 'coordination'],
+        ratings: { average: 4.0, count: 15 },
+        status: 'active'
+      }
+    ];
 
     // Insert listings (one by one to avoid timeout)
     console.log('📝 Creating listings...');
@@ -479,7 +568,7 @@ const runTestDataGeneration = async () => {
     const result = await generateVendorTestData();
     
     console.log('\n🔍 Sample vendor created:');
-    console.log(result.vendors[0].displayName);
+    console.log(result.vendors[0].profile.businessName);
     console.log('\n🔍 Sample listing created:');
     console.log(result.listings[0].title);
     
@@ -496,4 +585,4 @@ export {
 };
 
 // Uncomment to run immediately
-//runTestDataGeneration();
+// runTestDataGeneration();

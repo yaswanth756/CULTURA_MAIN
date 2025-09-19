@@ -1,6 +1,7 @@
 /* controllers/listing.controller.js */
 import Listing from '../models/Listing.js';
 import User from '../models/User.js';
+import mongoose from "mongoose"
 
 export const getListings = async (req, res) => {
   try {
@@ -58,15 +59,17 @@ export const getListings = async (req, res) => {
     
     // Text search
     // In controllers/listing.controller.js - UPDATE THIS SECTION:
-        if (search && search.trim()) {
-            filter.$or = [
-            { title: { $regex: search.trim(), $options: 'i' } },
-            { description: { $regex: search.trim(), $options: 'i' } },
-            { tags: { $regex: search.trim(), $options: 'i' } },
-            { serviceAreas: { $elemMatch: { $regex: search.trim(), $options: 'i' } } }, // ✅ ADD THIS LINE
-            { subcategory: { $regex: search.trim(), $options: 'i' } } // ✅ ADD THIS LINE
-            ];
-        }
+    if (search && search.trim()) {
+      filter.$or = [
+          { title: { $regex: search.trim(), $options: 'i' } },
+          { description: { $regex: search.trim(), $options: 'i' } },
+          { features: { $elemMatch: { $regex: search.trim(), $options: 'i' } } }, // ✅ ADD THIS LINE
+          { tags: { $regex: search.trim(), $options: 'i' } },
+          { serviceAreas: { $elemMatch: { $regex: search.trim(), $options: 'i' } } },
+          { subcategory: { $regex: search.trim(), $options: 'i' } }
+      ];
+    }
+  
 
     // Sorting
     let sortOption = { createdAt: -1 }; // default newest
@@ -127,6 +130,53 @@ export const getListings = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: 'Failed to fetch listings'
+    });
+  }
+};
+
+export const getListingById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Validate ObjectId
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid listing ID format'
+      });
+    }
+
+    // Find listing and populate vendor info
+    const listing = await Listing.findById(id)
+      .populate({
+        path: 'vendorId',
+        select: 'profile vendorInfo phone email',
+        match: { status: 'active' }
+      })
+      .lean();
+
+    if (!listing) {
+      return res.status(404).json({
+        success: false,
+        message: 'Listing not found'
+      });
+    }
+
+    // Check if listing is active
+    if (listing.status !== 'active') {
+      return res.status(404).json({
+        success: false,
+        message: 'Listing is not available'
+      });
+    }
+
+    res.status(200).json(listing);
+
+  } catch (error) {
+    console.error('Error fetching listing:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch listing details'
     });
   }
 };

@@ -32,6 +32,16 @@
     -ms-overflow-style: none;  /* IE/Edge */
     scrollbar-width: none;     /* Firefox */
   }
+
+  * Also add this for body level scrollbar hiding */
+.hide-body-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.hide-body-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
   
 
   /* Add this in your CSS file */

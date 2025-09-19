@@ -1,6 +1,7 @@
 /* src/components/ResultsComponent.jsx */
-import React from "react";
+import React, { useMemo } from "react";
 import { Search, Star, Heart, MapPin, Camera } from "lucide-react";
+
 const priceTypeLabels = {
   fixed: "",
   per_person: "/ person",
@@ -8,7 +9,6 @@ const priceTypeLabels = {
   per_day: "/ day",
   per_hour: "/ hour",
 };
-
 
 const categories = [
   { value: "all", label: "All Services" },
@@ -27,10 +27,13 @@ const categories = [
 const ResultsComponent = ({
   filtersFromUrl,
   displayedVendors,
-  favorites = [],
+  favorites,
   onToggleFavorite,
   pagination,
 }) => {
+  // Memoize favorites for fast lookups
+  const favoritesSet = useMemo(() => new Set(favorites), [favorites]);
+
   const getPageTitle = () => {
     if (filtersFromUrl.vendor) return `Results for "${filtersFromUrl.vendor}"`;
     if (filtersFromUrl.category && filtersFromUrl.category !== "all") {
@@ -40,7 +43,7 @@ const ResultsComponent = ({
     return "All Services";
   };
 
-  const isFavorited = (id) => Array.isArray(favorites) && favorites.includes(id);
+  const isFavorited = (id) => favoritesSet.has(id);
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
@@ -71,17 +74,19 @@ const ResultsComponent = ({
         </div>
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {displayedVendors.map((vendor, index) => {
-            const fav = isFavorited(vendor._id);
+          {displayedVendors.map((listing, index) => {
+            const fav = isFavorited(listing._id);
             const priceLabel =
-              vendor.formattedPrice ||
-              `₹${vendor.price?.base?.toLocaleString("en-IN") || "0"}`;
+            listing.formattedPrice ||
+              `₹${listing.price?.base?.toLocaleString("en-IN") || "0"}`;
+
             return (
               <div
-                key={vendor._id}
+                key={listing._id}
                 className="group bg-white rounded-2xl ring-1 ring-gray-200 shadow-sm hover:shadow-md hover:ring-anzac-200 transition-all duration-300 overflow-hidden cursor-pointer"
                 data-aos="fade-up"
                 data-aos-delay={index * 50}
+                onClick={() => window.open(`/listing/${listing._id}`, "_blank")}
               >
                 {/* Media */}
                 <div className="relative h-48 bg-gray-100 overflow-hidden">
@@ -92,7 +97,7 @@ const ResultsComponent = ({
                     aria-pressed={fav}
                     onClick={(e) => {
                       e.stopPropagation();
-                      onToggleFavorite && onToggleFavorite(vendor._id);
+                      onToggleFavorite && onToggleFavorite(listing._id);
                     }}
                     className="absolute top-2 right-2 z-10 inline-flex items-center justify-center p-2 rounded-full
                                bg-white/85 border border-white/70 shadow-sm backdrop-blur-sm
@@ -106,10 +111,10 @@ const ResultsComponent = ({
                   </button>
 
                   {/* Image */}
-                  {vendor.images && vendor.images.length > 0 ? (
+                  {listing.images && listing.images.length > 0 ? (
                     <img
-                      src={vendor.images[0]}
-                      alt={vendor.title || "Service image"}
+                      src={listing.images[0]}
+                      alt={listing.title || "Service image"}
                       className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                       loading="lazy"
                       decoding="async"
@@ -124,7 +129,7 @@ const ResultsComponent = ({
                   {/* Fallback */}
                   <div
                     className="absolute inset-0 bg-gray-100 items-center justify-center flex"
-                    style={{ display: vendor.images && vendor.images.length > 0 ? "none" : "flex" }}
+                    style={{ display: listing.images && listing.images.length > 0 ? "none" : "flex" }}
                   >
                     <Camera className="w-10 h-10 text-gray-400" />
                   </div>
@@ -133,72 +138,70 @@ const ResultsComponent = ({
                   <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/40 to-transparent" />
                   <div className="absolute left-2 bottom-2 z-10">
                     <span className="inline-flex items-center px-2.5 py-1 font-medium rounded-full text-sm  bg-white  text-black ring-1 ">
-                      From <span className="text-gray-800 pl-2">{priceLabel} {priceTypeLabels[vendor?.price?.type]}</span>
+                      From <span className="text-gray-800 pl-2">{priceLabel} {priceTypeLabels[listing?.price?.type]}</span>
                     </span>
                   </div>
                 </div>
 
                 {/* Content */}
-                {/* Content */}
-              <div className="p-4 space-y-3">
-                {/* Title + Rating */}
-                <div className="flex items-start justify-between gap-3">
-                  <h3 className="font-semibold text-gray-900 text-lg sm:text-xl leading-snug line-clamp-1">
-                    {vendor.title}
-                  </h3>
-                  <div className="shrink-0 flex items-center gap-1.5 text-sm bg-white border rounded-full px-3 py-1 shadow-sm">
-                    <Star className="w-4 h-4 text-anzac-500" />
-                    <span className="font-medium text-gray-900">
-                      {vendor.ratings?.average?.toFixed(1) || "0.0"}
+                <div className="p-4 space-y-3">
+                  {/* Title + Rating */}
+                  <div className="flex items-start justify-between gap-3">
+                    <h3 className="font-semibold text-gray-900 text-lg sm:text-xl leading-snug line-clamp-1">
+                      {listing.title}
+                    </h3>
+                    <div className="shrink-0 flex items-center gap-1.5 text-sm bg-white border rounded-full px-3 py-1 shadow-sm">
+                      <Star className="w-4 h-4 text-anzac-500" />
+                      <span className="font-medium text-gray-900">
+                        {listing.ratings?.average?.toFixed(1) || "0.0"}
+                      </span>
+                      <span className="text-gray-500">({listing.ratings?.count || 0})</span>
+                    </div>
+                  </div>
+
+                  {/* Vendor */}
+                  {listing.vendorName && (
+                    <div className="text-sm text-gray-600 flex items-center gap-1 py-2">
+                      <span>By {listing.vendorName}</span>
+                      {listing.vendorVerified && (
+                        <span className="ml-1 inline-flex items-center text-green-600 text-xs font-medium">
+                          ✓ Verified
+                        </span>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Locations */}
+                  <div>
+                    <div className="text-xs font-medium text-gray-500 mb-1 flex items-center gap-1">
+                      <MapPin className="w-4 h-4 text-gray-400" />
+                      <span>Available at</span>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {(listing.serviceAreas && listing.serviceAreas.length > 0
+                        ? listing.serviceAreas
+                        : ["Multiple locations"]
+                      ).map((loc, i) => (
+                        <span
+                          key={i}
+                          className="px-3 py-1 rounded-full text-xs font-medium bg-gray-50 text-gray-700 border"
+                        >
+                          {loc}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Footer chips */}
+                  <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-anzac-50 text-anzac-700">
+                      {listing.category}
                     </span>
-                    <span className="text-gray-500">({vendor.ratings?.count || 0})</span>
+                    <button className="text-sm  font-medium transition" onClick={() => window.open(`/listing/${listing._id}`, "_blank")}>
+                      View details →
+                    </button>
                   </div>
                 </div>
-
-                {/* Vendor */}
-                {vendor.vendorName && (
-                  <div className="text-sm text-gray-600 flex items-center gap-1 py-2">
-                    <span>By {vendor.vendorName}</span>
-                    {vendor.vendorVerified && (
-                      <span className="ml-1 inline-flex items-center text-green-600 text-xs font-medium">
-                        ✓ Verified
-                      </span>
-                    )}
-                  </div>
-                )}
-
-                {/* Locations */}
-                <div>
-                  <div className="text-xs font-medium text-gray-500 mb-1 flex items-center gap-1">
-                    <MapPin className="w-4 h-4 text-gray-400" />
-                    <span>Available at</span>
-                  </div>
-                  <div className="flex flex-wrap gap-1.5">
-                    {(vendor.serviceAreas && vendor.serviceAreas.length > 0
-                      ? vendor.serviceAreas
-                      : ["Multiple locations"]
-                    ).map((loc, i) => (
-                      <span
-                        key={i}
-                        className="px-3 py-1 rounded-full text-xs font-medium bg-gray-50 text-gray-700 border"
-                      >
-                        {loc}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Footer chips */}
-                <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-anzac-50 text-anzac-700">
-                    {vendor.category}
-                  </span>
-                  <button className="text-sm text-anzac-700 hover:text-anzac-800 font-medium transition">
-                    View details →
-                  </button>
-                </div>
-              </div>
-
               </div>
             );
           })}
