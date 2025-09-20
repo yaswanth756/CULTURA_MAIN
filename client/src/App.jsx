@@ -5,6 +5,7 @@ import MainLayout from './components/MainLayout';
 import Test from './pages/Test';
 import Listings from './pages/Listings';
 import ListingDetails from './pages/ListingDetails';
+import SecurePayment from './pages/SecurePayment';
 function App() {
 
   return (
@@ -15,6 +16,7 @@ function App() {
           <Route path="/test" element={<Test/>} />
           <Route path="/browse" element={<Listings/>} />
           <Route path="/listing/:id" element={<ListingDetails/>} />
+          <Route path="/securepayment/:id" element={<SecurePayment />} />
         </Routes>
     </MainLayout>
 

@@ -4,6 +4,8 @@ import dotenv from "dotenv"
 import cors from "cors";
 import authRoutes from "./routes/auth.routes.js";
 import listingRoutes from './routes/listing.routes.js';
+import paymentRoutes from './routes/payment.routes.js';
+import bookingRoutes from './routes/booking.routes.js';
 dotenv.config()
 
 
@@ -20,6 +22,9 @@ app.use("/api/auth", authRoutes);
 // connnect db
 app.use('/api/listings', listingRoutes);
 connectDB();
+
+app.use('/api/payments', paymentRoutes);
+app.use('/api/bookings', bookingRoutes);
 
 app.get("/test",(req,res)=>{
     return res.send("hellow world");
