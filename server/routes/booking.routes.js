@@ -2,13 +2,13 @@
 import express from 'express';
 import { body } from 'express-validator';
 import { createBooking, getBookings } from '../controllers/booking.controller.js';
-import { authMiddleware } from '../middleware/auth.middleware.js';
+import {authenticate } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
 
 // Create Booking
 router.post('/',
-  authMiddleware,
+  authenticate,
   [
     body('listingId').isMongoId().withMessage('Invalid listing ID'),
     body('vendorId').isMongoId().withMessage('Invalid vendor ID'),
@@ -21,6 +21,6 @@ router.post('/',
 );
 
 // Get User Bookings
-router.get('/', authMiddleware, getBookings);
+router.get('/', authenticate, getBookings);
 
 export default router;

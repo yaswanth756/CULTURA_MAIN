@@ -186,11 +186,120 @@ export const verifyOTPAndAuth = async (req, res) => {
 // };
 
 
-export const getUserProfile = async (req, res) => {
- 
-    const user = await User.findById(req.user._id); // keep as doc, not .lean()
-    res.json(user);
+// Update User Profile Controller
+export const updateUserProfile = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { firstName, email, phone, avatar, location } = req.body;
+
+    // Validate required fields
+    if (!firstName || !email) {
+      return res.status(400).json({
+        success: false,
+        message: "First name and email are required"
+      });
+    }
+
+    // Prepare update object with only allowed fields
+    const updateData = {
+      firstName: firstName.trim(),
+      email: email.trim().toLowerCase(),
+      phone: phone ? phone.trim() : "",
+      avatar: avatar ? avatar.trim() : "",
+      location: {
+        city: location?.city ? location.city.trim() : "Not specified",
+        address: location?.address ? location.address.trim() : "Not specified"
+      }
+    };
+
+    // Check if email already exists for another user
+    if (email) {
+      const existingUser = await User.findOne({ 
+        email: updateData.email, 
+        _id: { $ne: userId } 
+      });
+      
+      if (existingUser) {
+        return res.status(400).json({
+          success: false,
+          message: "Email already exists"
+        });
+      }
+    }
+
+    // Update user profile
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $set: updateData },
+      { 
+        new: true, // Return updated document
+        runValidators: true // Run mongoose schema validators
+      }
+    ).select('-__v'); // Exclude version field
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Profile updated successfully",
+      data: updatedUser
+    });
+
+  } catch (error) {
+    console.error("Update profile error:", error);
+    
+    // Handle mongoose validation errors
+    if (error.name === 'ValidationError') {
+      const errors = Object.values(error.errors).map(err => err.message);
+      return res.status(400).json({
+        success: false,
+        message: "Validation error",
+        errors
+      });
+    }
+
+    // Handle duplicate key errors
+    if (error.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        message: "Email already exists"
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      message: "Internal server error"
+    });
+  }
 };
+
+// Get User Profile Controller (existing)
+export const getUserProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id); // keep as doc, not .lean()
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+    
+    res.json(user);
+  } catch (error) {
+    console.error("Get profile error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error"
+    });
+  }
+};
+
 
 
 export const getUserFavorites = async (req, res) => {

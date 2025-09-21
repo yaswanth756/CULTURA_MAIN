@@ -1,7 +1,7 @@
 import React from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
-import herobg from "../assets/hero-bg.avif";
+import herobg from "../../assets/hero-bg.avif";
 import SearchForm from "./SearchFrom";
 
 AOS.init(); // Initialize once

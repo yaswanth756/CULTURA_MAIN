@@ -133,7 +133,7 @@ export default function CustomDatePicker({
           role="dialog"
           aria-modal="true"
           aria-label="Choose date"
-          className="absolute left-1/2 -translate-x-1/2 z-30 mt-2 sm:mt-6 w-[320px] sm:w-[450px] rounded-2xl border border-gray-200 bg-white p-4 sm:p-8 shadow-2xl"
+          className="absolute left-1/2 -translate-x-1/2 z-30 mt-2 sm:mt-6 w-[320px] sm:w-[400px] rounded-2xl border border-gray-200 bg-white p-4 sm:p-3 shadow-2xl"
         >
           {/* Header */}
           <div className="flex items-center justify-between mb-2 sm:mb-3">

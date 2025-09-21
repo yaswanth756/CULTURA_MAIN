@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import Navbar from './Navbar'
-import LoginModal from './LoginModel';
+import LoginModal from './Login/LoginModel';
 
 const MainLayout = ({ children }) => {
  

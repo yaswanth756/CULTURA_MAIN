@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Loader2, ArrowLeft } from "lucide-react";
-import { useEventContext } from '../context/EventContext';
-import ListingContent from '../components/ListingContent';
-import BookingForm from '../components/BookingForm';
+import { ArrowLeft } from "lucide-react";
+import AOS from "aos";
+import "aos/dist/aos.css";
+
+import { useEventContext } from "../context/EventContext";
+import ListingContent from "../components/ListingDeatilPage/ListingContent";
+import BookingForm from "../components/ListingDeatilPage/BookingForm";
+import LoadingDots from "../components/LoadingDots";
 
 const ListingDetails = () => {
   const { id } = useParams();
@@ -12,22 +16,27 @@ const ListingDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch listing data from backend
+  // Initialize AOS
+  useEffect(() => {
+    AOS.init({ duration: 800, easing: "ease-in-out", once: true });
+  }, []);
+
+  // Fetch listing data
   useEffect(() => {
     const fetchListing = async () => {
       try {
         setLoading(true);
         const response = await fetch(`http://localhost:3000/api/listings/${id}`);
-        
+
         if (!response.ok) {
           throw new Error(`Failed to fetch listing: ${response.status}`);
         }
-        
+
         const data = await response.json();
         setListing(data);
       } catch (err) {
         setError(err.message);
-        console.error('Error fetching listing:', err);
+        console.error("Error fetching listing:", err);
       } finally {
         setLoading(false);
       }
@@ -42,10 +51,7 @@ const ListingDetails = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-indigo-600" />
-          <p className="text-gray-600">Loading listing details...</p>
-        </div>
+        <LoadingDots />
       </div>
     );
   }
@@ -54,7 +60,10 @@ const ListingDetails = () => {
   if (error || !listing) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center max-w-md mx-auto px-4">
+        <div
+          className="text-center max-w-md mx-auto px-4"
+          data-aos="fade-up"
+        >
           <div className="bg-white p-8 rounded-xl shadow-sm">
             <h2 className="text-xl font-semibold text-gray-900 mb-2">
               Listing Not Found
@@ -63,7 +72,7 @@ const ListingDetails = () => {
               {error || "The listing you're looking for doesn't exist."}
             </p>
             <button
-              onClick={() => navigate('/listings')}
+              onClick={() => navigate("/listings")}
               className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-colors mx-auto"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -75,17 +84,18 @@ const ListingDetails = () => {
     );
   }
 
+  // Success state
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* LEFT SIDE - Content */}
-          <div className="lg:w-2/3">
+          <div className="lg:w-2/3" data-aos="fade-right">
             <ListingContent listing={listing} />
           </div>
 
           {/* RIGHT SIDE - Booking Form */}
-          <div className="lg:w-1/3">
+          <div className="lg:w-1/3" data-aos="fade-left">
             <BookingForm listing={listing} />
           </div>
         </div>

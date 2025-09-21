@@ -1,6 +1,6 @@
 /* src/pages/Listings.jsx */
 import React, { useState } from 'react';
-import ResultsGrid from '../components/ResultsGrid';
+import ResultsGrid from '../components/ListingsPage/ResultsGrid';
 
 const Listings = () => {
   const [location,setLocation]=useState("");

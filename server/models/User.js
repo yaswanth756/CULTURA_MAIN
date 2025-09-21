@@ -93,7 +93,8 @@ function transform(doc, ret) {
       favorites:  ret.favorites,
       status:     ret.status,
       lastLogin:  ret.lastLogin,
-      createdAt:  ret.createdAt
+      createdAt:  ret.createdAt,
+      location:   ret.location
     };
   }
 

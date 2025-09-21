@@ -23,6 +23,7 @@ export const AuthProvider = ({ children }) => {
       setIsLoading(true);
       const response = await axios.get("http://localhost:3000/api/auth/profile");
       setUser(response.data);
+      console.log(response.data)
     } catch (error) {
       if (error instanceof AxiosError) {
         console.error("Error fetching user profile:", error.response?.data || error.message);
@@ -42,7 +43,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, logout, isLoading,setIsLoading }}>
       {children}
     </AuthContext.Provider>
   );

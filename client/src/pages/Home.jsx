@@ -1,8 +1,8 @@
 import React from 'react'
-import HeroSection from '../components/HeroSection'
-import Services from '../components/Services'
-import WorkShowcase from '../components/WorkShowcase'
-import AboutUs from '../components/AboutUs'
+import HeroSection from '../components/HomePage/HeroSection'
+import Services from '../components/HomePage/Services'
+import WorkShowcase from '../components/HomePage/WorkShowcase'
+import AboutUs from '../components/HomePage/AboutUs'
 import Footer from '../components/Footer'
 const Home = () => {
   return (

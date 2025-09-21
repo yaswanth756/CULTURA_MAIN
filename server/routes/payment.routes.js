@@ -7,7 +7,7 @@ import {
   handleWebhook,
   getPaymentStatus
 } from '../controllers/payment.controller.js';
-import { authMiddleware } from '../middleware/auth.middleware.js';
+import { authenticate } from '../middleware/auth.middleware.js';
 import {
   paymentRateLimit,
   webhookRateLimit,
@@ -23,7 +23,7 @@ router.use(paymentSecurity);
 // Create Payment Intent
 router.post('/create-intent',
   paymentRateLimit,
-  authMiddleware,
+  authenticate,
   [
     body('bookingId')
       .isMongoId()
@@ -44,7 +44,7 @@ router.post('/create-intent',
 // Confirm Payment
 router.post('/confirm',
   paymentRateLimit,
-  authMiddleware,
+  authenticate,
   [
     body('paymentIntentId')
       .matches(/^pi_/)
@@ -55,7 +55,7 @@ router.post('/confirm',
 
 // Get Payment Status
 router.get('/status/:paymentIntentId',
-  authMiddleware,
+  authenticate,
   [
     param('paymentIntentId')
       .matches(/^pi_/)

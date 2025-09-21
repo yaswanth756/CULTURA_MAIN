@@ -2,7 +2,7 @@
 import React, { useEffect } from 'react';
 import { X } from 'lucide-react';
 import LoginForm from './LoginForm';
-import { useEventContext } from "../context/EventContext";
+import { useEventContext } from "../../context/EventContext";
 const LoginModal = () => {
   // Handle ESC key press
   const {isModelOpen,setModelOpen}=useEventContext();

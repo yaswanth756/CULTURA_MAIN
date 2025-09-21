@@ -4,7 +4,8 @@ import {
   verifyOTPAndAuth,
   getUserProfile,
   getUserFavorites,
-  toggleFavorites
+  toggleFavorites,
+  updateUserProfile
   
 } from "../controllers/auth.controller.js";
 import { authenticate,allowRoles } from "../middleware/auth.middleware.js";
@@ -22,8 +23,12 @@ router.post("/verify-otp", verifyOTPAndAuth);
 
 router.get("/profile", authenticate, allowRoles("customer"), getUserProfile);
 
+router.put('/profile',authenticate, updateUserProfile)
+
+
 router.get("/getuserfav",authenticate, getUserFavorites);
 
 router.post("/favoritetoggle",authenticate,toggleFavorites);
+
 
 export default router;

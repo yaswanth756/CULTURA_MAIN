@@ -1,6 +1,6 @@
 import React, { useMemo, useRef, useState, useEffect, useCallback } from "react";
 import { Star, Phone, MapPin, Calendar as CalendarIcon, X, Loader2 } from "lucide-react";
-import MiniCalendar from "./MiniCalendar";
+import MiniCalendar from "../MiniCalendar";
 import { useNavigate } from 'react-router-dom';
 
 const priceTypeLabels = {
