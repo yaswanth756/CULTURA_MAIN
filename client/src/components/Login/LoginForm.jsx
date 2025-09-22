@@ -10,6 +10,7 @@ import {
   LogIn,
   ArrowLeft,
 } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const LoginForm = ({ setModelOpen }) => {
   const [formData, setFormData] = useState({
@@ -18,7 +19,8 @@ const LoginForm = ({ setModelOpen }) => {
     name: "",
     phone: "",
   });
-
+  const navigate = useNavigate();
+const location = useLocation();
   const [step, setStep] = useState(1);
   const [isSignup, setIsSignup] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -101,9 +103,9 @@ const LoginForm = ({ setModelOpen }) => {
       setIsSignup(false);
       setModelOpen(false);
 
-      setTimeout(() => {
-        window.location.href = "/";
-      }, 1000);
+      const redirectPath = location.pathname || "/";
+      navigate(redirectPath, { replace: true });
+      window.location.reload(); 
     } catch (err) {
       setError(err.response?.data?.message || "Failed to verify OTP");
     } finally {

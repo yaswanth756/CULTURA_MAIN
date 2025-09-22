@@ -6,7 +6,7 @@ import Test from './pages/Test';
 import Listings from './pages/Listings';
 import ListingDetails from './pages/ListingDetails';
 import SecurePayment from './pages/SecurePayment';
-
+import ProtectedRoute from './components/Protected';
 
 //////
 
@@ -30,17 +30,16 @@ function App() {
           <Route path="/securepayment/:id" element={<SecurePayment />} />
        
 
-
-
-
-          <Route path="/profile" element={<ProfilePage />}>
-    <Route index element={<Navigate to="about" replace />} />
-    <Route path="about" element={<AboutMePanel />} />
-    <Route path="bookings" element={<BookingsPanel />} />
-    <Route path="favorites" element={<FavoritesPanel />} />
-    <Route path="reviews" element={<ReviewsPanel />} />
-    <Route path="settings" element={<SettingsPanel />} />
-  </Route>
+          <Route element={<ProtectedRoute />}>
+              <Route path="/profile" element={<ProfilePage />}>
+                <Route index element={<Navigate to="about" replace />} />
+                <Route path="about" element={<AboutMePanel />} />
+                <Route path="bookings" element={<BookingsPanel />} />
+                <Route path="favorites" element={<FavoritesPanel />} />
+                <Route path="reviews" element={<ReviewsPanel />} />
+                <Route path="settings" element={<SettingsPanel />} />
+              </Route>
+          </Route>
         </Routes>
     </MainLayout>
 

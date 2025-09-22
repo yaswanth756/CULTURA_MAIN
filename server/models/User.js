@@ -7,14 +7,14 @@ const userSchema = new mongoose.Schema(
     email: {
       type: String,
       required: true,
-      unique: true,
+      unique: true, // unique already creates an index
       lowercase: true,
       match: [/^\S+@\S+\.\S+$/, "Invalid email"]
     },
     phone: {
       type: String,
       required: true,
-      unique: true,
+      unique: true, // unique already creates an index
       match: [/^\+91-[0-9]{10}$/, "Use +91-1234567890"]
     },
     role: {
@@ -82,7 +82,6 @@ function transform(doc, ret) {
   delete ret.__v;                            // always hide
 
   if (ret.role === "customer") {
-    // whitelist: expose only these keys
     return {
       _id:        ret._id,
       email:      ret.email,
@@ -98,13 +97,10 @@ function transform(doc, ret) {
     };
   }
 
-  // vendors/admins → full object (or add similar whitelists later)
-  return ret;
+  return ret; // vendors/admins → full object
 }
 
 /*────────────────────  INDEXES  ────────────────────*/
-userSchema.index({ email: 1 });
-userSchema.index({ phone: 1 });
 userSchema.index({ role: 1 });
 userSchema.index({ "location.coordinates": "2dsphere" });
 userSchema.index({ "vendorInfo.rating": -1 });
