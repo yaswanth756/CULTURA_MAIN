@@ -43,6 +43,25 @@
   scrollbar-width: none;
 }
   
+/* Add once in a global CSS (e.g., index.css) */
+@keyframes shimmer {
+  0% { transform: translateX(-60%); }
+  100% { transform: translateX(120%); }
+}
+.shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.shimmer::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-60%);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+  animation: shimmer 1.8s ease-in-out infinite;
+  mix-blend-mode: overlay;
+}
+
 
   /* Add this in your CSS file */
 @keyframes fadeIn {

@@ -1,35 +1,28 @@
-
 import React, { useState, useEffect } from 'react';
-import { useParams, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import axios from "axios";
+import { useAuth } from '../context/AuthContext';
 import { 
   ArrowLeft, 
-  Shield, 
-  CreditCard, 
   Calendar,
   MapPin,
   CheckCircle2,
-  Smartphone,
-  Lock
+  AlertCircle,
+  User
 } from 'lucide-react';
 
 const SecurePayment = () => {
-  const { id } = useParams();
+  const { user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const bookingData = location.state;
 
   // States
-  const [paymentMethod, setPaymentMethod] = useState('card');
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [error, setError] = useState('');
   const [countdown, setCountdown] = useState(5);
-
-  const [formData, setFormData] = useState({
-    cardNumber: '',
-    expiryDate: '',
-    cvv: '',
-    upiId: ''
-  });
+  const [bookingDetails, setBookingDetails] = useState(null);
 
   // Redirect if no booking data
   useEffect(() => {
@@ -48,6 +41,63 @@ const SecurePayment = () => {
     }
     return () => clearTimeout(timer);
   }, [isSuccess, countdown, navigate]);
+
+  // Create booking API call
+  // Create booking API call
+const createBooking = async () => {
+  try {
+    const bookingPayload = {
+      customerId: user._id,
+      vendorId: bookingData.vendorId,
+      listingId: bookingData.listingId,
+      serviceDate: bookingData.eventDate,
+      location: {
+        address: bookingData.location
+      },
+      pricing: {
+        baseAmount: bookingData.amount,
+        depositeAmount: bookingData.depositAmount || Math.floor((bookingData.amount || 0) * 0.1), // 10% of base amount
+        currency: "INR"
+      }
+    };
+
+    const response = await axios.post(
+      "http://localhost:3000/api/bookings/createnew",
+      bookingPayload,
+      {
+        headers: { "Content-Type": "application/json" }
+      }
+    );
+
+    return response.data.data.booking;
+  } catch (error) {
+    console.error('Booking creation error:', error);
+    throw error;
+  }
+};
+
+
+  // Handle booking confirmation
+  const handleSecurePayment = async (e) => {
+    e.preventDefault();
+    setIsProcessing(true);
+    setError('');
+
+    try {
+      // Create booking
+      const booking = await createBooking();
+      setBookingDetails(booking);
+
+      // Simulate processing delay
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
+      setIsProcessing(false);
+      setIsSuccess(true);
+    } catch (error) {
+      setIsProcessing(false);
+      setError(error.message || 'Booking failed. Please try again.');
+    }
+  };
 
   if (!bookingData) {
     return (
@@ -70,7 +120,6 @@ const SecurePayment = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="bg-white rounded-xl p-8 max-w-md w-full mx-4 text-center shadow-lg">
-          {/* Success Animation */}
           <div className="relative mb-6">
             <div className="w-20 h-20 mx-auto bg-green-100 rounded-full flex items-center justify-center animate-pulse">
               <CheckCircle2 className="w-12 h-12 text-green-500 animate-bounce" />
@@ -78,12 +127,20 @@ const SecurePayment = () => {
             <div className="absolute -top-2 -right-2 w-6 h-6 bg-green-400 rounded-full animate-ping opacity-75"></div>
           </div>
 
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Payment Successful!</h2>
-          <p className="text-gray-600 mb-4">Your booking has been confirmed</p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Booking Confirmed!</h2>
+          <p className="text-gray-600 mb-2">Your request has been submitted successfully</p>
+          
+          {bookingDetails && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+              <p className="text-blue-800 font-mono text-sm">
+                Booking ID: {bookingDetails.bookingNumber}
+              </p>
+            </div>
+          )}
 
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
             <p className="text-blue-800 font-medium">📞 We will contact you within 1 hour</p>
-            <p className="text-blue-600 text-sm mt-1">Our team will reach out to confirm the details</p>
+            <p className="text-blue-600 text-sm mt-1">Our team will reach out to confirm details and discuss pricing</p>
           </div>
 
           <div className="text-sm text-gray-500">
@@ -101,34 +158,6 @@ const SecurePayment = () => {
     );
   }
 
-  // Handle payment
-  const handlePayment = async (e) => {
-    e.preventDefault();
-    setIsProcessing(true);
-
-    try {
-      // Simulate payment processing
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      setIsProcessing(false);
-      setIsSuccess(true);
-    } catch (error) {
-      setIsProcessing(false);
-      alert('Payment failed. Please try again.');
-    }
-  };
-
-  const handleInputChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const formatCardNumber = (value) => {
-    return value.replace(/\s/g, '').replace(/(.{4})/g, '$1 ').trim();
-  };
-
-  const formatExpiryDate = (value) => {
-    return value.replace(/\D/g, '').replace(/(\d{2})(\d)/, '$1/$2');
-  };
-
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -144,8 +173,8 @@ const SecurePayment = () => {
             </button>
 
             <div className="flex items-center gap-2">
-              <Shield className="w-5 h-5 text-green-600" />
-              <span className="text-sm font-medium text-gray-700">Secure Payment</span>
+              <User className="w-5 h-5 text-blue-600" />
+              <span className="text-sm font-medium text-gray-700">Confirm Booking</span>
             </div>
           </div>
         </div>
@@ -154,103 +183,31 @@ const SecurePayment = () => {
       <div className="max-w-5xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-          {/* Payment Form */}
+          {/* Booking Form */}
           <div className="bg-white rounded-xl p-6 shadow-sm">
-            <h1 className="text-2xl font-bold text-gray-900 mb-6">Complete Payment</h1>
+            <h1 className="text-2xl font-bold text-gray-900 mb-6">Confirm Your Booking</h1>
 
-            {/* Payment Methods */}
-            <div className="mb-6">
-              <h3 className="text-lg font-medium mb-3">Payment Method</h3>
-              <div className="grid grid-cols-2 gap-3">
-                <label className={`flex items-center gap-3 p-3 border-2 rounded-lg cursor-pointer transition-all $\{
-                  paymentMethod === 'card' ? 'border-blue-500 bg-blue-50' : 'border-gray-200'
-                }`}>
-                  <input
-                    type="radio"
-                    name="payment"
-                    value="card"
-                    checked={paymentMethod === 'card'}
-                    onChange={(e) => setPaymentMethod(e.target.value)}
-                    className="sr-only"
-                  />
-                  <CreditCard className="w-5 h-5" />
-                  <span>Card</span>
-                </label>
-
-                <label className={`flex items-center gap-3 p-3 border-2 rounded-lg cursor-pointer transition-all $\{
-                  paymentMethod === 'upi' ? 'border-blue-500 bg-blue-50' : 'border-gray-200'
-                }`}>
-                  <input
-                    type="radio"
-                    name="payment"
-                    value="upi"
-                    checked={paymentMethod === 'upi'}
-                    onChange={(e) => setPaymentMethod(e.target.value)}
-                    className="sr-only"
-                  />
-                  <Smartphone className="w-5 h-5" />
-                  <span>UPI</span>
-                </label>
+            {/* Error Message */}
+            {error && (
+              <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
+                <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+                <p className="text-red-700 text-sm">{error}</p>
               </div>
+            )}
+
+            {/* Booking Info */}
+            <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-center gap-2 text-blue-800 mb-2">
+                <CheckCircle2 className="w-4 h-4" />
+                <span className="font-medium">Free Booking Request</span>
+              </div>
+              <p className="text-blue-600 text-sm">
+                No payment required now. We'll contact you to discuss pricing and finalize details.
+              </p>
             </div>
 
-            {/* Payment Form */}
-            <form onSubmit={handlePayment} className="space-y-4">
-              {paymentMethod === 'card' && (
-                <>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Card Number</label>
-                    <input
-                      type="text"
-                      value={formData.cardNumber}
-                      onChange={(e) => handleInputChange('cardNumber', formatCardNumber(e.target.value))}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="1234 5678 9012 3456"
-                      maxLength={19}
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Expiry</label>
-                      <input
-                        type="text"
-                        value={formData.expiryDate}
-                        onChange={(e) => handleInputChange('expiryDate', formatExpiryDate(e.target.value))}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="MM/YY"
-                        maxLength={5}
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">CVV</label>
-                      <input
-                        type="text"
-                        value={formData.cvv}
-                        onChange={(e) => handleInputChange('cvv', e.target.value.replace(/\D/g, '').slice(0, 4))}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="123"
-                        maxLength={4}
-                      />
-                    </div>
-                  </div>
-                </>
-              )}
-
-              {paymentMethod === 'upi' && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">UPI ID</label>
-                  <input
-                    type="text"
-                    value={formData.upiId}
-                    onChange={(e) => handleInputChange('upiId', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="yourname@paytm"
-                  />
-                </div>
-              )}
-
+            {/* Confirm Booking Button */}
+            <form onSubmit={handleSecurePayment}>
               <button
                 type="submit"
                 disabled={isProcessing}
@@ -259,12 +216,12 @@ const SecurePayment = () => {
                 {isProcessing ? (
                   <>
                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    Processing...
+                    Creating Booking...
                   </>
                 ) : (
                   <>
-                    <Lock className="w-5 h-5" />
-                    Pay ₹{bookingData.depositAmount?.toLocaleString() || '1,000'} Now
+                    <CheckCircle2 className="w-5 h-5" />
+                    Confirm Booking Request
                   </>
                 )}
               </button>
@@ -273,7 +230,7 @@ const SecurePayment = () => {
 
           {/* Booking Summary */}
           <div className="bg-white rounded-xl p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Booking Summary</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Booking Details</h2>
 
             <div className="space-y-4">
               <div>
@@ -291,31 +248,23 @@ const SecurePayment = () => {
                 <span className="truncate">{bookingData.location || 'Event Location'}</span>
               </div>
 
-              <div className="border-t pt-4 space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Service Fee</span>
-                  <span>₹{bookingData.amount?.toLocaleString() || '10,000'}</span>
+              <div className="border-t pt-4">
+                <div className="bg-gray-50 rounded-lg p-3">
+                  <p className="text-sm text-gray-700 font-medium">Estimated Service Fee</p>
+                  <p className="text-lg font-semibold text-gray-900">₹{bookingData.amount?.toLocaleString() || '10,000'}</p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Final pricing will be discussed and confirmed by vendor
+                  </p>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Advance Payment (10%)</span>
-                  <span>₹{bookingData.depositAmount?.toLocaleString() || '1,000'}</span>
-                </div>
-                <div className="flex justify-between font-semibold text-lg border-t pt-2">
-                  <span>Pay Now</span>
-                  <span>₹{bookingData.depositAmount?.toLocaleString() || '1,000'}</span>
-                </div>
-                <p className="text-xs text-gray-500">
-                  Remaining ₹{((bookingData.amount || 10000) - (bookingData.depositAmount || 1000)).toLocaleString()} payable after service
-                </p>
               </div>
 
               <div className="bg-green-50 border border-green-200 rounded-lg p-3 mt-4">
                 <div className="flex items-center gap-2 text-green-700">
                   <CheckCircle2 className="w-4 h-4" />
-                  <span className="text-sm font-medium">Secure Payment</span>
+                  <span className="text-sm font-medium">Free Booking Request</span>
                 </div>
                 <p className="text-xs text-green-600 mt-1">
-                  256-bit SSL encryption
+                  No payment required to submit booking request
                 </p>
               </div>
             </div>

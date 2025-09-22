@@ -310,7 +310,7 @@ export const getUserFavorites = async (req, res) => {
 
     // Convert ObjectIds to strings
     const favorites = (req.user.favorites || []).map(fav => fav.toString());
-    console.log(favorites); // Should now be like ['68cbb877671ad6e27ce9e81c']
+    
 
     return res.status(200).json({
       success: true,

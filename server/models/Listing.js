@@ -127,7 +127,7 @@ listingSchema.index({
     weights: {
       title: 10,
       serviceAreas: 8,
-      features: 7,             // ✅ High weight for features
+      features: 7,             
       tags: 5,
       subcategory: 3,
       description: 1

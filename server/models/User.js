@@ -64,7 +64,7 @@ const userSchema = new mongoose.Schema(
         push:  { type: Boolean, default: true }
       }
     },
-    favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: "Vendor" }],
+    favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: "Listing" }],
 
     /*──────── analytics ────────*/
     lastLogin:  Date,

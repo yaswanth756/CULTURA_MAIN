@@ -1,26 +1,47 @@
-/* routes/booking.routes.js */
 import express from 'express';
-import { body } from 'express-validator';
-import { createBooking, getBookings } from '../controllers/booking.controller.js';
-import {authenticate } from '../middleware/auth.middleware.js';
+import {
+  getUserBookings,
+  getBookingById,
+  cancelBooking,
+  updateBookingStatus,
+  getBookingStats,
+  createBooking 
+} from '../controllers/booking.controller.js';
+import { authenticate } from '../middleware/auth.middleware.js';
+
 
 const router = express.Router();
 
-// Create Booking
-router.post('/',
-  authenticate,
-  [
-    body('listingId').isMongoId().withMessage('Invalid listing ID'),
-    body('vendorId').isMongoId().withMessage('Invalid vendor ID'),
-    body('serviceDate').isISO8601().withMessage('Invalid service date'),
-    body('baseAmount').isNumeric().withMessage('Base amount must be numeric'),
-    body('totalAmount').isNumeric().withMessage('Total amount must be numeric'),
-    body('location').notEmpty().withMessage('Location is required')
-  ],
-  createBooking
-);
+// Create new booking
+router.post('/createnew', authenticate, createBooking);
 
-// Get User Bookings
-router.get('/', authenticate, getBookings);
+router.get('/user/:customerId', authenticate, getUserBookings);
+
+// Get booking statistics
+router.get('/user/:customerId/stats', authenticate, getBookingStats);
+
+// Get specific booking by ID
+router.get('/:bookingId', authenticate, getBookingById);
+
+// Cancel booking
+router.patch('/:bookingId/cancel', authenticate, cancelBooking);
+
+// Update booking status (for vendors/admins)
+//router.patch('/:bookingId/status', authenticate, updateBookingStatus);
+
+// Update payment status (existing route)
+//router.patch('/:bookingId/payment', authenticate, updatePaymentStatus);
+
+// Get booking by ID
+//router.get('/:bookingId', authenticateToken, getBooking);
+
+// Update payment status
+//outer.patch('/:bookingId/payment', authenticateToken, updatePaymentStatus);
+
+// Get customer bookings
+//router.get('/customer/:customerId', authenticateToken, getCustomerBookings);
+
+// Get vendor bookings  
+//router.get('/vendor/:vendorId', authenticateToken, getVendorBookings);
 
 export default router;
