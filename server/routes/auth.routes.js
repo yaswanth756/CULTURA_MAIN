@@ -5,7 +5,8 @@ import {
   getUserProfile,
   getUserFavorites,
   toggleFavorites,
-  updateUserProfile
+  updateUserProfile,
+  getUserFavoritesProfile
   
 } from "../controllers/auth.controller.js";
 import { authenticate,allowRoles } from "../middleware/auth.middleware.js";
@@ -29,6 +30,9 @@ router.put('/profile',authenticate, updateUserProfile)
 router.get("/getuserfav",authenticate, getUserFavorites);
 
 router.post("/favoritetoggle",authenticate,toggleFavorites);
+
+router.get("/getuserfavoritesProfile",authenticate,getUserFavoritesProfile);
+
 
 
 export default router;

@@ -351,6 +351,57 @@ export const toggleFavorites = async (req, res) => {
   }
 };
 
+export const getUserFavoritesProfile = async (req, res) => {
+  try {
+    if (!req.user) return res.status(404).json({ message: "User not found" });
+
+    const user = await User.findById(req.user._id)
+      .populate({
+        path: 'favorites',
+        match: { status: 'active' }, // Only active listings
+        populate: {
+          path: 'vendorId',
+          select: 'profile.firstName profile.businessName vendorInfo.verified vendorInfo.rating'
+        }
+      });
+
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // Format favorites for frontend
+    const formattedFavorites = user.favorites.map(listing => ({
+      id: listing._id,
+      title: listing.title,
+      category: listing.category,
+      price: listing.price.base,
+      priceType: listing.price.type,
+      rating: listing.ratings.average,
+      reviews: listing.ratings.count,
+      image: listing.images[0] || null,
+      vendor: {
+        name: listing.vendorId?.profile?.businessName || listing.vendorId?.profile?.firstName || 'Unknown',
+        verified: listing.vendorId?.vendorInfo?.verified || false,
+        rating: listing.vendorId?.vendorInfo?.rating || 0
+      },
+     
+
+    }));
+
+    res.status(200).json({
+      success: true,
+      data: {
+        favorites: formattedFavorites,
+        count: formattedFavorites.length
+      }
+    });
+
+  } catch (err) {
+    console.error("getUserFavorites error →", err);
+    res.status(500).json({ message: "Failed to fetch favorites" });
+  }
+};
+
+
+
 
 
 

@@ -13,7 +13,6 @@ const ProfileSidebar = ({ activeTab }) => {
     { key: "about", label: "About me", icon: User },
     { key: "bookings", label: "My bookings", icon: Calendar },
     { key: "favorites", label: "Saved vendors", icon: Heart },
-    { key: "reviews", label: "My reviews", icon: MessageSquare },
     { key: "settings", label: "Account settings", icon: Settings },
   ];
 

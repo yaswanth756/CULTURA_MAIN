@@ -5,12 +5,9 @@ import { Mail, Phone, MapPin, Camera, Edit3, Check, X, Plus, Lock } from "lucide
 import AOS from "aos";
 import "aos/dist/aos.css";
 
-// Neutral shimmer skeleton
+/* Neutral shimmer skeleton */
 const Skeleton = ({ className = "", ...props }) => (
-  <div
-    className={`relative overflow-hidden rounded bg-gray-200 ${className}`}
-    {...props}
-  >
+  <div className={`relative overflow-hidden rounded bg-gray-200 ${className}`} {...props}>
     <span className="absolute inset-0 -translate-x-1/2 bg-gradient-to-r from-transparent via-white/50 to-transparent animate-[shimmer_1.8s_ease-in-out_infinite]" />
   </div>
 );
@@ -29,12 +26,7 @@ const AboutMePanel = () => {
   }, [user]);
 
   useEffect(() => {
-    AOS.init({
-      duration: 800,
-      offset: 100,
-      easing: "ease-in-out",
-      once: true,
-    });
+    AOS.init({ duration: 800, offset: 100, easing: "ease-in-out", once: true });
   }, []);
 
   const startEdit = () => {
@@ -92,63 +84,64 @@ const AboutMePanel = () => {
   };
 
   const ProfileSkeleton = () => (
-    <div className="max-w-6xl mx-auto p-6 space-y-6">
+    <div className="max-w-3xl mx-auto p-6 space-y-6">
+      {/* Top bar */}
       <div className="flex items-center justify-between">
         <Skeleton className="h-7 w-28" />
         <Skeleton className="h-9 w-28" />
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <div className="bg-white rounded-xl border shadow-sm">
-            <div className="p-6 border-b">
-              <div className="flex items-start gap-5">
-                <Skeleton className="w-20 h-20 rounded-full" />
-                <div className="flex-1 space-y-3">
-                  <Skeleton className="h-5 w-48" />
-                  <div className="flex items-center gap-2">
-                    <Skeleton className="h-5 w-16 rounded-full" />
-                    <Skeleton className="h-4 w-32" />
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="p-6 space-y-5">
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="flex justify-between items-center border-b last:border-0 py-4">
-                  <Skeleton className="h-4 w-24" />
-                  <Skeleton className="h-4 w-40" />
-                </div>
-              ))}
+  
+      {/* Header + Personal info (same shell as live) */}
+      <section className="bg-white rounded-2xl border shadow-sm">
+        {/* Header card */}
+        <div className="p-6 border-b">
+          <div className="flex items-start gap-4">
+            <Skeleton className="h-16 w-16 rounded-full" />
+            <div className="flex-1 space-y-2">
+              <Skeleton className="h-5 w-48" />
+              <Skeleton className="h-4 w-40" />
+              <Skeleton className="h-4 w-44" />
             </div>
           </div>
         </div>
-        <div className="space-y-5">
-          {[...Array(2)].map((_, i) => (
-            <div key={i} className="bg-white rounded-xl border shadow-sm p-6">
-              <Skeleton className="h-5 w-32 mb-4" />
-              <div className="space-y-3">
-                {[...Array(3)].map((_, j) => (
-                  <div key={j} className="flex justify-between">
-                    <Skeleton className="h-4 w-20" />
-                    <Skeleton className="h-4 w-28" />
-                  </div>
-                ))}
-              </div>
+  
+        {/* Personal information grid (match: gap-x-8 gap-y-7 sm:grid-cols-2) */}
+        <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-7">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="space-y-2 min-h-[56px]">
+              <Skeleton className="h-3 w-24" />                  {/* label */}
+              <Skeleton className="h-5 w-full max-w-[224px]" />   {/* value */}
             </div>
           ))}
         </div>
-      </div>
+      </section>
+  
+      {/* Address card (match shell + gaps) */}
+      <section className="bg-white rounded-2xl border shadow-sm p-6">
+        <div className="mb-4">
+          <Skeleton className="h-5 w-40" />
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
+          {[...Array(2)].map((_, i) => (
+            <div key={i} className="space-y-2 min-h-[56px]">
+              <Skeleton className="h-3 w-24" />
+              <Skeleton className="h-5 w-full max-w-[224px]" />
+            </div>
+          ))}
+        </div>
+      </section>
     </div>
   );
+  
 
   if (isLoading) return <ProfileSkeleton />;
 
   if (!userData) {
     return (
-      <div className="max-w-6xl mx-auto p-6 flex items-center justify-center">
+      <div className="max-w-3xl mx-auto p-6 flex items-center justify-center">
         <div className="text-center" data-aos="fade-up">
           <p className="text-gray-600 mb-2">No profile data available</p>
-          <p className="text-sm text-gray-500">Please check your connection and try refreshing</p>
+          <p className="text-sm text-gray-500">Please check the connection and try refreshing</p>
           <button
             onClick={() => window.location.reload()}
             className="mt-4 px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-black focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
@@ -160,193 +153,179 @@ const AboutMePanel = () => {
     );
   }
 
+  const StatusBadge = () => (
+    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-green-100 text-green-800">
+      Active
+    </span>
+  );
+
   return (
-    <div className="max-w-6xl mx-auto px-6 py-4 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between" data-aos="fade-up">
-        <h1 className="text-[22px] font-semibold text-gray-900 tracking-tight">Profile</h1>
-        {!isEditing ? (
-          <button
-            onClick={startEdit}
-            className="inline-flex items-center gap-2 px-3.5 py-2 text-sm font-medium text-gray-800 bg-white border rounded-lg hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-            data-aos="fade-up"
-            data-aos-delay="100"
-          >
-            <Edit3 className="w-4 h-4" />
-            Edit Profile
-          </button>
-        ) : (
-          <div className="flex items-center gap-2" data-aos="fade-up" data-aos-delay="100">
+    <div className="min-h-screen roun py-2">
+      <div className="mx-auto max-w-3xl bg-white rounded-2xl px-4 space-y-6">
+        {/* Page title + actions */}
+        <div className="flex items-center justify-between pt-3" data-aos="fade-up">
+          <h1 className="text-2xl font-semibold text-slate-900">My Profile</h1>
+          {!isEditing ? (
             <button
-              onClick={cancelEdit}
-              className="inline-flex items-center gap-2 px-3.5 py-2 text-sm font-medium text-gray-700 bg-white border rounded-lg hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+              onClick={startEdit}
+              className="inline-flex items-center gap-2 px-3.5 py-2 text-sm font-medium text-gray-800 bg-white border rounded-lg hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             >
-              <X className="w-4 h-4" />
-              Cancel
+              <Edit3 className="w-4 h-4" />
+              Edit
             </button>
-            <button
-              onClick={saveChanges}
-              className="inline-flex items-center gap-2 px-3.5 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-60"
-              disabled={isLoading}
-            >
-              <Check className="w-4 h-4" />
-              Save Changes
-            </button>
-          </div>
-        )}
-      </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={cancelEdit}
+                className="inline-flex items-center gap-2 px-3.5 py-2 text-sm font-medium text-gray-700 bg-white border rounded-lg hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+              >
+                <X className="w-4 h-4" />
+                Cancel
+              </button>
+              <button
+                onClick={saveChanges}
+                className="inline-flex items-center gap-2 px-3.5 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-60"
+                disabled={isLoading}
+              >
+                <Check className="w-4 h-4" />
+                Save
+              </button>
+            </div>
+          )}
+        </div>
 
-      {/* Main */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Profile card */}
-        <div className="lg:col-span-2" data-aos="fade-up" data-aos-delay="150">
-          <div className="bg-white rounded-xl border shadow-sm">
-            {/* Avatar + name */}
-            <div className="p-6 border-b">
-              <div className="flex items-start gap-5">
-                <div className="relative flex-shrink-0" data-aos="fade-up" data-aos-delay="200">
-                  <div className="w-20 h-20 rounded-full bg-gray-100 border flex items-center justify-center overflow-hidden">
-                    <img
-                      src={userData.avatar && userData.avatar.trim() !== "" ? userData.avatar : DEFAULT_AVATAR}
-                      alt={userData.firstName || "User"}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        e.target.src = DEFAULT_AVATAR;
-                      }}
-                    />
-                  </div>
-                  {isEditing && (
-                    <button
-                      className="absolute -bottom-1 -right-1 w-7 h-7 bg-blue-600 text-white rounded-full flex items-center justify-center shadow hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-                      type="button"
-                    >
-                      <Camera className="w-3 h-3" />
-                    </button>
-                  )}
+        {/* Header card */}
+        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm" data-aos="fade-up">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              {/* Avatar */}
+              <div className="relative flex-shrink-0">
+                <div className="h-16 w-16 rounded-full bg-slate-100 ring-1 ring-slate-200 overflow-hidden flex items-center justify-center">
+                  <img
+                    src={userData.avatar && userData.avatar.trim() !== "" ? userData.avatar : DEFAULT_AVATAR}
+                    alt={userData.firstName || "User"}
+                    className="h-full w-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.src = DEFAULT_AVATAR;
+                    }}
+                  />
                 </div>
+                {isEditing && (
+                  <button
+                    className="absolute -bottom-1 -right-1 w-7 h-7 bg-blue-600 text-white rounded-full flex items-center justify-center shadow hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                    type="button"
+                  >
+                    <Camera className="w-3 h-3" />
+                  </button>
+                )}
+              </div>
 
-                <div className="flex-1 min-w-0" data-aos="fade-up" data-aos-delay="250">
-                  {!isEditing ? (
-                    <>
-                      <h3 className="text-[18px] font-semibold text-gray-900 truncate">
-                        {userData.firstName || "User Name"}
-                      </h3>
-                      <div className="flex items-center gap-2 mt-1">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-green-100 text-green-800">
-                          Active
-                        </span>
-                        <span className="text-sm text-gray-500">•</span>
-                        <span className="text-sm text-gray-500">
-                          Member since {formatDate(userData.createdAt)}
-                        </span>
-                      </div>
-                    </>
-                  ) : (
-                    <div className="space-y-3">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                        <input
-                          type="text"
-                          value={formData.firstName}
-                          onChange={(e) => handleInputChange("firstName", e.target.value)}
-                          className="w-full px-3 py-2 border rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-                          placeholder="Enter your full name"
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
+              {/* Name + meta */}
+              <div className="space-y-0.5">
+                {!isEditing ? (
+                  <p className="text-xl font-semibold text-slate-900">
+                    {userData.firstName || "User Name"}
+                  </p>
+                ) : (
+                  <input
+                    type="text"
+                    value={formData.firstName}
+                    onChange={(e) => handleInputChange("firstName", e.target.value)}
+                    className="text-xl font-semibold text-slate-900 border rounded-lg px-3 py-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                    placeholder="Enter full name"
+                  />
+                )}
+                <p className="text-sm text-slate-500">
+                  Customer • Member since {formatDate(userData.createdAt)}
+                </p>
+                <p className="text-sm text-slate-500 flex items-center gap-1">
+                  <StatusBadge />
+                  <span className="text-gray-400">•</span>
+                  <span className="inline-flex items-center gap-1">
+                    <MapPin className="w-3.5 h-3.5" />
+                    {userData?.location?.city === "Not specified" ? "—" : (userData?.location?.city ?? "—")}
+                  </span>
+                </p>
               </div>
             </div>
+          </div>
+        </section>
 
-            {/* Details */}
-            <div className="p-6 space-y-2" data-aos="fade-up" data-aos-delay="300">
-              <EditableField
-                label="Name"
+        {/* Personal information */}
+        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm" data-aos="fade-up">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-slate-900">Personal information</h2>
+            {!isEditing ? null : <span className="text-xs text-slate-500">Editing mode</span>}
+          </div>
+
+          <dl className="grid grid-cols-1 gap-x-8 gap-y-7 sm:grid-cols-2">
+            <FieldLike label="Name">
+              <EditableInline
                 value={userData.firstName}
                 formValue={formData.firstName}
-                field="firstName"
                 isEditing={isEditing}
-                onChange={handleInputChange}
-                startEdit={startEdit}
-                editable
+                onChange={(v) => handleInputChange("firstName", v)}
+                placeholder="Enter full name"
               />
-              <ReadOnlyField label="Email account" value={userData.email} />
-              <ReadOnlyField label="Mobile number" value={userData.phone} />
-              <EditableField
-                label="City"
+            </FieldLike>
+
+            <FieldLike label="Email account">
+              <ReadOnlyInline value={userData.email} icon={<Mail className="w-3.5 h-3.5 text-gray-400" />} />
+            </FieldLike>
+
+            <FieldLike label="Mobile number">
+              <ReadOnlyInline value={userData.phone} icon={<Phone className="w-3.5 h-3.5 text-gray-400" />} />
+            </FieldLike>
+
+            <FieldLike label="Status">
+              <span className="text-slate-900">Active</span>
+            </FieldLike>
+
+            <FieldLike label="Last login">
+              <span className="text-slate-900">{formatDate(userData.lastLogin)}</span>
+            </FieldLike>
+
+            <FieldLike label="Member since">
+              <span className="text-slate-900">{formatDate(userData.createdAt)}</span>
+            </FieldLike>
+          </dl>
+        </section>
+
+        {/* Address */}
+        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm" data-aos="fade-up">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-slate-900">Address</h2>
+          </div>
+
+          <dl className="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2">
+            <FieldLike label="City">
+              <EditableInline
                 value={userData.location?.city}
                 formValue={formData.city}
-                field="city"
                 isEditing={isEditing}
-                onChange={handleInputChange}
-                startEdit={startEdit}
-                editable
+                onChange={(v) => handleInputChange("city", v)}
+                placeholder="Enter city"
+                showAddWhenEmpty
+                onAdd={startEdit}
               />
-              <EditableField
-                label="Address"
+            </FieldLike>
+
+            <FieldLike label="Address">
+              <EditableInline
                 value={userData.location?.address}
                 formValue={formData.address}
-                field="address"
                 isEditing={isEditing}
-                onChange={handleInputChange}
-                startEdit={startEdit}
-                editable
-                isLast
+                onChange={(v) => handleInputChange("address", v)}
+                placeholder="Enter address"
+                showAddWhenEmpty
+                onAdd={startEdit}
               />
-            </div>
-          </div>
-        </div>
-
-        {/* Sidebar */}
-        <div className="space-y-7">
-          <div className="bg-white rounded-xl border shadow-sm p-6" data-aos="fade-up" data-aos-delay="200">
-            <h4 className="text-base font-medium text-gray-900 mb-3">Account Status</h4>
-            <div className="space-y-5">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Status</span>
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-green-100 text-green-800 capitalize">
-                  {userData.status || "active"}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Role</span>
-                <span className="text-sm font-medium text-gray-900 capitalize">
-                  {userData.role || "user"}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Last Login</span>
-                <span className="text-sm text-gray-900">{formatDate(userData.lastLogin)}</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl border shadow-sm p-6" data-aos="fade-up" data-aos-delay="300">
-            <h4 className="text-base font-medium text-gray-900 mb-3">Quick Actions</h4>
-            <div className="space-y-4">
-              {[
-                { text: "Change Password", tone: "text-gray-800" },
-                { text: "Privacy Settings", tone: "text-gray-800" },
-                { text: "Notification Preferences", tone: "text-gray-800" },
-                { text: "Delete Account", tone: "text-rose-600 hover:bg-rose-50" },
-              ].map((a, i) => (
-                <button
-                  key={i}
-                  className={`w-full px-3.5 py-2 text-left text-sm rounded-lg hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${a.tone}`}
-                  type="button"
-                  data-aos="fade-up"
-                  data-aos-delay={350 + i * 50}
-                >
-                  {a.text}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
+            </FieldLike>
+          </dl>
+        </section>
       </div>
 
-      {/* Local shimmer keyframes (or move to global) */}
+      {/* Local shimmer keyframes */}
       <style jsx>{`
         @keyframes shimmer {
           0% {
@@ -361,66 +340,64 @@ const AboutMePanel = () => {
   );
 };
 
-// Field components
-const EditableField = ({
-  label,
+/* dt/dd layout shell */
+const FieldLike = ({ label, children }) => (
+  <div>
+    <dt className="text-xs font-medium uppercase tracking-wide text-slate-500">{label}</dt>
+    <dd className="mt-1">{children}</dd>
+  </div>
+);
+
+/* UPDATED: supports "+ Add" when empty */
+const EditableInline = ({
   value,
   formValue,
-  field,
   isEditing,
   onChange,
-  startEdit,
-  editable = true,
-  isLast = false,
+  placeholder,
+  showAddWhenEmpty = false,
+  onAdd,
 }) => {
   const isEmpty = !value || value.trim() === "" || value === "Not specified";
-  return (
-    <div
-      className={`flex justify-between items-center py-4 ${!isLast ? "border-b" : ""}`}
-      data-aos="fade-up"
-    >
-      <div className="text-gray-600">{label}</div>
-      {!isEditing ? (
-        <div className="flex items-center gap-2">
-          <div className={`text-gray-900 ${isEmpty ? "text-gray-500" : ""}`}>
-            {!isEmpty ? value : `Add ${label.toLowerCase()}`}
-          </div>
-          {isEmpty && editable && (
-            <button
-              onClick={startEdit}
-              className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-blue-700 bg-blue-50 rounded-md hover:bg-blue-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-              type="button"
-            >
-              <Plus className="w-3 h-3" />
-              Add
-            </button>
-          )}
+
+  if (!isEditing) {
+    if (isEmpty && showAddWhenEmpty) {
+      return (
+        <div className="flex items-center justify-between">
+          <span className="text-gray-500">—</span>
+          <button
+            type="button"
+            onClick={onAdd}
+            className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-blue-700 bg-blue-50 rounded-md hover:bg-blue-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            aria-label="Add value"
+          >
+            <Plus className="w-3 h-3" />
+            Add
+          </button>
         </div>
-      ) : (
-        <input
-          type="text"
-          value={formValue}
-          onChange={(e) => onChange(field, e.target.value)}
-          className="px-3 py-2 border rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-          placeholder={`Enter your ${label.toLowerCase()}`}
-        />
-      )}
-    </div>
+      );
+    }
+    return <span className={`text-slate-900 ${isEmpty ? "text-gray-500" : ""}`}>{!isEmpty ? value : "—"}</span>;
+  }
+
+  return (
+    <input
+      type="text"
+      value={formValue ?? ""}
+      onChange={(e) => onChange(e.target.value)}
+      className="w-full px-3 py-2 border rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+      placeholder={placeholder}
+    />
   );
 };
 
-const ReadOnlyField = ({ label, value }) => {
+const ReadOnlyInline = ({ value, icon }) => {
   const isEmpty = !value || value.trim() === "" || value === "Not specified";
   return (
-    <div className="flex justify-between items-center border-b py-4" data-aos="fade-up">
-      <div className="text-gray-600 flex items-center gap-2">
-        {label}
-        <Lock className="w-3 h-3 text-gray-400" />
-      </div>
-      <div className={`text-gray-900 ${isEmpty ? "text-gray-500" : ""}`}>
-        {!isEmpty ? value : `${label} not provided`}
-      </div>
-    </div>
+    <span className={`inline-flex items-center gap-2 ${isEmpty ? "text-gray-500" : "text-slate-900"}`}>
+      {icon}
+      {!isEmpty ? value : "—"}
+    </span>
   );
 };
 

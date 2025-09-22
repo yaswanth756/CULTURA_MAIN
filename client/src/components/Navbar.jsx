@@ -6,8 +6,8 @@ import { useAuth } from "../context/AuthContext";
 
 const navLinks = [
   { path: "/browse", label: "Browse Events", type: "route" },
-  { path: "/#work", label: "Work Showcase", type: "hash" },
-  { path: "/#about", label: "About Us", type: "hash" },
+  { path: "#work", label: "Work Showcase", type: "hash" },
+  { path: "#about", label: "About Us", type: "hash" },
 ];
 
 const Navbar = () => {

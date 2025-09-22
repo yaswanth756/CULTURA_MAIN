@@ -137,7 +137,7 @@ const ResultsComponent = ({
                   {/* Bottom Gradient + Price Badge */}
                   <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/40 to-transparent" />
                   <div className="absolute left-2 bottom-2 z-10">
-                    <span className="inline-flex items-center px-2.5 py-1 font-medium rounded-full text-sm  bg-white  text-black ring-1 ">
+                    <span className="inline-flex items-center px-2.5 py-1 font-medim rounded-full text-sm  bg-white  text-black ring-1 ">
                       From <span className="text-gray-800 pl-2">{priceLabel} {priceTypeLabels[listing?.price?.type]}</span>
                     </span>
                   </div>

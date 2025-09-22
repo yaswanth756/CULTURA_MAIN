@@ -14,7 +14,7 @@ export const createBooking = async (req, res) => {
       pricing,
 
     } = req.body;
-    console.log(req.body);
+    
 
     // Validate required fields
     if (!customerId || !vendorId || !listingId || !serviceDate || !pricing?.baseAmount) {
