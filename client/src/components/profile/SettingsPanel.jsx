@@ -48,8 +48,15 @@ const SettingsPanel = () => {
     return <div className="text-center p-10">Loading settings...</div>;
   }
 
-  if (!settings) {
+  // If loading is complete but we have no user, we cannot proceed.
+  if (!user) {
     return <div className="text-center p-10">Could not load user settings.</div>;
+  }
+
+  // If we have a user but the local settings state hasn't been populated yet,
+  // return null to wait for the next render cycle.
+  if (!settings) {
+    return null;
   }
 
   return (
