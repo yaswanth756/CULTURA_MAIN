@@ -17,6 +17,8 @@ router.post('/createnew', authenticate, createBooking);
 
 router.get('/user/:customerId', authenticate, getUserBookings);
 
+router.patch('/:bookingId/cancel', authenticate, cancelBooking);
+
 // Get booking statistics
 router.get('/user/:customerId/stats', authenticate, getBookingStats);
 
@@ -24,7 +26,7 @@ router.get('/user/:customerId/stats', authenticate, getBookingStats);
 router.get('/:bookingId', authenticate, getBookingById);
 
 // Cancel booking
-router.patch('/:bookingId/cancel', authenticate, cancelBooking);
+
 
 // Update booking status (for vendors/admins)
 //router.patch('/:bookingId/status', authenticate, updateBookingStatus);

@@ -66,10 +66,10 @@ const filters = [
   { key: "cancelled", label: "Cancelled" },
 ];
 
-// --- Accessible, animated modal (Airbnb-style) ---
 const BookingDetailsModal = ({ booking, isOpen, onClose }) => {
   const dialogRef = useRef(null);
   const closeBtnRef = useRef(null);
+
 
   const titleId = useMemo(
     () => (booking?._id ? `booking-title-${booking._id}` : "booking-title"),
@@ -123,7 +123,7 @@ const BookingDetailsModal = ({ booking, isOpen, onClose }) => {
   if (!isOpen || !booking) return null;
 
   const {
-    _id,
+    id,
     bookingNumber,
     title,
     vendor,
@@ -140,7 +140,7 @@ const BookingDetailsModal = ({ booking, isOpen, onClose }) => {
     canCancel,
     imageUrl,
   } = booking;
-
+  
   const letter = (vendor || "V").toString().trim().charAt(0).toUpperCase();
   const formatINR = (n) => `₹${Number(n || 0).toLocaleString("en-IN")}`;
   const statusColor =
@@ -159,17 +159,12 @@ const BookingDetailsModal = ({ booking, isOpen, onClose }) => {
     Number(payableAmount || 0) > 0;
 
   const handleCancel = async () => {
-    try {
-      await axios.patch(`http://localhost:3000/api/bookings/${_id}/cancel`);
-      onClose?.();
-      window.dispatchEvent(new CustomEvent("booking:updated", { detail: { id: _id } }));
-    } catch (e) {
-      console.error(e);
-    }
+    console.log(id)
+   
   };
 
   const handlePay = () => {
-    window.location.href = `/checkout?bookingId=${_id}`;
+    window.location.href = `/checkout?bookingId=${id}`;
   };
 
   const overlay = (
@@ -378,7 +373,9 @@ const BookingsPanel = () => {
       const params = { status, page: 1, limit: 50 };
       const res = await axios.get(`http://localhost:3000/api/bookings/user/${user._id}`, { params });
       if (res.data.success) setBookings(res.data.data.bookings || []);
+
       else setError("Failed to fetch bookings");
+      console.log(res.data.data.bookings)
     } catch (e) {
       setError(e?.response?.data?.message || "Failed to load bookings");
     } finally {

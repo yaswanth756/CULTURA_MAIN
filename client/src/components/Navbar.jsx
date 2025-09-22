@@ -123,7 +123,7 @@ const Navbar = () => {
                 {/* Menu Items */}
                 <div className="py-2">
                   <Link
-                    to="#"
+                    to="/profile"
                     className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors duration-150 group"
                     onClick={() => setIsDrop(false)}
                   >

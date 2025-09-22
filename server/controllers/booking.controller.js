@@ -218,19 +218,23 @@ export const getBookingById = async (req, res) => {
 export const cancelBooking = async (req, res) => {
   try {
     const { bookingId } = req.params;
-    const { customerId } = req.user; // From auth middleware
-    const { reason } = req.body;
+    const customerId = req.user._id; // From auth middleware
 
     // Find the booking
-    const booking = await Booking.findOne({ 
-      _id: bookingId, 
-      customerId 
-    });
-
+    const booking = await Booking.findById(bookingId);
+    
     if (!booking) {
       return res.status(404).json({
         success: false,
-        message: 'Booking not found'
+        message: "Booking not found"
+      });
+    }
+
+    // Check if booking belongs to the customer
+    if (booking.customerId.toString() !== customerId.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "Not authorized to cancel this booking"
       });
     }
 
@@ -238,65 +242,41 @@ export const cancelBooking = async (req, res) => {
     if (booking.status === 'cancelled') {
       return res.status(400).json({
         success: false,
-        message: 'Booking is already cancelled'
+        message: "Booking is already cancelled"
       });
     }
 
     if (booking.status === 'completed') {
       return res.status(400).json({
         success: false,
-        message: 'Cannot cancel completed booking'
-      });
-    }
-
-    // Check if service date has passed
-    if (new Date(booking.serviceDate) < new Date()) {
-      return res.status(400).json({
-        success: false,
-        message: 'Cannot cancel booking for past dates'
+        message: "Cannot cancel completed booking"
       });
     }
 
     // Update booking status
-    booking.status = 'cancelled';
-    booking.cancelledAt = new Date();
-    if (reason) {
-      booking.cancellationReason = reason;
-    }
-
-    // Update payment status if paid
-    if (booking.paymentStatus === 'paid') {
-      booking.paymentStatus = 'refunded';
-    }
-
-    await booking.save();
-
-    // TODO: Send email notification to customer and vendor
-    // TODO: Process refund if payment was made
+    await Booking.findByIdAndUpdate(
+      bookingId,
+      {
+        status: 'cancelled',
+        cancelledAt: new Date()
+      },
+      { new: true }
+    );
 
     res.status(200).json({
       success: true,
-      message: 'Booking cancelled successfully',
-      data: { 
-        booking: {
-          id: booking._id,
-          bookingNumber: booking.bookingNumber,
-          status: booking.status,
-          paymentStatus: booking.paymentStatus,
-          cancelledAt: booking.cancelledAt
-        }
-      }
+      message: "Booking cancelled successfully"
     });
 
   } catch (error) {
     console.error('Cancel booking error:', error);
     res.status(500).json({
       success: false,
-      message: 'Failed to cancel booking',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      message: "Failed to cancel booking"
     });
   }
 };
+
 
 // Update booking status (for vendors/admins)
 export const updateBookingStatus = async (req, res) => {

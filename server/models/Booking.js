@@ -40,7 +40,7 @@ const BookingSchema = new Schema(
     },
 
     // Additional fields for UI
-    cancellationReason: { type: String, trim: true },
+    
     cancelledAt: { type: Date },
     confirmedAt: { type: Date },
   },
