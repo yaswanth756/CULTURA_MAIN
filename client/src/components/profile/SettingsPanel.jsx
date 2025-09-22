@@ -1,29 +1,29 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useAuth } from "../../context/AuthContext";
 import ToggleSwitch from "./ToggleSwitch";
 
-// TODO: Replace with API call when backend is ready
-const dummyUserSettings = {
-  profile: {
-    firstName: "Priya Sharma",
-  },
-  email: "priya@example.com",
-  phone: "+91-9876543210",
-  preferences: {
-    emailNotifications: true,
-    smsNotifications: false,
-    pushNotifications: true,
-    marketingEmails: false,
-    bookingReminders: true,
-    reviewReminders: true
-  }
-};
-
 const SettingsPanel = () => {
-  const [settings, setSettings] = useState(dummyUserSettings);
-  const [isEditing, setIsEditing] = useState({
-    email: false,
-    phone: false
-  });
+  const { user, isLoading } = useAuth();
+  const [settings, setSettings] = useState(null);
+  const [isEditing, setIsEditing] = useState({ email: false, phone: false });
+
+  useEffect(() => {
+    if (user) {
+      // Assuming 'user' object contains all necessary fields including 'preferences'.
+      // If 'preferences' can be undefined, provide a default.
+      setSettings({
+        ...user,
+        preferences: user.preferences || {
+          emailNotifications: false,
+          smsNotifications: false,
+          pushNotifications: false,
+          marketingEmails: false,
+          bookingReminders: false,
+          reviewReminders: false,
+        },
+      });
+    }
+  }, [user]);
 
   const handleToggle = (key) => {
     // TODO: Call API to update user preferences
@@ -44,6 +44,14 @@ const SettingsPanel = () => {
     console.log(`Updated ${field} to:`, value);
   };
 
+  if (isLoading) {
+    return <div className="text-center p-10">Loading settings...</div>;
+  }
+
+  if (!settings) {
+    return <div className="text-center p-10">Could not load user settings.</div>;
+  }
+
   return (
     <div data-aos="fade-up" className="max-w-4xl">
       <h2 className="text-3xl font-semibold mb-8">Account settings</h2>
@@ -55,7 +63,7 @@ const SettingsPanel = () => {
           <div className="space-y-4">
             <div className="flex justify-between items-center">
               <span>Name</span>
-              <span className="text-gray-600">{settings.profile.firstName}</span>
+              <span className="text-gray-600">{settings.firstName}</span>
             </div>
             
             <div className="flex justify-between items-center">
