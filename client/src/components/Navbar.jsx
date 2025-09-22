@@ -8,6 +8,7 @@ const navLinks = [
   { path: "/browse", label: "Browse Events", type: "route" },
   { path: "/#work", label: "Work Showcase", type: "hash" },
   { path: "/#about", label: "About Us", type: "hash" },
+  { path: "/profile", label: "Profile", type: "route" },
 ];
 
 const Navbar = () => {
@@ -89,12 +90,22 @@ const Navbar = () => {
           ) : user && user.firstName ? (
             <div className="relative" ref={dropdownRef}>
               <button
-                className="bg-gray-800 rounded-full text-white text-lg font-medium w-12 h-12 flex items-center justify-center shadow-md hover:bg-gray-700 hover:shadow-lg transition-all duration-200"
+                className="flex items-center gap-2 bg-white border border-gray-200 rounded-full p-1 pr-4 text-gray-800 transition-all duration-300 hover:bg-gray-50 hover:shadow-sm"
                 onClick={() => setIsDrop(!isDrop)}
               >
-                {user.firstName.charAt(0).toUpperCase()}
+                <div className="w-10 h-10 rounded-full bg-gray-800 text-white flex items-center justify-center font-medium overflow-hidden">
+                  {user.avatar ? (
+                    <img
+                      src={user.avatar}
+                      alt={user.firstName}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    user.firstName.charAt(0).toUpperCase()
+                  )}
+                </div>
+                <span className="font-medium text-sm hidden lg:block">{user.firstName}</span>
               </button>
-              
               {/* Dropdown with smooth animations */}
               <div
                 className={`absolute right-0 mt-3 w-64 origin-top-right bg-white border border-gray-100 rounded-2xl shadow-xl ring-1 ring-black/5 overflow-hidden transition-all duration-200 ease-out ${
@@ -123,7 +134,7 @@ const Navbar = () => {
                 {/* Menu Items */}
                 <div className="py-2">
                   <Link
-                    to="#"
+                    to="/profile"
                     className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors duration-150 group"
                     onClick={() => setIsDrop(false)}
                   >
