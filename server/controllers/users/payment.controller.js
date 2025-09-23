@@ -1,8 +1,8 @@
 /* controllers/payment.controller.js */
-import { stripe } from '../middleware/stripe.middleware.js';
-import Payment from '../models/Payment.js';
-import Booking from '../models/Booking.js';
-import User from '../models/User.js';
+import { stripe } from '../../middleware/stripe.middleware.js';
+import Payment from '../../models/Payment.js';
+import Booking from '../../models/Booking.js';
+import User from '../../models/User.js';
 import { validationResult } from 'express-validator';
 
 // Create Payment Intent

@@ -6,8 +6,8 @@ import {
   updateBookingStatus,
   getBookingStats,
   createBooking 
-} from '../controllers/booking.controller.js';
-import { authenticate } from '../middleware/auth.middleware.js';
+} from '../../controllers/users/booking.controller.js';
+import { authenticate } from '../../middleware/auth.middleware.js';
 
 
 const router = express.Router();

@@ -8,8 +8,8 @@ import {
   updateUserProfile,
   getUserFavoritesProfile
   
-} from "../controllers/auth.controller.js";
-import { authenticate,allowRoles } from "../middleware/auth.middleware.js";
+} from "../../controllers/users/auth.controller.js";
+import { authenticate,allowRoles } from "../../middleware/auth.middleware.js";
 
 const router = express.Router();
 

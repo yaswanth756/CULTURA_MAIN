@@ -6,14 +6,14 @@ import {
   confirmPayment,
   handleWebhook,
   getPaymentStatus
-} from '../controllers/payment.controller.js';
-import { authenticate } from '../middleware/auth.middleware.js';
+} from '../../controllers/users/payment.controller.js';
+import { authenticate } from '../../middleware/auth.middleware.js';
 import {
   paymentRateLimit,
   webhookRateLimit,
   paymentSecurity,
   verifyWebhookSignature
-} from '../middleware/stripe.middleware.js';
+} from '../../middleware/stripe.middleware.js';
 
 const router = express.Router();
 

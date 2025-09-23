@@ -1,6 +1,6 @@
 /* controllers/listing.controller.js */
-import Listing from '../models/Listing.js';
-import User from '../models/User.js';
+import Listing from '../../models/Listing.js';
+import User from '../../models/User.js';
 import mongoose from "mongoose"
 
 export const getListings = async (req, res) => {

@@ -1,7 +1,7 @@
-import Booking from '../models/Booking.js';
-import { generateBookingNumber } from '../utils/bookingUtils.js';
-import User from '../models/User.js';
-import Listing from '../models/Listing.js';
+import Booking from '../../models/Booking.js';
+import { generateBookingNumber } from '../../utils/bookingUtils.js';
+import User from '../../models/User.js';
+import Listing from '../../models/Listing.js';
 // Create a new booking
 export const createBooking = async (req, res) => {
   try {

@@ -1,19 +1,22 @@
-import React, { useState } from 'react'
-import Navbar from './Navbar'
+import React from 'react';
+import { Outlet } from 'react-router-dom';
+import Navbar from './Navbar';
 import LoginModal from './Login/LoginModel';
 
-const MainLayout = ({ children }) => {
- 
-
+const MainLayout = () => {
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
-      <main className="flex-grow">{children}</main>
 
-      {/* Pass props */}
+      {/* All nested routes will render here */}
+      <main className="flex-grow">
+        <Outlet />
+      </main>
+
+      {/* Keep modal if needed */}
       <LoginModal />
     </div>
-  )
-}
+  );
+};
 
-export default MainLayout
+export default MainLayout;

@@ -2,10 +2,14 @@ import express from "express"
 import { connectDB } from "./config/database.js"
 import dotenv from "dotenv"
 import cors from "cors";
-import authRoutes from "./routes/auth.routes.js";
-import listingRoutes from './routes/listing.routes.js';
-import paymentRoutes from './routes/payment.routes.js';
-import bookingRoutes from './routes/booking.routes.js';
+import authRoutes from "./routes/users/auth.routes.js";
+import listingRoutes from './routes/users/listing.routes.js';
+import paymentRoutes from './routes/users/payment.routes.js';
+import bookingRoutes from './routes/users/booking.routes.js';
+
+
+import vendorAuthRoutes from "./routes/vendor/vendor.auth.routes.js";
+
 dotenv.config()
 
 
@@ -25,6 +29,10 @@ connectDB();
 
 app.use('/api/payments', paymentRoutes);
 app.use('/api/bookings', bookingRoutes);
+
+
+app.use('/api/vendor', vendorAuthRoutes);
+
 
 app.get("/test",(req,res)=>{
     return res.send("hellow world");

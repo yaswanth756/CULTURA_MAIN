@@ -1,6 +1,6 @@
 /* routes/listing.routes.js */
 import express from 'express';
-import { getListings ,getListingById} from '../controllers/listing.controller.js';
+import { getListings ,getListingById} from '../../controllers/users/listing.controller.js';
 
 const router = express.Router();
 
