@@ -158,7 +158,9 @@ const Login = () => {
         localStorage.setItem('vendorToken', data.token)
         localStorage.setItem('vendorUser', JSON.stringify(data.user))
         toast.success(data.message)
-        setTimeout(() => navigate('/vendor/dashboard'), 1000)
+        const redirectPath =  "/vendor/dashboard";
+        navigate(redirectPath, { replace: true });
+        window.location.reload();
       } else {
         toast.error(data.message || 'Verification failed')
       }

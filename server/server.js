@@ -9,6 +9,10 @@ import bookingRoutes from './routes/users/booking.routes.js';
 
 
 import vendorAuthRoutes from "./routes/vendor/vendor.auth.routes.js";
+import vendorListingRoutes from "./routes/vendor/vendor.listing.routes.js";
+
+
+import vendorBookingRoutes from "./routes/vendor/vendor.booking.routes.js";
 
 dotenv.config()
 
@@ -33,6 +37,10 @@ app.use('/api/bookings', bookingRoutes);
 
 app.use('/api/vendor', vendorAuthRoutes);
 
+app.use('/api/vendor/listings', vendorListingRoutes);
+
+
+app.use('/api/vendor/bookings', vendorBookingRoutes);
 
 app.get("/test",(req,res)=>{
     return res.send("hellow world");

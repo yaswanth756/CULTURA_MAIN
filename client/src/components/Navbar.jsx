@@ -81,9 +81,12 @@ const Navbar = () => {
 
         {/* Desktop Buttons */}
         <div className="hidden md:flex items-center gap-5">
-          <button className="h-12 px-4 rounded-full text-gray-800 transition-all duration-300 hover:bg-gray-100">
-            Become Host
-          </button>
+          <Link to='/vendor/login'>
+            <button className="h-12 px-4 rounded-full text-gray-800 transition-all duration-300 hover:bg-gray-100">
+              Become Host
+            </button>
+          </Link>
+        
           {isLoading ? (
             <div className="w-12 h-12 rounded-full bg-gray-200 animate-pulse"></div>
           ) : user && user.firstName ? (
@@ -132,7 +135,7 @@ const Navbar = () => {
                   </Link>
                   
                   <Link
-                    to="#"
+                    to="/vendor/login"
                     className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors duration-150 group"
                     onClick={() => setIsDrop(false)}
                   >

@@ -1,15 +1,13 @@
 import React from 'react'
 import { useOutletContext } from 'react-router-dom'
-import LockedFeature from '../components/LockedFeature'
+import PendingNotice from '../components/PendingNotice'
 
 const EarningsPage = () => {
   const { vendorData } = useOutletContext()
   
   if (!vendorData.vendorInfo.verified) {
     return (
-      <LockedFeature 
-        feature="Earnings Dashboard"
-        description="Track your income, view payment history, and manage your financial data. Get detailed insights into your business performance."
+      <PendingNotice 
       />
     )
   }

@@ -14,7 +14,7 @@ const HeroSection = () => {
       style={{ backgroundImage: `url(${herobg})` }} //https://www.freepik.com/free-vector/background-template-with-mandala-pattern-design_8390437.htm#fromView=keyword&page=2&position=3&uuid=2955fe4f-fc5f-4989-a461-30d940c92e83&query=Decorative+background
     >
       {/* Overlay */}
-      <div className="absolute inset-0 bg-black/40"></div>
+      <div className="absolute inset-0 bg-black/20"></div>
 
       {/* Content */}
       <div

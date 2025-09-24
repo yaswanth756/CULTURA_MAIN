@@ -5,7 +5,7 @@ const VendorContext = createContext(null);
 
 export const VendorProvider = ({ children }) => {
   const [vendor, setVendor] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);  // ✅ start true
 
   useEffect(() => {
     const token = localStorage.getItem("vendorToken");
@@ -14,40 +14,43 @@ export const VendorProvider = ({ children }) => {
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       fetchUser();
     } else {
-      setIsLoading(false);
+      setIsLoading(false); // no token → not loading
     }
   }, []);
 
   const fetchUser = async () => {
     try {
-      setIsLoading(true);
       const response = await axios.get("http://localhost:3000/api/vendor/profile");
-      setVendor(response.data.data)  // ✅ store just vendor object
-
+      
+      setVendor(response.data.data);
     } catch (error) {
       if (error instanceof AxiosError) {
         console.error("Error fetching user profile:", error.response?.data || error.message);
       } else {
         console.error("Error fetching user profile:", error);
+
       }
-        //logout();
+
+       
+      // logout(); // optional
     } finally {
-      setIsLoading(false);
+      setIsLoading(false); // ✅ always stop loading
     }
   };
 
   const logout = () => {
     localStorage.removeItem("vendorToken");
     setVendor(null);
-    window.location.href = "/vendor/login"; // Redirect to login page
+    window.location.href = "/vendor/login";
   };
 
   return (
-    <VendorContext.Provider value={{vendor, logout, isLoading,setIsLoading }}>
+    <VendorContext.Provider value={{ vendor, logout, isLoading }}>
       {children}
     </VendorContext.Provider>
   );
 };
+
 
 // custom hook
 export const useVendor = () => useContext(VendorContext);

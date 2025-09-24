@@ -42,7 +42,7 @@ export const createBooking = async (req, res) => {
         depositeAmount: pricing.depositeAmount ,
         currency: pricing.currency || 'INR'
       },
-      status: 'confirmed',
+      status: 'pending',
       paymentStatus: 'paid'
     });
 

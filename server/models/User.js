@@ -49,7 +49,7 @@ const userSchema = new mongoose.Schema(
 
     /*──────── vendor-specific ────────*/
     vendorInfo: {
-      verified:       { type: Boolean, default: false },
+      verified:       { type: Boolean, default: true },
       rating:         { type: Number, min: 0, max: 5, default: 0 },
       reviewCount:    { type: Number, min: 0, default: 0 },
       

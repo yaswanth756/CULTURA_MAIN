@@ -1,16 +1,13 @@
 import React from 'react'
 import { useOutletContext } from 'react-router-dom'
-import LockedFeature from '../components/LockedFeature'
+import PendingNotice from '../components/PendingNotice'
 
 const AnalyticsPage = () => {
   const { vendorData } = useOutletContext()
   
   if (!vendorData.vendorInfo.verified) {
     return (
-      <LockedFeature 
-        feature="Analytics & Reports"
-        description="Get detailed insights about your business performance, customer engagement, and growth metrics."
-      />
+      <PendingNotice/>
     )
   }
 

@@ -243,14 +243,15 @@ export const getVendorProfile = async (req, res) => {
     try {
       // req.user is set by the authenticateVendor middleware
       const vendor = req.user;
-  
+
       if (!vendor) {
         return res.status(404).json({
           success: false,
           message: 'Vendor profile not found'
         });
       }
-  
+      
+     
       // Return vendor profile data
       res.status(200).json({
         success: true,
