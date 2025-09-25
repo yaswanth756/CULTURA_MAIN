@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import AOS from "aos";
@@ -15,6 +15,7 @@ const ListingDetails = () => {
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const hasFetchedRef = useRef(false);
 
   // Initialize AOS
   useEffect(() => {
@@ -24,6 +25,10 @@ const ListingDetails = () => {
   // Fetch listing data
   useEffect(() => {
     const fetchListing = async () => {
+      // Prevent double fetching in React StrictMode
+      if (hasFetchedRef.current) return;
+      hasFetchedRef.current = true;
+
       try {
         setLoading(true);
         const response = await fetch(`http://localhost:3000/api/listings/${id}`);

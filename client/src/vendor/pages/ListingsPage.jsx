@@ -4,10 +4,66 @@ import { useOutletContext } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import PendingNotice from '../components/PendingNotice';
-import { Plus, Search, Loader2 } from 'lucide-react';
+import { Plus, Search } from 'lucide-react';
 import ListingCard from '../components/ListingCard';
 import ListingModal from '../components/ListingModal';
 import ListingForm from '../components/ListingForm';
+
+// Skeletons
+const SkeletonBar = ({ className = '' }) => (
+  <div className={`bg-gray-200 rounded ${className}`} />
+);
+
+const SkeletonPill = () => (
+  <div className="relative max-w-xl">
+    <div className="w-full h-12 rounded-full bg-gray-200" />
+  </div>
+);
+
+const SkeletonCard = () => (
+  <div className="bg-white border rounded-xl p-3">
+    <div className="h-40 bg-gray-200 rounded-lg" />
+    <div className="mt-3 space-y-2">
+      <SkeletonBar className="h-4 w-3/5" />
+      <SkeletonBar className="h-3 w-4/5" />
+      <div className="flex gap-2 mt-2">
+        <SkeletonBar className="h-6 w-16 rounded-full" />
+        <SkeletonBar className="h-6 w-20 rounded-full" />
+        <SkeletonBar className="h-6 w-14 rounded-full" />
+      </div>
+      <div className="flex items-center justify-between mt-3">
+        <SkeletonBar className="h-4 w-20" />
+        <SkeletonBar className="h-8 w-24 rounded-full" />
+      </div>
+    </div>
+  </div>
+);
+
+const ListingsSkeleton = () => (
+  <div className="space-y-5 animate-pulse">
+    {/* Header row */}
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="space-y-2">
+        <SkeletonBar className="h-5 w-40" />
+        <SkeletonBar className="h-3 w-56" />
+      </div>
+      <SkeletonBar className="h-10 w-24 rounded-3xl" />
+    </div>
+
+    {/* Search pill */}
+    <SkeletonPill />
+
+    {/* Meta line */}
+    <SkeletonBar className="h-3 w-44" />
+
+    {/* Grid */}
+    <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-5">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <SkeletonCard key={i} />
+      ))}
+    </div>
+  </div>
+);
 
 const ListingsPage = () => {
   const { vendorData } = useOutletContext();
@@ -36,16 +92,12 @@ const ListingsPage = () => {
 
   const fetchListings = async () => {
     setIsLoading(true);
-    const token=localStorage.getItem('vendorToken');
+    const token = localStorage.getItem('vendorToken');
     try {
-      const response = await axios.get('http://localhost:3000/api/vendor/listings',
-        {
-          headers: {
-            Authorization: `Bearer ${token}`, // sending token in headers
-          },
-        }
-      );
-      
+      const response = await axios.get('http://localhost:3000/api/vendor/listings', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
       if (response.data.success) {
         setItems(response.data.data || []);
       } else {
@@ -55,8 +107,6 @@ const ListingsPage = () => {
       console.error('Fetch listings error:', error);
       const errorMessage = error.response?.data?.message || 'Failed to load listings';
       toast.error(errorMessage);
-      
-      // Set empty array on error
       setItems([]);
     } finally {
       setIsLoading(false);
@@ -73,7 +123,7 @@ const ListingsPage = () => {
           l.category,
           l.subcategory,
           ...(l.tags || []),
-          ...(l.serviceAreas || [])
+          ...(l.serviceAreas || []),
         ]
           .join(' ')
           .toLowerCase()
@@ -88,7 +138,6 @@ const ListingsPage = () => {
   }, [items, debounced]);
 
   const handleCreate = (newListing) => {
-    // Add new listing to the beginning of the array
     setItems((prev) => [newListing, ...prev]);
     setShowForm(false);
     toast.success('Listing created successfully!');
@@ -101,38 +150,23 @@ const ListingsPage = () => {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this listing?')) {
-      return;
-    }
+    if (!window.confirm('Are you sure you want to delete this listing?')) return;
 
     try {
-      // Optimistically remove from UI
       setItems((prev) => prev.filter((l) => l._id !== id));
       setSelected(null);
-      
       // TODO: Add delete API call when backend is ready
-      // await axios.delete(`http://localhost:3000/api/vendor/listings/${id}`);
-      
       toast.success('Listing deleted successfully!');
     } catch (error) {
       console.error('Delete listing error:', error);
       toast.error('Failed to delete listing');
-      
-      // Revert on error - refetch to be safe
       fetchListings();
     }
   };
 
-  // Loading state
+  // Loading state -> Skeletons
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-gray-400 mx-auto" />
-          <p className="text-gray-600 mt-2">Loading your listings...</p>
-        </div>
-      </div>
-    );
+    return <ListingsSkeleton />;
   }
 
   return (
@@ -174,7 +208,9 @@ const ListingsPage = () => {
       {items.length === 0 ? (
         <div className="bg-white border rounded-xl p-10 text-center">
           <p className="text-gray-700 font-medium">No listings yet</p>
-          <p className="text-sm text-gray-500 mt-1">Create your first listing to showcase your services</p>
+          <p className="text-sm text-gray-500 mt-1">
+            Create your first listing to showcase services
+          </p>
           <button
             onClick={() => setShowForm(true)}
             className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gray-900 text-white text-sm hover:bg-black"
@@ -184,8 +220,8 @@ const ListingsPage = () => {
         </div>
       ) : filtered.length === 0 ? (
         <div className="bg-white border rounded-xl p-10 text-center">
-          <p className="text-gray-700 font-medium">No listings match your search</p>
-          <p className="text-sm text-gray-500 mt-1">Try different keywords or clear your search</p>
+          <p className="text-gray-700 font-medium">No listings match the search</p>
+          <p className="text-sm text-gray-500 mt-1">Try different keywords or clear the search</p>
           <button
             onClick={() => setQuery('')}
             className="mt-4 text-sm text-anzac-500 hover:text-anzac-600"
@@ -214,10 +250,7 @@ const ListingsPage = () => {
 
       {/* Create Form */}
       {showForm && (
-        <ListingForm 
-          onCancel={() => setShowForm(false)} 
-          onSubmit={handleCreate}
-        />
+        <ListingForm onCancel={() => setShowForm(false)} onSubmit={handleCreate} />
       )}
     </div>
   );

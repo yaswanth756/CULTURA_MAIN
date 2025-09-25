@@ -13,6 +13,9 @@ import vendorListingRoutes from "./routes/vendor/vendor.listing.routes.js";
 
 
 import vendorBookingRoutes from "./routes/vendor/vendor.booking.routes.js";
+import vendorEarningRoutes from "./routes/vendor/vendor.earning.routes.js";
+
+import vendorAnalyticsRoutues from "./routes/vendor/vendor.analytics.routes.js";
 
 dotenv.config()
 
@@ -42,6 +45,11 @@ app.use('/api/vendor/listings', vendorListingRoutes);
 
 app.use('/api/vendor/bookings', vendorBookingRoutes);
 
+
+app.use('/api/vendor/earnings', vendorEarningRoutes);
+
+
+app.use('/api/vendor/analytics',vendorAnalyticsRoutues);
 app.get("/test",(req,res)=>{
     return res.send("hellow world");
 })

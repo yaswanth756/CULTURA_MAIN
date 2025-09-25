@@ -146,8 +146,12 @@ export const getListingById = async (req, res) => {
       });
     }
 
-    // Find listing and populate vendor info
-    const listing = await Listing.findById(id)
+    // Find listing and increment views
+    const listing = await Listing.findOneAndUpdate(
+      { _id: id, status: 'active' },   // only active listings
+      { $inc: { views: 1 } },          // increment views by 1
+      { new: true }                    // return updated doc
+    )
       .populate({
         path: 'vendorId',
         select: 'profile vendorInfo phone email',
@@ -158,15 +162,7 @@ export const getListingById = async (req, res) => {
     if (!listing) {
       return res.status(404).json({
         success: false,
-        message: 'Listing not found'
-      });
-    }
-
-    // Check if listing is active
-    if (listing.status !== 'active') {
-      return res.status(404).json({
-        success: false,
-        message: 'Listing is not available'
+        message: 'Listing not found or inactive'
       });
     }
 

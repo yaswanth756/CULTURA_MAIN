@@ -1,5 +1,5 @@
 /* src/components/ResultsGrid.jsx */
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import axios from 'axios';
 import AOS from 'aos';
@@ -60,8 +60,12 @@ const ResultsGrid = () => {
   const [pagination, setPagination] = useState(null);
   const [error, setError] = useState(null);
 
+  // ✅ OPTIMIZED: Use ref guard to prevent duplicate API calls
+  const hasFetchedFavoritesRef = useRef(false);
+  
   useEffect(() => {
-    if (!user) return;
+    if (!user || hasFetchedFavoritesRef.current) return;
+    hasFetchedFavoritesRef.current = true;
   
     const fetchUserFav = async () => {
       try {
