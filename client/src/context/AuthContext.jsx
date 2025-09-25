@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import axios, { AxiosError } from "axios";
+import { buildApiUrl } from "../utils/api";
 
 const AuthContext = createContext(null);
 
@@ -21,7 +22,7 @@ export const AuthProvider = ({ children }) => {
   const fetchUser = async () => {
     try {
       setIsLoading(true);
-      const response = await axios.get("http://localhost:3000/api/auth/profile");
+      const response = await axios.get(buildApiUrl("/api/auth/profile"));
       setUser(response.data);
       console.log(response.data)
     } catch (error) {

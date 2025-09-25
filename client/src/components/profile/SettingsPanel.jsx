@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { buildApiUrl } from "../../utils/api";
 import { useAuth } from "../../context/AuthContext";
 import ToggleSwitch from "./ToggleSwitch";
 import { Check, X, Loader2 } from "lucide-react";
@@ -56,7 +57,7 @@ const SettingsPanel = () => {
     }));
 
     try {
-      await axios.put("http://localhost:3000/api/auth/profile/preferences", { preferences: newPreferences });
+      await axios.put(buildApiUrl("/api/auth/profile/preferences"), { preferences: newPreferences });
       // Update user in global context
       setUser(prevUser => ({ ...prevUser, preferences: newPreferences }));
     } catch (error) {
@@ -78,7 +79,7 @@ const SettingsPanel = () => {
 
     setIsSaving(prev => ({ ...prev, [field]: true }));
     try {
-      const response = await axios.put("http://localhost:3000/api/auth/profile", { [field]: value });
+      const response = await axios.put(buildApiUrl("/api/auth/profile"), { [field]: value });
       if (response.data.success) {
         setUser(response.data.data); // Update global user state
       }

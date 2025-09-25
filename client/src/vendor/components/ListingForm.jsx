@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { createPortal } from "react-dom";
 import axios from "axios";
+import { buildApiUrl } from "../../utils/api";
 import { toast } from "react-toastify";
 import {
   X,
@@ -99,7 +100,7 @@ const ListingForm = ({ onCancel, onSubmit }) => {
       const token = localStorage.getItem("vendorToken");
       
       const response = await axios.post(
-        'http://localhost:3000/api/vendor/listings',
+        buildApiUrl('/api/vendor/listings'),
         listingData,
         {
           headers: {

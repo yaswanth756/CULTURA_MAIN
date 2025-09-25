@@ -2,7 +2,8 @@ import React, { useMemo, useRef, useState, useEffect, useCallback } from "react"
 import { Star, Phone, MapPin, Calendar as CalendarIcon, X, Loader2 } from "lucide-react";
 import MiniCalendar from "../MiniCalendar";
 import { useNavigate } from 'react-router-dom';
-
+import { useEventContext } from "../../context/EventContext";
+import { useAuth } from "../../context/AuthContext";
 const priceTypeLabels = {
   fixed: "",
   per_person: "/ person",
@@ -55,7 +56,8 @@ const searchLocations = async (query) => {
 };
 
 const BookingForm = ({ listing }) => {
-
+  const { setModelOpen } = useEventContext();
+  const { user } = useAuth();
 
 const navigate = useNavigate();
   const bookingRef = useRef(null);
@@ -195,6 +197,11 @@ const navigate = useNavigate();
     }
     if (!selectedLocation && !locationQuery) {
       alert("Please enter event location!");
+      return;
+    }
+
+    if(!user){
+      setModelOpen(true);
       return;
     }
 

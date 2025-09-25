@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import axios from 'axios';
+import { buildApiUrl } from '../../utils/api';
 import { toast } from 'react-toastify';
 import PendingNotice from '../components/PendingNotice';
 import {
@@ -201,7 +202,7 @@ const EarningsPage = () => {
     setError(null);
     try {
       const token = localStorage.getItem('vendorToken');
-      const response = await axios.get('http://localhost:3000/api/vendor/earnings', {
+      const response = await axios.get(buildApiUrl('/api/vendor/earnings'), {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (response.data.success) {

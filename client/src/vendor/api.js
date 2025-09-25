@@ -1,8 +1,9 @@
 import axios from "axios";
+import { BACKEND_API_URL } from "../utils/api";
 
 // Vendor-scoped Axios instance that reads vendorToken fresh each call
 const vendorApi = axios.create({
-  baseURL: "http://localhost:3000",
+  baseURL: BACKEND_API_URL,
 });
 
 vendorApi.interceptors.request.use((config) => {

@@ -2,6 +2,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import axios from 'axios';
+import { buildApiUrl } from '../../utils/api';
 import PendingNotice from '../components/PendingNotice';
 import {
   BarChart2,
@@ -81,7 +82,7 @@ const AnalyticsPage = () => {
     try {
       const token = localStorage.getItem('vendorToken');
       // Expected backend: GET /api/vendor/analytics?range=7d|30d|90d
-      const res = await axios.get(`http://localhost:3000/api/vendor/analytics`, {
+      const res = await axios.get(buildApiUrl(`/api/vendor/analytics`), {
         params: { range: r },
         headers: { Authorization: `Bearer ${token}` },
       });

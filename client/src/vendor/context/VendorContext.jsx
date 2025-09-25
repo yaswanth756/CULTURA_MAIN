@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import axios, { AxiosError } from "axios";
+import { buildApiUrl } from "../../utils/api";
 
 const VendorContext = createContext(null);
 
@@ -20,7 +21,7 @@ export const VendorProvider = ({ children }) => {
 
   const fetchUser = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/api/vendor/profile");
+      const response = await axios.get(buildApiUrl("/api/vendor/profile"));
       
       setVendor(response.data.data);
     } catch (error) {

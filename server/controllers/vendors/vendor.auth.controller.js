@@ -79,7 +79,7 @@ export const sendOTP = async (req, res) => {
       cleanExpiredOTPs();
   
       // Send OTP email
-      //await sendOTPEmail(emailLower, otp);
+      await sendOTPEmail(emailLower, otp);
   
       // Response
       res.status(200).json({
@@ -103,7 +103,7 @@ export const sendOTP = async (req, res) => {
 export const verifyOTPAndAuth = async (req, res) => {
   try {
     const { email, otp, vendorDetails } = req.body;
-    console.log(vendorDetails);
+   
 
     if (!email || !otp) {
       return res.status(400).json({

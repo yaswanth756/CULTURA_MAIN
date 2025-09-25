@@ -1,6 +1,7 @@
 // BookingsPanel.jsx — full file with instant updates + AOS fade-up
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import axios from "axios";
+import { buildApiUrl } from "../../utils/api";
 import { useAuth } from "../../context/AuthContext";
 import {
   Calendar,
@@ -188,7 +189,7 @@ const BookingDetailsModal = ({
       );
 
       const response = await axios.patch(
-        `http://localhost:3000/api/bookings/${bookingId}/cancel`
+        buildApiUrl(`/api/bookings/${bookingId}/cancel`)
       );
       
       if (response.data.success) {
@@ -435,7 +436,7 @@ const BookingsPanel = () => {
       setLoading(true);
       setError(null);
       const params = { status, page: 1, limit: 50 };
-      const res = await axios.get(`http://localhost:3000/api/bookings/user/${user._id}`, { params });
+      const res = await axios.get(buildApiUrl(`/api/bookings/user/${user._id}`), { params });
       if (res.data.success) setBookings(res.data.data.bookings || []);
       else setError("Failed to fetch bookings");
       console.log(res.data.data.bookings)

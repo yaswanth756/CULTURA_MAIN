@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from "axios";
+import { buildApiUrl } from "../utils/api";
 import { useAuth } from '../context/AuthContext';
 import { 
   ArrowLeft, 
@@ -62,7 +63,7 @@ const createBooking = async () => {
     };
 
     const response = await axios.post(
-      "http://localhost:3000/api/bookings/createnew",
+      buildApiUrl("/api/bookings/createnew"),
       bookingPayload,
       {
         headers: { "Content-Type": "application/json" }

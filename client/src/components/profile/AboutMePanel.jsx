@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 import axios from "axios";
+import { buildApiUrl } from "../../utils/api";
 import { Mail, Phone, MapPin, Camera, Edit3, Check, X, Plus, Lock } from "lucide-react";
 import AOS from "aos";
 import "aos/dist/aos.css";
@@ -54,7 +55,7 @@ const AboutMePanel = () => {
         avatar: userData.avatar,
         location: { city: formData.city, address: formData.address },
       };
-      const response = await axios.put("http://localhost:3000/api/auth/profile", updateData, {});
+      const response = await axios.put(buildApiUrl("/api/auth/profile"), updateData, {});
       if (response.data.success) {
         setUserData(response.data.data);
         setIsEditing(false);

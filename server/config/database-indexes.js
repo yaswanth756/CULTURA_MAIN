@@ -61,3 +61,4 @@ export const createIndexes = async () => {
     console.error('❌ Error creating indexes:', error);
   }
 };
+

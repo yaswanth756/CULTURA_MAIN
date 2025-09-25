@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { buildApiUrl } from '../../utils/api'
 import { X, ChevronDown, Music, Camera, Utensils, Palette, Flower, Car, Headphones, Mic } from 'lucide-react'
 import { toast } from 'react-toastify'
 import { useNavigate } from 'react-router-dom'
@@ -63,7 +64,7 @@ const Login = () => {
 
     setIsLoading(true)
     try {
-      const response = await fetch('http://localhost:3000/api/vendor/send-otp', {
+      const response = await fetch(buildApiUrl('/api/vendor/send-otp'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email.trim().toLowerCase() })
@@ -147,7 +148,7 @@ const Login = () => {
         }
       }
 
-      const response = await fetch('http://localhost:3000/api/vendor/verify-otp', {
+      const response = await fetch(buildApiUrl('/api/vendor/verify-otp'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestBody)
@@ -177,7 +178,7 @@ const Login = () => {
     if (isLoading) return
     setIsLoading(true)
     try {
-      const response = await fetch('http://localhost:3000/api/vendor/send-otp', {
+      const response = await fetch(buildApiUrl('/api/vendor/send-otp'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email.trim().toLowerCase() })

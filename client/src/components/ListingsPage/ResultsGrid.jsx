@@ -12,7 +12,8 @@ import LoadingDots from "../LoadingDots";
 import { useAuth } from "../../context/AuthContext";8897269014
 import { useEventContext } from "../../context/EventContext";
 
-const API_BASE = import.meta.env.VITE_BACKEND_API || 'http://localhost:3000/api';
+import { buildApiUrl } from "../../utils/api";
+const API_BASE = buildApiUrl('/api');
 const ITEMS_PER_PAGE = 9; // Load 9 items per page
 
 // Popular cities for location selection

@@ -50,6 +50,7 @@ app.use('/api/vendor/earnings', vendorEarningRoutes);
 
 
 app.use('/api/vendor/analytics',vendorAnalyticsRoutues);
+
 app.get("/test",(req,res)=>{
     return res.send("hellow world");
 })

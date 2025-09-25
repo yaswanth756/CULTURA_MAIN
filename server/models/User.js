@@ -14,7 +14,6 @@ const userSchema = new mongoose.Schema(
     phone: {
       type: String,
       required: true,
-      unique: true,
       match: [/^\+91-[0-9]{10}$/, "Use +91-1234567890"]
     },
     role: {

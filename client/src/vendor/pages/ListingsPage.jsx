@@ -2,6 +2,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import axios from 'axios';
+import { buildApiUrl } from '../../utils/api';
 import { toast } from 'react-toastify';
 import PendingNotice from '../components/PendingNotice';
 import { Plus, Search } from 'lucide-react';
@@ -94,7 +95,7 @@ const ListingsPage = () => {
     setIsLoading(true);
     const token = localStorage.getItem('vendorToken');
     try {
-      const response = await axios.get('http://localhost:3000/api/vendor/listings', {
+      const response = await axios.get(buildApiUrl('/api/vendor/listings'), {
         headers: { Authorization: `Bearer ${token}` },
       });
 

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { buildApiUrl } from "../../utils/api";
 import {
   Mail,
   Lock,
@@ -51,7 +52,7 @@ const location = useLocation();
     setLoading(true);
     try {
       const { data } = await axios.post(
-        "http://localhost:3000/api/auth/send-otp",
+        buildApiUrl("/api/auth/send-otp"),
         { email: formData.email },
         { headers: { "Content-Type": "application/json" } }
       );
@@ -71,21 +72,21 @@ const location = useLocation();
     e.preventDefault();
     setError("");
     setSuccess("");
-
+  
     if (!formData.email || !formData.otp) {
       setError("All required fields must be filled.");
       return;
     }
-
+  
     if (isSignup && (!formData.name || !formData.phone)) {
       setError("Name and Phone are required for signup.");
       return;
     }
-
+  
     setLoading(true);
     try {
       const { data } = await axios.post(
-        "http://localhost:3000/api/auth/verify-otp",
+        buildApiUrl("/api/auth/verify-otp"),
         {
           email: formData.email,
           otp: formData.otp,
@@ -94,24 +95,41 @@ const location = useLocation();
         },
         { headers: { "Content-Type": "application/json" } }
       );
-
+  
       localStorage.setItem("token", data.token);
       setSuccess(data.message);
-
+  
+      // Reset form state
       setFormData({ email: "", otp: "", name: "", phone: "" });
       setStep(1);
       setIsSignup(false);
       setModelOpen(false);
-
-      const redirectPath = location.pathname || "/";
-      navigate(redirectPath, { replace: true });
-      window.location.reload(); 
+  
+      // Check for stored redirect URL (from BookingForm)
+      const redirectUrl = localStorage.getItem('redirectUrl');
+      
+      if (redirectUrl) {
+        // Clean up the stored redirect URL
+        localStorage.removeItem('redirectUrl');
+        
+        // Navigate to the stored URL (which includes all form parameters)
+        navigate(redirectUrl, { replace: true });
+      } else {
+        // Fallback to current location if no redirect URL stored
+        const redirectPath = location.pathname || "/";
+        navigate(redirectPath, { replace: true });
+      }
+      
+      // Reload to ensure auth state is properly updated
+      window.location.reload();
+      
     } catch (err) {
       setError(err.response?.data?.message || "Failed to verify OTP");
     } finally {
       setLoading(false);
     }
   };
+  
 
   // ================= HANDLE GOOGLE LOGIN =================
   const handleGoogleLogin = () => {

@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import axios from 'axios';
+import { buildApiUrl } from '../../utils/api';
 import PendingNotice from '../components/PendingNotice';
 import BookingCard from '../components/BookingCard';
 import { Search, Loader2, CalendarDays, CheckCircle, Clock, XCircle } from 'lucide-react';
@@ -156,7 +157,7 @@ const BookingsPage = () => {
     setIsLoading(true);
     try {
       // Fixed the broken call parentheses below so it compiles
-      const response = await axios.get('http://localhost:3000/api/vendor/bookings');
+      const response = await axios.get(buildApiUrl('/api/vendor/bookings'));
       if (response.data.success) {
         setBookings(response.data.data || []);
       } else {
@@ -216,7 +217,7 @@ const BookingsPage = () => {
 
       const token = localStorage.getItem('vendorToken');
       const response = await axios.patch(
-        `http://localhost:3000/api/vendor/bookings/${id}/status`,
+        buildApiUrl(`/api/vendor/bookings/${id}/status`),
         { status: nextStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );

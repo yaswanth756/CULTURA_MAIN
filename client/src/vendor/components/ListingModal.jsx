@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import axios from 'axios';
+import { buildApiUrl } from '../../utils/api';
 import { toast } from 'react-toastify';
 import { 
   X, 
@@ -119,7 +120,7 @@ const ListingModal = ({ listing, onClose, onUpdate, onDelete }) => {
       const token = localStorage.getItem('vendorToken');
       const headers = { Authorization: `Bearer ${token}` };
       const response = await axios.put(
-        `http://localhost:3000/api/vendor/listings/${listing._id}`,
+        buildApiUrl(`/api/vendor/listings/${listing._id}`),
         updateData,
         { headers }
       );
@@ -149,7 +150,7 @@ const ListingModal = ({ listing, onClose, onUpdate, onDelete }) => {
       const token = localStorage.getItem('vendorToken');
       const headers = { Authorization: `Bearer ${token}` };
       const response = await axios.patch(
-        `http://localhost:3000/api/vendor/listings/${listing._id}/status`,
+        buildApiUrl(`/api/vendor/listings/${listing._id}/status`),
         {},
         { headers }
       );
@@ -175,7 +176,7 @@ const ListingModal = ({ listing, onClose, onUpdate, onDelete }) => {
       const token = localStorage.getItem('vendorToken');
       const headers = { Authorization: `Bearer ${token}` };
       const response = await axios.delete(
-        `http://localhost:3000/api/vendor/listings/${listing._id}`,
+        buildApiUrl(`/api/vendor/listings/${listing._id}`),
         { headers }
       );
       if (response.data.success) {

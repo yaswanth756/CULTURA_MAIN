@@ -4,7 +4,8 @@ import { Star, Heart, Loader2, XCircle, ShieldCheck } from "lucide-react";
 import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
 
-const API_BASE = "http://localhost:3000/api";
+import { buildApiUrl } from "../../utils/api";
+const API_BASE = buildApiUrl("/api");
 
 const SkeletonCard = ({ delay = 0 }) => (
   <div

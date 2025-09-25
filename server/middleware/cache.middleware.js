@@ -46,3 +46,4 @@ export const clearCache = (pattern) => {
   }
   console.log(`🗑️ Cache cleared for pattern: ${pattern || 'all'}`);
 };
+

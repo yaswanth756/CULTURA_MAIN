@@ -6,6 +6,7 @@ import "aos/dist/aos.css";
 
 import { useEventContext } from "../context/EventContext";
 import ListingContent from "../components/ListingDeatilPage/ListingContent";
+import { buildApiUrl } from "../utils/api";
 import BookingForm from "../components/ListingDeatilPage/BookingForm";
 import LoadingDots from "../components/LoadingDots";
 
@@ -31,7 +32,7 @@ const ListingDetails = () => {
 
       try {
         setLoading(true);
-        const response = await fetch(`http://localhost:3000/api/listings/${id}`);
+        const response = await fetch(buildApiUrl(`/api/listings/${id}`));
 
         if (!response.ok) {
           throw new Error(`Failed to fetch listing: ${response.status}`);

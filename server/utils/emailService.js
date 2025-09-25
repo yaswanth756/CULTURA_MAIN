@@ -2,8 +2,6 @@ import nodemailer from 'nodemailer';
 
 // Create transporter
 const createTransporter = async () => {
-  if (process.env.NODE_ENV === 'production') {
-    // Production email configuration (Gmail, SendGrid, etc.)
     return nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -11,19 +9,7 @@ const createTransporter = async () => {
         pass: process.env.EMAIL_PASS
       }
     });
-  } else {
-    // Development - generate Ethereal account for testing
-    const testAccount = await nodemailer.createTestAccount();
-
-    return nodemailer.createTransport({
-      host: 'smtp.ethereal.email',
-      port: 587,
-      auth: {
-        user: testAccount.user,
-        pass: testAccount.pass
-      }
-    });
-  }
+  
 };
 
 export const sendOTPEmail = async (email, otp, type = 'login') => {
@@ -62,11 +48,6 @@ export const sendOTPEmail = async (email, otp, type = 'login') => {
     };
 
     const result = await transporter.sendMail(mailOptions);
-
-    // For development, log the preview URL
-    if (process.env.NODE_ENV !== 'production') {
-      console.log('📧 Preview URL:', nodemailer.getTestMessageUrl(result));
-    }
 
     return result;
   } catch (error) {
