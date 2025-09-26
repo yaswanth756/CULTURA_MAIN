@@ -4,7 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import AOS from "aos";
 import "aos/dist/aos.css";
 
-import { useEventContext } from "../context/EventContext";
+
 import ListingContent from "../components/ListingDeatilPage/ListingContent";
 import { buildApiUrl } from "../utils/api";
 import BookingForm from "../components/ListingDeatilPage/BookingForm";

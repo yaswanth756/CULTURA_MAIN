@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom"; // Add useLocation import
 import { Menu, X, User, Home, LogOut } from "lucide-react";
 import { useEventContext } from "../context/EventContext";
 import { useAuth } from "../context/AuthContext";
@@ -16,6 +16,16 @@ const Navbar = () => {
   const { user, isLoading, logout } = useAuth();
   const { setModelOpen } = useEventContext();
   const dropdownRef = useRef(null);
+  const location = useLocation(); // Get current location
+
+  // Filter navLinks based on current route
+  const filteredNavLinks = navLinks.filter(link => {
+    // Show hash links only on home page, always show route links
+    if (link.type === "hash") {
+      return location.pathname === "/";
+    }
+    return true; // Always show route type links
+  });
 
   // Handle outside click
   useEffect(() => {
@@ -54,9 +64,9 @@ const Navbar = () => {
               />
               <h1 className="text-2xl font-bold text-anzac-500">Utsavlokam</h1>
             </div>
-            {/* Desktop Nav */}
+            {/* Desktop Nav - Use filtered links */}
             <ul className="hidden md:flex gap-8">
-              {navLinks.map(({ path, label, type }) => (
+              {filteredNavLinks.map(({ path, label, type }) => (
                 <li key={path} className="relative group">
                   {type === "route" ? (
                     <Link
@@ -178,11 +188,11 @@ const Navbar = () => {
         </button>
       </div>
 
-      {/* Mobile Nav */}
+      {/* Mobile Nav - Use filtered links */}
       {isOpen && (
         <div className="md:hidden bg-gray-50 border-t px-6 pb-4">
           <ul className="flex flex-col gap-4 mt-4">
-            {navLinks.map(({ path, label, type }) => (
+            {filteredNavLinks.map(({ path, label, type }) => (
               <li key={path}>
                 {type === "route" ? (
                   <Link

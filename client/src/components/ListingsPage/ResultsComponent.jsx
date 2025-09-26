@@ -1,7 +1,8 @@
 /* src/components/ResultsComponent.jsx */
 import React, { useMemo } from "react";
 import { Search, Star, Heart, MapPin, Camera } from "lucide-react";
-
+import { buildApiUrl } from "../../utils/api";
+const API_BASE = buildApiUrl('/api');
 const priceTypeLabels = {
   fixed: "",
   per_person: "/ person",
@@ -34,6 +35,24 @@ const ResultsComponent = ({
   // Memoize favorites for fast lookups
   const favoritesSet = useMemo(() => new Set(favorites), [favorites]);
 
+  const handleListingClick = async (listingId) => {
+    try {
+      // Fire and forget - increment view count
+      fetch(`${API_BASE}/listings/${listingId}/views`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }).catch(err => console.log('View count failed:', err)); // Silent fail
+      
+      // Open listing in new tab
+      window.open(`/listing/${listingId}`, "_blank");
+    } catch (error) {
+      console.log('Error:', error);
+      // Still open the listing even if API fails
+      window.open(`/listing/${listingId}`, "_blank");
+    }
+  };
   const getPageTitle = () => {
     if (filtersFromUrl.vendor) return `Results for "${filtersFromUrl.vendor}"`;
     if (filtersFromUrl.category && filtersFromUrl.category !== "all") {
@@ -86,7 +105,7 @@ const ResultsComponent = ({
                 className="group bg-white rounded-2xl ring-1 ring-gray-200 shadow-sm hover:shadow-md hover:ring-anzac-200 transition-all duration-300 overflow-hidden cursor-pointer"
                 data-aos="fade-up"
                 data-aos-delay={index * 50}
-                onClick={() => window.open(`/listing/${listing._id}`, "_blank")}
+                onClick={()=>handleListingClick(listing._id)}
               >
                 {/* Media */}
                 <div className="relative h-48 bg-gray-100 overflow-hidden">
@@ -197,7 +216,7 @@ const ResultsComponent = ({
                     <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-anzac-50 text-anzac-700">
                       {listing.category}
                     </span>
-                    <button className="text-sm  font-medium transition" onClick={() => window.open(`/listing/${listing._id}`, "_blank")}>
+                    <button className="text-sm  font-medium transition" onClick={()=>handleListingClick(listing._id)}>
                       View details →
                     </button>
                   </div>

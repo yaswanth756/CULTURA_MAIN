@@ -36,7 +36,7 @@ export const sendOTP = async (req, res) => {
 
     otpStore.set(email.toLowerCase(), { otp, expiry: otpExpiry, isExistingUser, attempts: 0 });
 
-    await sendOTPEmail(email, otp, isExistingUser ? 'login' : 'signup');
+    //await sendOTPEmail(email, otp, isExistingUser ? 'login' : 'signup');
 
     return res.status(200).json({
       success: true,

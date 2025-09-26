@@ -134,6 +134,7 @@ export const getListings = async (req, res) => {
   }
 };
 
+
 export const getListingById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -146,11 +147,9 @@ export const getListingById = async (req, res) => {
       });
     }
 
-    // Find listing and increment views
-    const listing = await Listing.findOneAndUpdate(
-      { _id: id, status: 'active' },   // only active listings
-      { $inc: { views: 1 } },          // increment views by 1
-      { new: true }                    // return updated doc
+    // Find listing (without incrementing views)
+    const listing = await Listing.findOne(
+      { _id: id, status: 'active' }   // only active listings
     )
       .populate({
         path: 'vendorId',
@@ -173,6 +172,46 @@ export const getListingById = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to fetch listing details'
+    });
+  }
+};
+
+export const incrementListingViews = async (req, res) => {
+  try {
+    const { listingId } = req.params;
+    
+    // Validate ObjectId
+    if (!mongoose.Types.ObjectId.isValid(listingId)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Invalid listing ID' 
+      });
+    }
+
+    // Increment views for active listings only
+    const result = await Listing.findOneAndUpdate(
+      { _id: listingId, status: 'active' },
+      { $inc: { views: 1 } },
+      { new: false } // Don't return updated doc
+    );
+
+    if (!result) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Listing not found or inactive' 
+      });
+    }
+    console.log(`Listing ${listingId} views incremented.`);
+    res.status(200).json({ 
+      success: true,
+      message: 'View count updated'
+    });
+    
+  } catch (error) {
+    console.error('Error incrementing views:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Server error' 
     });
   }
 };

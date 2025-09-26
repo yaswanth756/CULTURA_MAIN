@@ -284,7 +284,7 @@ const navigate = useNavigate();
             className="w-full flex pl-2 gap-2   py-3 font-medium transition-all duration-200 text-gray-800"
             aria-label="Call vendor"
           >
-            <Phone className="w-5 h-5" />
+            <Phone className="w-5 h-5 text-green-400" />
             {listing.vendorId.phone}
           </a>
         )}
@@ -312,7 +312,7 @@ const navigate = useNavigate();
               Event Date *
             </label>
             <div
-              className="flex items-center border border-gray-300 rounded-md px-3 py-3 focus-within:ring-2  bg-white cursor-pointer"
+              className="flex items-center border border-gray-300 rounded-xl px-3 py-3 focus-within:ring-2  bg-white cursor-pointer text-gray-400"
               onClick={() => {
                 setCalendarOpen((v) => !v);
                 if (!calendarOpen) {
@@ -321,7 +321,7 @@ const navigate = useNavigate();
               }}
             >
               <CalendarIcon className="w-4 h-4 text-gray-400 mr-3" />
-              <span className="flex-1 text-gray-900">
+              <span className="flex-1 text-gray-500">
                 {eventDate
                   ? eventDate.toDateString()
                   : "Select event date"}
@@ -350,7 +350,7 @@ const navigate = useNavigate();
               Event Location *
             </label>
             <div className="relative">
-              <div className="flex items-center border border-gray-300 rounded-md px-3 py-3  bg-white">
+              <div className="flex items-center border border-gray-300 rounded-xl px-3 py-3  bg-white">
                 <MapPin className="w-4 h-4 text-gray-400 mr-3 flex-shrink-0" />
                 <input
                   type="text"
