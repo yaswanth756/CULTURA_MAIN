@@ -7,7 +7,7 @@ import Listing from '../../models/Listing.js';
 export const createReview = async (req, res) => {
   try {
     const { bookingId, rating, comment } = req.body;
-    const customerId = req.user._id; // 🔥 GET FROM MIDDLEWARE
+    const customerId = req.user._id;
 
     // Validate input
     if (!bookingId || !rating || !comment) {
@@ -67,7 +67,7 @@ export const createReview = async (req, res) => {
       });
     }
 
-    // Calculate coin reward based on review quality
+    // 🔥 MISSING: Calculate coin reward based on review quality
     let coinsAwarded = 25; // Base reward
     if (comment.trim().length > 100) {
       coinsAwarded += 10; // Bonus for detailed review
@@ -78,13 +78,13 @@ export const createReview = async (req, res) => {
 
     // Create review
     const review = new Review({
-      customerId: customerId, // 🔥 USE MIDDLEWARE USER ID
+      customerId: customerId,
       vendorId: booking.vendorId._id,
       listingId: booking.listingId._id,
       bookingId: booking._id,
       rating,
       comment: comment.trim(),
-      coinsAwarded
+      coinsAwarded // ✅ Now it's defined
     });
 
     await review.save();
@@ -94,8 +94,9 @@ export const createReview = async (req, res) => {
     booking.reviewStatus = 'completed';
     await booking.save();
 
-    // Update vendor rating using existing method
-    await booking.vendorId.updateRating(rating);
+    // 🔥 FIX: Fetch vendor document separately to call method
+    const vendor = await User.findById(booking.vendorId._id);
+    await vendor.updateRating(rating);
 
     // Update listing rating
     const existingReviews = await Review.find({ 
@@ -107,18 +108,21 @@ export const createReview = async (req, res) => {
     const averageRating = totalRating / existingReviews.length;
     
     await Listing.findByIdAndUpdate(booking.listingId._id, {
-      'ratings.average': Math.round(averageRating * 10) / 10, // Round to 1 decimal
+      'ratings.average': Math.round(averageRating * 10) / 10,
       'ratings.count': existingReviews.length
     });
 
     // Award coins to customer
-    await User.findByIdAndUpdate(customerId, { // 🔥 USE MIDDLEWARE USER ID
+    await User.findByIdAndUpdate(customerId, {
       $inc: {
         'coins.balance': coinsAwarded,
         'coins.totalEarned': coinsAwarded
       },
       'coins.lastActivity': new Date()
     });
+
+    // 🔥 Get updated vendor info for response
+    const updatedVendor = await User.findById(booking.vendorId._id);
 
     res.status(201).json({
       success: true,
@@ -133,7 +137,7 @@ export const createReview = async (req, res) => {
         },
         coinsAwarded,
         updatedRatings: {
-          vendorRating: booking.vendorId.vendorInfo.rating,
+          vendorRating: updatedVendor.vendorInfo.rating,
           listingRating: averageRating
         }
       }
@@ -148,6 +152,7 @@ export const createReview = async (req, res) => {
     });
   }
 };
+
 
 // Skip review (update prompt timing)
 export const skipReview = async (req, res) => {
@@ -330,3 +335,8 @@ export const getCustomerReviews = async (req, res) => {
     });
   }
 };
+
+
+// Run this once to fix existing vendor rating
+
+

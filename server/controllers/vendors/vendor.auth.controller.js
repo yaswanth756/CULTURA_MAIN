@@ -281,6 +281,7 @@ export const getVendorProfile = async (req, res) => {
           updatedAt: vendor.updatedAt
         }
       });
+   
     } catch (error) {
       console.error('Get profile error:', error);
       res.status(500).json({

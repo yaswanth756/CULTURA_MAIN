@@ -24,6 +24,7 @@ export const VendorProvider = ({ children }) => {
       const response = await axios.get(buildApiUrl("/api/vendor/profile"));
       
       setVendor(response.data.data);
+      console.log("Vendor profile fetched:", response.data.data);
     } catch (error) {
       if (error instanceof AxiosError) {
         console.error("Error fetching user profile:", error.response?.data || error.message);

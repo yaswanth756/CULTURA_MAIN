@@ -187,7 +187,7 @@ export const getUserBookings = async (req, res) => {
       };
     });
 
-    console.log(formattedBookings);
+
 
     res.status(200).json({
       success: true,
@@ -489,36 +489,7 @@ export const checkPendingReviews = async (req, res) => {
 
 
 // Fix existing completed bookings - Run this in your backend
-const fixExistingBookings = async () => {
-  try {
-    const completedBookings = await Booking.find({
-      status: 'completed',
-      reviewStatus: 'not_eligible' // Only fix bookings that haven't been processed
-    });
 
-    for (let booking of completedBookings) {
-      // Set up review system for existing completed bookings
-      booking.reviewStatus = 'pending';
-      booking.completedAt = booking.updatedAt; // Use existing timestamp
-      booking.reviewPrompts = {
-        nextPromptDate: new Date(), // Show immediately
-        promptCount: 0,
-        firstPromptDate: new Date(),
-        maxPrompts: 8
-      };
-      
-      await booking.save();
-      console.log(`Fixed booking: ${booking.bookingNumber}`);
-    }
-
-    console.log(`Fixed ${completedBookings.length} bookings`);
-  } catch (error) {
-    console.error('Fix bookings error:', error);
-  }
-};
-
-// Run this once
-fixExistingBookings();
 
 
 

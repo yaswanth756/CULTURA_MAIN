@@ -112,7 +112,12 @@ function transform(doc, ret) {
       status:     ret.status,
       lastLogin:  ret.lastLogin,
       createdAt:  ret.createdAt,
-      location:   ret.location
+      location:   ret.location,
+      coins: {
+        totalEarned: ret.coins?.totalEarned || 0,
+        balance:     ret.coins?.balance     || 0,
+        lastActivity: ret.coins?.lastActivity || null
+      }
     };
   }
 
@@ -130,6 +135,7 @@ function transform(doc, ret) {
       lastLogin:    ret.lastLogin,
       createdAt:    ret.createdAt,
       updatedAt:    ret.updatedAt
+      
     };
   }
 

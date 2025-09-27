@@ -260,7 +260,7 @@ const navigate = useNavigate();
             <img
               src={
                 listing.vendorId.profile?.avatar ||
-                "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face"
+                "https://img.freepik.com/premium-vector/man-professional-business-casual-young-avatar-icon-illustration_1277826-623.jpg?ga=GA1.1.530000802.1735748529&semt=ais_hybrid&w=740&q=80"
               }
               alt={listing.vendorId.profile?.businessName || "Vendor"}
               className="w-14 h-14 rounded-full"

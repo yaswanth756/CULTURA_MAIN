@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react"; // ✅ Added useCallback
 import axios from "axios";
 import { buildApiUrl } from "../../utils/api";
 import { useAuth } from "../../context/AuthContext";
@@ -37,9 +37,14 @@ const BookingsPanel = () => {
     });
   }, []);
 
+  // ✅ OPTIMIZED: Only refresh AOS when bookings change
   useEffect(() => {
-    AOS.refresh();
-  }, [bookings, activeFilter, showModal, showReviewModal]);
+    const timer = setTimeout(() => {
+      AOS.refresh();
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, [bookings]);
 
   const fetchBookings = async (status = "all") => {
     if (!user?._id) return;
@@ -48,9 +53,8 @@ const BookingsPanel = () => {
       setError(null);
       const params = { status, page: 1, limit: 50 };
       const res = await axios.get(buildApiUrl(`/api/bookings/user/${user._id}`), { params });
-      console.log(res.data.data.bookings)
+      console.log(res.data.data.bookings);
       if (res.data.success) setBookings(res.data.data.bookings || []);
-      
       else setError("Failed to fetch bookings");
     } catch (e) {
       setError(e?.response?.data?.message || "Failed to load bookings");
@@ -86,7 +90,7 @@ const BookingsPanel = () => {
   }, [bookings, activeFilter]);
 
   // Count for filters
-  const countFor = (key) => {
+  const countFor = useCallback((key) => {
     if (key === "all") return bookings.length;
     if (key === "upcoming") {
       return bookings.filter(
@@ -96,30 +100,30 @@ const BookingsPanel = () => {
       ).length;
     }
     return bookings.filter((b) => String(b.bookingStatus || "").toLowerCase() === key).length;
-  };
+  }, [bookings]);
 
-  // Event handlers
-  const handleView = (booking) => {
+  // ✅ OPTIMIZED: Stable event handlers
+  const handleView = useCallback((booking) => {
     setSelectedBooking(booking);
     setShowModal(true);
-  };
+  }, []);
 
-  const handleReview = (booking) => {
+  const handleReview = useCallback((booking) => {
     setReviewBooking(booking);
     setShowReviewModal(true);
-  };
+  }, []);
 
-  const closeModal = () => {
+  const closeModal = useCallback(() => {
     setShowModal(false);
     setSelectedBooking(null);
-  };
+  }, []);
 
-  const closeReviewModal = () => {
+  const closeReviewModal = useCallback(() => {
     setShowReviewModal(false);
     setReviewBooking(null);
-  };
+  }, []);
 
-  const handleReviewSubmitted = (bookingId) => {
+  const handleReviewSubmitted = useCallback((bookingId) => {
     fetchBookings(activeFilter);
     closeReviewModal();
     
@@ -134,9 +138,10 @@ const BookingsPanel = () => {
       setReviewBooking(nextPendingReview);
       setShowReviewModal(true);
     }
-  };
+  }, [activeFilter, bookings]);
 
-  const formatINR = (n) => `₹${Number(n || 0).toLocaleString()}`;
+  // ✅ OPTIMIZED: Stable formatINR function
+  const formatINR = useCallback((n) => `₹${Number(n || 0).toLocaleString()}`, []);
 
   return (
     <div className="max-w-6xl mx-auto p-6" data-aos="fade-up">

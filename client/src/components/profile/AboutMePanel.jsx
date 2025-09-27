@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 import axios from "axios";
 import { buildApiUrl } from "../../utils/api";
-import { Mail, Phone, MapPin, Camera, Edit3, Check, X, Plus, Lock } from "lucide-react";
+import { Mail, Phone, MapPin, Camera, Edit3, Check, X, Plus, Coins } from "lucide-react"; // ✅ Added Coins icon
 import AOS from "aos";
 import "aos/dist/aos.css";
 
@@ -22,8 +22,24 @@ const AboutMePanel = () => {
   const DEFAULT_AVATAR =
     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQF02Jj8T2t7PdkytAw42HDuuSz7yXguKn8Lg&s";
 
+  // 🪙 NEW: Fetch user profile with coins data
   useEffect(() => {
-    if (user) setUserData(user);
+    const fetchUserProfile = async () => {
+      try {
+        const response = await axios.get(buildApiUrl("/api/user/profile"));
+        if (response.data.success) {
+          setUserData(response.data.data);
+        }
+      } catch (error) {
+        console.error("Profile fetch error:", error);
+        // Fallback to auth context user if API fails
+        if (user) setUserData(user);
+      }
+    };
+
+    if (user) {
+      fetchUserProfile();
+    }
   }, [user]);
 
   useEffect(() => {
@@ -33,7 +49,7 @@ const AboutMePanel = () => {
   const startEdit = () => {
     if (!userData) return;
     setFormData({
-      firstName: userData.firstName || "",
+      firstName: userData.profile?.firstName || userData.firstName || "",
       city: userData.location?.city || "",
       address: userData.location?.address || "",
     });
@@ -52,7 +68,7 @@ const AboutMePanel = () => {
         firstName: formData.firstName,
         email: userData.email,
         phone: userData.phone,
-        avatar: userData.avatar,
+        avatar: userData.profile?.avatar || userData.avatar,
         location: { city: formData.city, address: formData.address },
       };
       const response = await axios.put(buildApiUrl("/api/auth/profile"), updateData, {});
@@ -84,6 +100,12 @@ const AboutMePanel = () => {
     });
   };
 
+  // 🪙 NEW: Format coins display
+  const formatCoins = (amount) => {
+    if (!amount || amount === 0) return "0";
+    return amount.toLocaleString();
+  };
+
   const ProfileSkeleton = () => (
     <div className="max-w-3xl mx-auto p-6 space-y-6">
       {/* Top bar */}
@@ -91,7 +113,7 @@ const AboutMePanel = () => {
         <Skeleton className="h-7 w-28" />
         <Skeleton className="h-9 w-28" />
       </div>
-  
+
       {/* Header + Personal info (same shell as live) */}
       <section className="bg-white rounded-2xl border shadow-sm">
         {/* Header card */}
@@ -105,19 +127,19 @@ const AboutMePanel = () => {
             </div>
           </div>
         </div>
-  
+
         {/* Personal information grid (match: gap-x-8 gap-y-7 sm:grid-cols-2) */}
         <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-7">
           {[...Array(6)].map((_, i) => (
             <div key={i} className="space-y-2 min-h-[56px]">
-              <Skeleton className="h-3 w-24" />                  {/* label */}
-              <Skeleton className="h-5 w-full max-w-[224px]" />   {/* value */}
+              <Skeleton className="h-3 w-24" />
+              <Skeleton className="h-5 w-full max-w-[224px]" />
             </div>
           ))}
         </div>
       </section>
-  
-      {/* Address card (match shell + gaps) */}
+
+      {/* Address card */}
       <section className="bg-white rounded-2xl border shadow-sm p-6">
         <div className="mb-4">
           <Skeleton className="h-5 w-40" />
@@ -133,7 +155,6 @@ const AboutMePanel = () => {
       </section>
     </div>
   );
-  
 
   if (isLoading) return <ProfileSkeleton />;
 
@@ -159,6 +180,15 @@ const AboutMePanel = () => {
       Active
     </span>
   );
+
+  // Get user display data (handle both old and new user object structures)
+  const displayName = userData.profile?.firstName || userData.firstName || "User Name";
+  const displayEmail = userData.email;
+  const displayPhone = userData.phone;
+  const displayAvatar = userData.profile?.avatar || userData.avatar;
+  const displayCity = userData.location?.city;
+  const displayAddress = userData.location?.address;
+  const displayCoins = userData.coins?.totalEarned || 0;
 
   return (
     <div className="min-h-screen roun py-2">
@@ -203,8 +233,8 @@ const AboutMePanel = () => {
               <div className="relative flex-shrink-0">
                 <div className="h-16 w-16 rounded-full bg-slate-100 ring-1 ring-slate-200 overflow-hidden flex items-center justify-center">
                   <img
-                    src={userData.avatar && userData.avatar.trim() !== "" ? userData.avatar : DEFAULT_AVATAR}
-                    alt={userData.firstName || "User"}
+                    src={displayAvatar && displayAvatar.trim() !== "" ? displayAvatar : DEFAULT_AVATAR}
+                    alt={displayName}
                     className="h-full w-full object-cover"
                     onError={(e) => {
                       e.currentTarget.src = DEFAULT_AVATAR;
@@ -224,9 +254,7 @@ const AboutMePanel = () => {
               {/* Name + meta */}
               <div className="space-y-0.5">
                 {!isEditing ? (
-                  <p className="text-xl font-semibold text-slate-900">
-                    {userData.firstName || "User Name"}
-                  </p>
+                  <p className="text-xl font-semibold text-slate-900">{displayName}</p>
                 ) : (
                   <input
                     type="text"
@@ -244,7 +272,7 @@ const AboutMePanel = () => {
                   <span className="text-gray-400">•</span>
                   <span className="inline-flex items-center gap-1">
                     <MapPin className="w-3.5 h-3.5" />
-                    {userData?.location?.city === "Not specified" ? "—" : (userData?.location?.city ?? "—")}
+                    {displayCity === "Not specified" ? "—" : (displayCity ?? "—")}
                   </span>
                 </p>
               </div>
@@ -262,7 +290,7 @@ const AboutMePanel = () => {
           <dl className="grid grid-cols-1 gap-x-8 gap-y-7 sm:grid-cols-2">
             <FieldLike label="Name">
               <EditableInline
-                value={userData.firstName}
+                value={displayName}
                 formValue={formData.firstName}
                 isEditing={isEditing}
                 onChange={(v) => handleInputChange("firstName", v)}
@@ -271,20 +299,35 @@ const AboutMePanel = () => {
             </FieldLike>
 
             <FieldLike label="Email account">
-              <ReadOnlyInline value={userData.email} icon={<Mail className="w-3.5 h-3.5 text-gray-400" />} />
+              <ReadOnlyInline value={displayEmail} icon={<Mail className="w-3.5 h-3.5 text-gray-400" />} />
             </FieldLike>
 
             <FieldLike label="Mobile number">
-              <ReadOnlyInline value={userData.phone} icon={<Phone className="w-3.5 h-3.5 text-gray-400" />} />
+              <ReadOnlyInline value={displayPhone} icon={<Phone className="w-3.5 h-3.5 text-gray-400" />} />
             </FieldLike>
 
             <FieldLike label="Status">
               <span className="text-slate-900">Active</span>
             </FieldLike>
 
-            <FieldLike label="Last login">
-              <span className="text-slate-900">{formatDate(userData.lastLogin)}</span>
+            {/* 🪙 NEW: Coins earned instead of last login */}
+            <FieldLike label="Coins earned">
+  <div className="inline-flex items-center gap-2 text-slate-900 group">
+    {/* 🪙 Simple Hover Animation */}
+    <Coins className="w-4 h-4 text-amber-500 group-hover:scale-110 transition-transform duration-200 ease-out" />
+    
+    {/* 🎯 Number with subtle glow */}
+    <span className="font-semibold text-amber-600 group-hover:text-amber-500 transition-colors duration-200">
+      {formatCoins(displayCoins)}
+    </span>
+    
+    {/* 🏷️ Label */}
+    <span className="text-xs text-slate-500">
+      Utsav Coins
+    </span>
+  </div>
             </FieldLike>
+
 
             <FieldLike label="Member since">
               <span className="text-slate-900">{formatDate(userData.createdAt)}</span>
@@ -301,7 +344,7 @@ const AboutMePanel = () => {
           <dl className="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2">
             <FieldLike label="City">
               <EditableInline
-                value={userData.location?.city}
+                value={displayCity}
                 formValue={formData.city}
                 isEditing={isEditing}
                 onChange={(v) => handleInputChange("city", v)}
@@ -313,7 +356,7 @@ const AboutMePanel = () => {
 
             <FieldLike label="Address">
               <EditableInline
-                value={userData.location?.address}
+                value={displayAddress}
                 formValue={formData.address}
                 isEditing={isEditing}
                 onChange={(v) => handleInputChange("address", v)}
