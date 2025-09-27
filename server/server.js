@@ -17,9 +17,8 @@ import vendorEarningRoutes from "./routes/vendor/vendor.earning.routes.js";
 
 import vendorAnalyticsRoutues from "./routes/vendor/vendor.analytics.routes.js";
 
+import reviewRoutes from './routes/users/review.routes.js';
 dotenv.config()
-
-
 const app=express();
 const PORT=process.env.PORT;
 
@@ -35,6 +34,7 @@ app.use('/api/listings', listingRoutes);
 connectDB();
 
 app.use('/api/payments', paymentRoutes);
+
 app.use('/api/bookings', bookingRoutes);
 
 
@@ -48,6 +48,7 @@ app.use('/api/vendor/bookings', vendorBookingRoutes);
 
 app.use('/api/vendor/earnings', vendorEarningRoutes);
 
+app.use('/api/reviews', reviewRoutes);
 
 app.use('/api/vendor/analytics',vendorAnalyticsRoutues);
 

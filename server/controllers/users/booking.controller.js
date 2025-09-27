@@ -76,6 +76,7 @@ export const createBooking = async (req, res) => {
 
 
 // Get user's bookings with filters
+// Updated getUserBookings controller
 export const getUserBookings = async (req, res) => {
   try {
     const { customerId } = req.params;
@@ -98,10 +99,11 @@ export const getUserBookings = async (req, res) => {
     // Pagination
     const skip = (page - 1) * limit;
 
-    // Get bookings with populated data - Updated populate fields
+    // Get bookings with populated data including reviews
     const bookings = await Booking.find(filter)
       .populate('vendorId', 'profile phone email role vendorInfo')
       .populate('listingId', 'title category images pricing')
+      .populate('reviewId', 'rating comment createdAt') // 🔥 NEW: Populate review if exists
       .sort({ serviceDate: -1, createdAt: -1 })
       .skip(skip)
       .limit(parseInt(limit));
@@ -109,7 +111,16 @@ export const getUserBookings = async (req, res) => {
     // Get total count for pagination
     const total = await Booking.countDocuments(filter);
 
-    // Format response data with correct vendor field access
+    // 🔥 NEW: Check for pending reviews that need prompting
+    const now = new Date();
+    const pendingReviews = bookings.filter(booking => 
+      booking.reviewStatus === 'pending' && 
+      booking.reviewPrompts?.nextPromptDate && 
+      booking.reviewPrompts.nextPromptDate <= now &&
+      booking.reviewPrompts.promptCount < booking.reviewPrompts.maxPrompts
+    );
+
+    // Format response data with review information
     const formattedBookings = bookings.map(booking => {
       const baseAmount = booking.pricing.baseAmount || 0;
       const depositAmount = booking.pricing.depositeAmount || 0;
@@ -118,17 +129,28 @@ export const getUserBookings = async (req, res) => {
       // Correctly access vendor information from User schema
       const getVendorName = (vendor) => {
         if (!vendor) return 'Vendor';
-        // For vendors, prioritize businessName, fallback to firstName
         if (vendor.role === 'vendor' && vendor.profile?.businessName) {
           return vendor.profile.businessName;
         }
         return vendor.profile?.firstName || 'Vendor';
       };
 
+      // 🔥 NEW: Calculate review eligibility and status
+      const canReview = booking.status === 'completed' && 
+                       booking.reviewStatus === 'pending' && 
+                       !booking.reviewId;
+
+      const daysSinceCompletion = booking.completedAt ? 
+        Math.floor((now - new Date(booking.completedAt)) / (1000 * 60 * 60 * 24)) : null;
+
+      const needsReviewPrompt = booking.reviewStatus === 'pending' && 
+                               booking.reviewPrompts?.nextPromptDate && 
+                               booking.reviewPrompts.nextPromptDate <= now &&
+                               booking.reviewPrompts.promptCount < booking.reviewPrompts.maxPrompts;
+
       return {
         id: booking._id,
         bookingNumber: booking.bookingNumber,
-        title: booking.listingId?.title || 'Service Booking',
         vendor: getVendorName(booking.vendorId),
         serviceDate: booking.serviceDate,
         location: booking.location?.address ? 
@@ -142,14 +164,30 @@ export const getUserBookings = async (req, res) => {
         paymentStatus: booking.paymentStatus || 'pending',
         bookingStatus: booking.status || 'pending',
         canCancel: booking.status === 'pending' || booking.status === 'confirmed',
-        createdAt: booking.createdAt,
-        category: booking.listingId?.category,
-        // Additional vendor info
+
         vendorRating: booking.vendorId?.vendorInfo?.rating || 0,
-        vendorVerified: booking.vendorId?.vendorInfo?.verified || false
+        vendorVerified: booking.vendorId?.vendorInfo?.verified || false,
+
+        // 🔥 NEW: Review-related fields
+        reviewStatus: booking.reviewStatus || 'not_eligible',
+        canReview: canReview,
+        hasReview: !!booking.reviewId,
+        daysSinceCompletion: daysSinceCompletion,
+        needsReviewPrompt: needsReviewPrompt,
+        reviewPromptCount: booking.reviewPrompts?.promptCount || 0,
+        maxReviewPrompts: booking.reviewPrompts?.maxPrompts || 8,
+        nextReviewPromptDate: booking.reviewPrompts?.nextPromptDate,
+        
+        // Include existing review data if available
+        existingReview: booking.reviewId ? {
+          rating: booking.reviewId.rating,
+          comment: booking.reviewId.comment,
+          createdAt: booking.reviewId.createdAt
+        } : null
       };
     });
-    console.log(formattedBookings)
+
+    console.log(formattedBookings);
 
     res.status(200).json({
       success: true,
@@ -162,6 +200,17 @@ export const getUserBookings = async (req, res) => {
           totalBookings: total,
           hasNext: page * limit < total,
           hasPrev: page > 1
+        },
+        // 🔥 NEW: Review summary for profile redirect logic
+        reviewSummary: {
+          hasPendingReviews: pendingReviews.length > 0,
+          pendingReviewCount: pendingReviews.length,
+          nextReviewDue: pendingReviews.length > 0 ? 
+            pendingReviews[0].reviewPrompts.nextPromptDate : null,
+          oldestPendingReview: pendingReviews.length > 0 ? 
+            pendingReviews.sort((a, b) => 
+              new Date(a.completedAt) - new Date(b.completedAt)
+            )[0] : null
         }
       }
     });
@@ -175,6 +224,7 @@ export const getUserBookings = async (req, res) => {
     });
   }
 };
+
 
 
 
@@ -381,6 +431,94 @@ export const getBookingStats = async (req, res) => {
 
 // Get booking by ID
 
+
+// Add this new controller function
+export const checkPendingReviews = async (req, res) => {
+  try {
+    const customerId = req.user._id;
+
+    // Find pending reviews that need prompting
+    const now = new Date();
+    const pendingReviews = await Booking.find({
+      customerId: customerId,
+      reviewStatus: 'pending',
+      'reviewPrompts.nextPromptDate': { $lte: now },
+      'reviewPrompts.promptCount': { $lt: 8 }
+    })
+    .populate('vendorId', 'profile')
+    .populate('listingId', 'title')
+    .sort({ 'reviewPrompts.nextPromptDate': 1 }); // Oldest pending first
+
+    if (pendingReviews.length > 0) {
+      // Return the first pending review for modal display
+      const nextReview = pendingReviews[0];
+      
+      return res.status(200).json({
+        success: true,
+        hasPendingReviews: true,
+        shouldRedirect: true,
+        redirectTo: '/profile/bookings',
+        nextReview: {
+          bookingId: nextReview._id,
+          bookingNumber: nextReview.bookingNumber,
+          title: nextReview.listingId?.title || 'Service Booking',
+          vendorName: nextReview.vendorId?.profile?.businessName || 
+                     nextReview.vendorId?.profile?.firstName || 'Vendor',
+          serviceDate: nextReview.serviceDate,
+          daysSinceCompletion: Math.floor((now - new Date(nextReview.completedAt)) / (1000 * 60 * 60 * 24))
+        },
+        totalPendingReviews: pendingReviews.length
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      hasPendingReviews: false,
+      shouldRedirect: false
+    });
+
+  } catch (error) {
+    console.error('Check pending reviews error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to check pending reviews',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
+
+// Fix existing completed bookings - Run this in your backend
+const fixExistingBookings = async () => {
+  try {
+    const completedBookings = await Booking.find({
+      status: 'completed',
+      reviewStatus: 'not_eligible' // Only fix bookings that haven't been processed
+    });
+
+    for (let booking of completedBookings) {
+      // Set up review system for existing completed bookings
+      booking.reviewStatus = 'pending';
+      booking.completedAt = booking.updatedAt; // Use existing timestamp
+      booking.reviewPrompts = {
+        nextPromptDate: new Date(), // Show immediately
+        promptCount: 0,
+        firstPromptDate: new Date(),
+        maxPrompts: 8
+      };
+      
+      await booking.save();
+      console.log(`Fixed booking: ${booking.bookingNumber}`);
+    }
+
+    console.log(`Fixed ${completedBookings.length} bookings`);
+  } catch (error) {
+    console.error('Fix bookings error:', error);
+  }
+};
+
+// Run this once
+fixExistingBookings();
 
 
 

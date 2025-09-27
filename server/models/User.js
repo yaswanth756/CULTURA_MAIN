@@ -45,6 +45,11 @@ const userSchema = new mongoose.Schema(
         }
       }
     },
+    coins: {
+      balance: { type: Number, default: 0 },
+      totalEarned: { type: Number, default: 0 },
+      lastActivity: { type: Date }
+    },
 
     /*──────── vendor-specific ────────*/
     vendorInfo: {

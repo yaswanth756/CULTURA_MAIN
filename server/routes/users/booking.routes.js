@@ -3,7 +3,7 @@ import {
   getUserBookings,
   getBookingById,
   cancelBooking,
-  updateBookingStatus,
+  checkPendingReviews,
   getBookingStats,
   createBooking 
 } from '../../controllers/users/booking.controller.js';
@@ -25,6 +25,7 @@ router.get('/user/:customerId/stats', authenticate, getBookingStats);
 // Get specific booking by ID
 router.get('/:bookingId', authenticate, getBookingById);
 
+router.get('/user/:customerId/pending-reviews', checkPendingReviews);
 // Cancel booking
 
 
