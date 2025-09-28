@@ -355,35 +355,85 @@ export const getUserFavoritesProfile = async (req, res) => {
   try {
     if (!req.user) return res.status(404).json({ message: "User not found" });
 
-    const user = await User.findById(req.user._id)
-      .populate({
-        path: 'favorites',
-        match: { status: 'active' }, // Only active listings
-        populate: {
-          path: 'vendorId',
-          select: 'profile.firstName profile.businessName vendorInfo.verified vendorInfo.rating'
+    // 🚀 OPTIMIZED: Use aggregation pipeline instead of populate
+    const result = await User.aggregate([
+      { $match: { _id: req.user._id } },
+      { $project: { favorites: 1 } },
+      { $unwind: { path: '$favorites', preserveNullAndEmptyArrays: true } },
+      {
+        $lookup: {
+          from: 'listings',
+          let: { favoriteId: '$favorites' },
+          pipeline: [
+            { 
+              $match: { 
+                $expr: { $eq: ['$_id', '$$favoriteId'] },
+                status: 'active' 
+              } 
+            },
+            {
+              $lookup: {
+                from: 'users',
+                let: { vendorId: '$vendorId' },
+                pipeline: [
+                  { $match: { $expr: { $eq: ['$_id', '$$vendorId'] } } },
+                  { 
+                    $project: { 
+                      'profile.firstName': 1,
+                      'profile.businessName': 1,
+                      'vendorInfo.verified': 1,
+                      'vendorInfo.rating': 1
+                    } 
+                  }
+                ],
+                as: 'vendor'
+              }
+            },
+            {
+              $project: {
+                title: 1,
+                category: 1,
+                'price.base': 1,
+                'price.type': 1,
+                'ratings.average': 1,
+                'ratings.count': 1,
+                images: { $slice: ['$images', 1] }, // Only first image
+                vendor: { $arrayElemAt: ['$vendor', 0] }
+              }
+            }
+          ],
+          as: 'listing'
         }
-      });
+      },
+      { $unwind: { path: '$listing', preserveNullAndEmptyArrays: true } },
+      { $match: { listing: { $ne: null } } }, // Remove null listings
+      {
+        $group: {
+          _id: '$_id',
+          favorites: { $push: '$listing' }
+        }
+      }
+    ]);
 
-    if (!user) return res.status(404).json({ message: "User not found" });
+    const favorites = result[0]?.favorites || [];
 
-    // Format favorites for frontend
-    const formattedFavorites = user.favorites.map(listing => ({
+    // 🚀 Format for frontend (simplified)
+    const formattedFavorites = favorites.map(listing => ({
       id: listing._id,
       title: listing.title,
       category: listing.category,
-      price: listing.price.base,
-      priceType: listing.price.type,
-      rating: listing.ratings.average,
-      reviews: listing.ratings.count,
-      image: listing.images[0] || null,
+      price: listing.price?.base || 0,
+      priceType: listing.price?.type || 'fixed',
+      rating: listing.ratings?.average || 0,
+      reviews: listing.ratings?.count || 0,
+      image: listing.images?.[0] || null,
       vendor: {
-        name: listing.vendorId?.profile?.businessName || listing.vendorId?.profile?.firstName || 'Unknown',
-        verified: listing.vendorId?.vendorInfo?.verified || false,
-        rating: listing.vendorId?.vendorInfo?.rating || 0
-      },
-     
-
+        name: listing.vendor?.profile?.businessName || 
+               listing.vendor?.profile?.firstName || 
+               'Unknown',
+        verified: listing.vendor?.vendorInfo?.verified || false,
+        rating: listing.vendor?.vendorInfo?.rating || 0
+      }
     }));
 
     res.status(200).json({
@@ -395,10 +445,14 @@ export const getUserFavoritesProfile = async (req, res) => {
     });
 
   } catch (err) {
-    console.error("getUserFavorites error →", err);
-    res.status(500).json({ message: "Failed to fetch favorites" });
+    console.error("getUserFavoritesProfile error →", err);
+    res.status(500).json({ 
+      success: false,
+      message: "Failed to fetch favorites" 
+    });
   }
 };
+
 
 
 

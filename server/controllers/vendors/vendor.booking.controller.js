@@ -32,7 +32,6 @@ export const getVendorBookings = async (req, res) => {
       confirmedAt: booking.confirmedAt,
       cancelledAt: booking.cancelledAt,
     }));
-    console.log(transformedBookings)
     res.status(200).json({
       success: true,
       data: transformedBookings

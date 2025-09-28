@@ -26,3 +26,11 @@
 {"timestamp":"2025-09-27T06:50:06.298Z","method":"GET","path":"/api/listings/68d6236d05b607fc50ed478b","status":200,"duration":183.1,"memory":90,"cpu":2.68}
 {"timestamp":"2025-09-27T06:50:06.504Z","method":"GET","path":"/api/reviews/listing/68d6236d05b607fc50ed478b?page=1&limit=5","status":304,"duration":148.9,"memory":91,"cpu":2.68}
 {"timestamp":"2025-09-27T06:50:06.656Z","method":"GET","path":"/api/reviews/listing/68d6236d05b607fc50ed478b?page=1&limit=5","status":304,"duration":145.3,"memory":91,"cpu":2.68}
+{"timestamp":"2025-09-27T12:29:39.286Z","method":"POST","path":"/api/auth/send-otp","status":200,"duration":112.1,"memory":65,"cpu":2.57}
+{"timestamp":"2025-09-27T12:29:46.904Z","method":"POST","path":"/api/auth/verify-otp","status":200,"duration":199.5,"memory":66,"cpu":2.71}
+{"timestamp":"2025-09-27T12:29:47.346Z","method":"GET","path":"/api/auth/profile","status":200,"duration":202,"memory":66,"cpu":2.71}
+{"timestamp":"2025-09-27T12:29:50.602Z","method":"GET","path":"/api/auth/getuserfav","status":200,"duration":96.2,"memory":75,"cpu":2.71}
+{"timestamp":"2025-09-27T12:29:50.605Z","method":"GET","path":"/api/listings?page=1&limit=9&sortBy=newest","status":200,"duration":287.9,"memory":76,"cpu":2.71}
+{"timestamp":"2025-09-27T12:30:05.188Z","method":"GET","path":"/api/auth/getuserfav","status":304,"duration":83.9,"memory":80,"cpu":2.25}
+{"timestamp":"2025-09-27T12:30:05.190Z","method":"GET","path":"/api/listings?page=1&limit=9&sortBy=newest","status":304,"duration":214.1,"memory":82,"cpu":2.25}
+{"timestamp":"2025-09-27T12:30:05.192Z","method":"GET","path":"/api/listings?page=1&limit=9&sortBy=newest","status":304,"duration":216.6,"memory":81,"cpu":2.25}

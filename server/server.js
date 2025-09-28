@@ -22,6 +22,8 @@ import vendorAnalyticsRoutes from "./routes/vendor/vendor.analytics.routes.js"
 import { requestTimer } from './utils/requestTimer.js'
 import { setupHealthMonitor } from './utils/healthMonitor.js';
 
+
+import uploadRoutes from "./routes/upload.routes.js"
 dotenv.config()
 
 const app = express()
@@ -59,13 +61,7 @@ const limiter = rateLimit({
 app.use(limiter)
 
 // More strict rate limiting for auth routes
-const authLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 5, // Limit each IP to 5 auth requests per windowMs
-    message: {
-        error: "Too many authentication attempts, please try again later"
-    }
-})
+
 
 // Performance Middleware
 app.use(compression()) // Compress responses
@@ -84,12 +80,6 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 // Request timing middleware
 //app.use(requestTimer({ dir: 'logs' }))
 
-const healthMonitor = setupHealthMonitor(app, {
-    slowApi: 300,      // Alert for APIs > 300ms
-    maxMemory: 80,     // Alert when memory > 80%
-    maxCpu: 85,        // Alert when CPU > 85%
-    maxErrors: 5       // Alert when error rate > 5%
-  });
   
 
 // Apply stricter rate limiting to auth routes
@@ -106,6 +96,8 @@ app.use('/api/vendor/bookings', vendorBookingRoutes)
 app.use('/api/vendor/earnings', vendorEarningRoutes)
 app.use('/api/vendor/analytics', vendorAnalyticsRoutes)
 
+
+app.use('/api', uploadRoutes);
 // Test route
 app.get("/test", (req, res) => {
     return res.json({ message: "Server is running properly" })

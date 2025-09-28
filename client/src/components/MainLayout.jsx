@@ -2,6 +2,7 @@ import React from 'react';
 import { Outlet } from 'react-router-dom';
 import Navbar from './Navbar';
 import LoginModal from './Login/LoginModel';
+import CoinsCampaignModal from './CoinsCampaignModal'; // 🔥 Add this
 
 const MainLayout = () => {
   return (
@@ -13,8 +14,9 @@ const MainLayout = () => {
         <Outlet />
       </main>
 
-      {/* Keep modal if needed */}
+      {/* Modals */}
       <LoginModal />
+      <CoinsCampaignModal /> {/* 🔥 Add this */}
     </div>
   );
 };

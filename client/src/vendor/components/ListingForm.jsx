@@ -15,6 +15,8 @@ import {
   Package,
   IndianRupee,
   Layers,
+  Upload,
+  Trash2,
 } from "lucide-react";
 
 const ListingForm = ({ onCancel, onSubmit }) => {
@@ -27,23 +29,93 @@ const ListingForm = ({ onCancel, onSubmit }) => {
     priceType: "per_event",
     currency: "INR",
     images: [],
-    newImage: "",
     serviceAreas: "",
     features: "",
     tags: "",
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [uploadLoading, setUploadLoading] = useState(false);
 
-  const addImage = () => {
-    const url = form.newImage.trim();
-    if (!url) return;
+  // Single file upload
+  const handleSingleFileUpload = async (file) => {
+    const formData = new FormData();
+    formData.append('image', file);
     
-    // Basic URL validation
+    const token = localStorage.getItem("vendorToken");
+    
+    const response = await axios.post(
+      buildApiUrl('/api/upload/single'),
+      formData,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      }
+    );
+    
+    return response.data.url;
+  };
+
+  // Multiple files upload
+  const handleMultipleFilesUpload = async (files) => {
+    const formData = new FormData();
+    Array.from(files).forEach(file => {
+      formData.append('images', file);
+    });
+    
+    const token = localStorage.getItem("vendorToken");
+    
+    const response = await axios.post(
+      buildApiUrl('/api/upload/multiple'),
+      formData,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      }
+    );
+    
+    return response.data.urls.map(item => item.url);
+  };
+
+  // Handle file input change
+  const handleFileChange = async (e) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setUploadLoading(true);
+
     try {
-      new URL(url);
-      setForm((p) => ({ ...p, images: [...p.images, url], newImage: "" }));
-    } catch {
-      toast.error("Please enter a valid image URL");
+      let newUrls = [];
+
+      if (files.length === 1) {
+        // Single file upload
+        const url = await handleSingleFileUpload(files[0]);
+        newUrls = [url];
+      } else {
+        // Multiple files upload
+        newUrls = await handleMultipleFilesUpload(files);
+      }
+
+      // Add new URLs to existing images
+      setForm((p) => ({ 
+        ...p, 
+        images: [...p.images, ...newUrls] 
+      }));
+
+      toast.success(`${files.length} image(s) uploaded successfully!`);
+
+      // Clear file input
+      e.target.value = '';
+
+    } catch (error) {
+      console.error('Upload error:', error);
+      const errorMessage = error.response?.data?.message || 'Upload failed';
+      toast.error(errorMessage);
+    } finally {
+      setUploadLoading(false);
     }
   };
 
@@ -83,7 +155,7 @@ const ListingForm = ({ onCancel, onSubmit }) => {
           type: form.priceType,
           currency: form.currency,
         },
-        images: form.images,
+        images: form.images, // Now contains Cloudinary URLs
         serviceAreas: form.serviceAreas
           .split(",")
           .map((s) => s.trim())
@@ -97,6 +169,7 @@ const ListingForm = ({ onCancel, onSubmit }) => {
           .map((s) => s.trim().toLowerCase())
           .filter(Boolean),
       };
+      
       const token = localStorage.getItem("vendorToken");
       
       const response = await axios.post(
@@ -104,7 +177,7 @@ const ListingForm = ({ onCancel, onSubmit }) => {
         listingData,
         {
           headers: {
-            Authorization: `Bearer ${token}`, // sending token in headers
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -112,7 +185,6 @@ const ListingForm = ({ onCancel, onSubmit }) => {
       if (response.data.success) {
         toast.success("Listing created successfully!");
         
-        // Pass the created listing back to parent
         const newListing = {
           ...response.data.data,
           ratings: { average: 0, count: 0 },
@@ -147,7 +219,7 @@ const ListingForm = ({ onCancel, onSubmit }) => {
             <h4 className="font-semibold text-gray-900 text-lg">Add New Listing</h4>
             <button
               onClick={onCancel}
-              disabled={isLoading}
+              disabled={isLoading || uploadLoading}
               className="p-2 rounded-full hover:bg-gray-200 transition disabled:opacity-50"
             >
               <X className="w-5 h-5 text-gray-700" />
@@ -167,7 +239,7 @@ const ListingForm = ({ onCancel, onSubmit }) => {
                   onChange={(e) =>
                     setForm((p) => ({ ...p, title: e.target.value }))
                   }
-                  disabled={isLoading}
+                  disabled={isLoading || uploadLoading}
                   className="mt-1 w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-gray-900/10 outline-none disabled:opacity-50"
                   placeholder="Cinematic Wedding Photography"
                   maxLength={150}
@@ -182,7 +254,7 @@ const ListingForm = ({ onCancel, onSubmit }) => {
                   onChange={(e) =>
                     setForm((p) => ({ ...p, category: e.target.value }))
                   }
-                  disabled={isLoading}
+                  disabled={isLoading || uploadLoading}
                   className="mt-1 w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-gray-900/10 outline-none disabled:opacity-50"
                 >
                   <option value="venues">Venues</option>
@@ -208,7 +280,7 @@ const ListingForm = ({ onCancel, onSubmit }) => {
                   onChange={(e) =>
                     setForm((p) => ({ ...p, subcategory: e.target.value }))
                   }
-                  disabled={isLoading}
+                  disabled={isLoading || uploadLoading}
                   className="mt-1 w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-gray-900/10 outline-none disabled:opacity-50"
                   placeholder="wedding, reception, sangeet…"
                 />
@@ -225,7 +297,7 @@ const ListingForm = ({ onCancel, onSubmit }) => {
                     onChange={(e) =>
                       setForm((p) => ({ ...p, priceBase: e.target.value }))
                     }
-                    disabled={isLoading}
+                    disabled={isLoading || uploadLoading}
                     className="mt-1 w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-gray-900/10 outline-none disabled:opacity-50"
                     placeholder="10000"
                   />
@@ -237,7 +309,7 @@ const ListingForm = ({ onCancel, onSubmit }) => {
                     onChange={(e) =>
                       setForm((p) => ({ ...p, priceType: e.target.value }))
                     }
-                    disabled={isLoading}
+                    disabled={isLoading || uploadLoading}
                     className="mt-1 w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-gray-900/10 outline-none disabled:opacity-50"
                   >
                     <option value="per_event">Per event</option>
@@ -259,8 +331,8 @@ const ListingForm = ({ onCancel, onSubmit }) => {
                 onChange={(e) =>
                   setForm((p) => ({ ...p, description: e.target.value }))
                 }
-                rows={4}
-                disabled={isLoading}
+                rows={2}
+                disabled={isLoading || uploadLoading}
                 maxLength={1000}
                 className="mt-1 w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-gray-900/10 outline-none disabled:opacity-50"
                 placeholder="Describe the service, inclusions, options…"
@@ -281,7 +353,7 @@ const ListingForm = ({ onCancel, onSubmit }) => {
                   onChange={(e) =>
                     setForm((p) => ({ ...p, serviceAreas: e.target.value }))
                   }
-                  disabled={isLoading}
+                  disabled={isLoading || uploadLoading}
                   className="mt-1 w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-gray-900/10 outline-none disabled:opacity-50"
                   placeholder="Hyderabad, Secunderabad"
                 />
@@ -293,7 +365,7 @@ const ListingForm = ({ onCancel, onSubmit }) => {
                   onChange={(e) =>
                     setForm((p) => ({ ...p, features: e.target.value }))
                   }
-                  disabled={isLoading}
+                  disabled={isLoading || uploadLoading}
                   className="mt-1 w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-gray-900/10 outline-none disabled:opacity-50"
                   placeholder="2 shooters, teaser film"
                 />
@@ -307,56 +379,94 @@ const ListingForm = ({ onCancel, onSubmit }) => {
                   onChange={(e) =>
                     setForm((p) => ({ ...p, tags: e.target.value }))
                   }
-                  disabled={isLoading}
+                  disabled={isLoading || uploadLoading}
                   className="mt-1 w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-gray-900/10 outline-none disabled:opacity-50"
                   placeholder="cinematic, drone, teaser"
                 />
               </div>
             </div>
 
-            {/* Images */}
+            {/* Images Upload Section */}
             <div>
-              <label className="text-sm text-gray-700 flex items-center gap-1">
-                <ImageIcon className="w-4 h-4 text-gray-500" /> Images
+              <label className="text-sm text-gray-700 flex items-center gap-1 mb-3">
+                <ImageIcon className="w-4 h-4 text-gray-500" /> 
+                Images ({form.images.length})
               </label>
-              <div className="mt-3 flex gap-3 overflow-x-auto">
-                {form.images.map((src, i) => (
-                  <div
-                    key={i}
-                    className="relative w-24 h-24 rounded-xl border overflow-hidden shadow-sm"
-                  >
-                    <img src={src} alt="" className="w-full h-full object-cover" />
-                    <button
-                      type="button"
-                      onClick={() => removeImage(i)}
-                      disabled={isLoading}
-                      className="absolute top-1 right-1 bg-white/90 rounded-md px-1 text-xs hover:bg-white disabled:opacity-50"
-                    >
-                      ×
-                    </button>
+
+              {/* File Upload Button */}
+              <div className="mb-4">
+                <label className="cursor-pointer">
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*,video/*"
+                    onChange={handleFileChange}
+                    disabled={isLoading || uploadLoading}
+                    className="hidden"
+                  />
+                  <div className={`
+                    inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-dashed 
+                    transition-colors text-sm font-medium
+                    ${uploadLoading 
+                      ? 'border-blue-300 bg-blue-50 text-blue-600 cursor-not-allowed' 
+                      : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50 text-gray-700'
+                    }
+                  `}>
+                    {uploadLoading ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-blue-300 border-t-blue-600 rounded-full animate-spin" />
+                        Uploading...
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-4 h-4" />
+                        Upload Images/Videos
+                      </>
+                    )}
                   </div>
-                ))}
+                </label>
+                <p className="text-xs text-gray-500 mt-1">
+                  Select multiple files. Max 10MB per file. Supports images
+                </p>
               </div>
-              <div className="mt-3 flex gap-2">
-                <input
-                  type="url"
-                  value={form.newImage}
-                  onChange={(e) =>
-                    setForm((p) => ({ ...p, newImage: e.target.value }))
-                  }
-                  disabled={isLoading}
-                  placeholder="https://image.url"
-                  className="flex-1 px-3 py-2 border rounded-xl focus:ring-2 focus:ring-gray-900/10 outline-none disabled:opacity-50"
-                />
-                <button
-                  type="button"
-                  onClick={addImage}
-                  disabled={isLoading}
-                  className="inline-flex items-center gap-1 px-4 py-2 rounded-xl bg-gray-900 text-white text-sm hover:bg-gray-800 transition disabled:opacity-50"
-                >
-                  <Plus className="w-4 h-4" /> Add
-                </button>
-              </div>
+
+              {/* Image Preview Grid */}
+              {form.images.length > 0 && (
+                <div className="grid grid-cols-4 md:grid-cols-6 gap-3">
+                  {/* Image Preview Grid - SMALLER VERSION */}
+                    {form.images.length > 0 && (
+                      <div className="grid grid-cols-6 md:grid-cols-8 gap-2">
+                        {form.images.map((src, i) => (
+                          <div
+                            key={i}
+                            className="relative group aspect-square rounded-lg border overflow-hidden shadow-sm bg-gray-100 w-20 h-20"
+                          >
+                            <img 
+                              src={src} 
+                              alt={`Upload ${i + 1}`} 
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f3f4f6"/><text x="50" y="50" text-anchor="middle" dy=".3em" fill="%236b7280">Error</text></svg>';
+                              }}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeImage(i)}
+                              disabled={isLoading || uploadLoading}
+                              className="absolute top-0.5 right-0.5 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 disabled:opacity-50"
+                            >
+                              <Trash2 className="w-2.5 h-2.5" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                </div>
+              )}
+
+              {/* Empty State */}
+              
             </div>
 
             {/* Actions */}
@@ -364,14 +474,14 @@ const ListingForm = ({ onCancel, onSubmit }) => {
               <button
                 type="button"
                 onClick={onCancel}
-                disabled={isLoading}
+                disabled={isLoading || uploadLoading}
                 className="px-4 py-2 rounded-xl border text-sm font-medium hover:bg-gray-50 transition disabled:opacity-50"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                disabled={isLoading}
+                disabled={isLoading || uploadLoading}
                 className="px-4 py-2 rounded-xl bg-gray-900 text-white text-sm font-medium hover:bg-gray-800 transition disabled:opacity-50 flex items-center gap-2"
               >
                 {isLoading ? (
