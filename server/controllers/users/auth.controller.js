@@ -1,6 +1,6 @@
 import User from "../../models/User.js";
 import jwt from 'jsonwebtoken';
-import { sendOTPEmail } from '../../utils/emailService.js';
+import { sendUserOTP } from '../../utils/emailService.js';
 
 // ================== OTP STORAGE ==================
 const otpStore = new Map();
@@ -14,7 +14,7 @@ const generateToken = (userId) =>
     expiresIn: process.env.JWT_EXPIRE || '7d'
 });
 
-// ================== STEP 1: SEND OTP ==================
+// ================== STEP 1: SEND OTP users==================
 export const sendOTP = async (req, res) => {
   try {
     const { email } = req.body;
@@ -32,11 +32,12 @@ export const sendOTP = async (req, res) => {
 
     const otp = generateOTP();
     const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
-    console.log(otp);
+    console.log('User OTP:', otp);
 
     otpStore.set(email.toLowerCase(), { otp, expiry: otpExpiry, isExistingUser, attempts: 0 });
 
-    //await sendOTPEmail(email, otp, isExistingUser ? 'login' : 'signup');
+    // 🔥 Send user OTP with proper type
+   // await sendUserOTP(email, otp, isExistingUser ? 'login' : 'signup');
 
     return res.status(200).json({
       success: true,
@@ -45,10 +46,11 @@ export const sendOTP = async (req, res) => {
       email: email.toLowerCase()
     });
   } catch (error) {
-    console.error('Send OTP Error:', error);
+    console.error('Send User OTP Error:', error);
     return res.status(500).json({ success: false, message: 'Failed to send OTP. Please try again.' });
   }
 };
+
 
 // ================== STEP 2: VERIFY OTP ==================
 export const verifyOTPAndAuth = async (req, res) => {

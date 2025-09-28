@@ -1,7 +1,7 @@
 // controllers/authController.js
 import User from '../../models/User.js';
 import jwt from 'jsonwebtoken';
-import { sendOTPEmail } from '../../utils/emailService.js';
+import { sendVendorOTP } from '../../utils/emailService.js';
 import rateLimit from 'express-rate-limit';
 
 // Temporary OTP storage (in production use Redis)
@@ -27,76 +27,77 @@ export const otpRateLimit = rateLimit({
 });
 
 // Controller 1: Send OTP
-// Controller 1: Send OTP
+// Controller 1: Send OTP vendors
 export const sendOTP = async (req, res) => {
-    try {
-      const { email } = req.body;
-  
-      // Basic validation
-      if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
-        return res.status(400).json({
-          success: false,
-          message: "Valid email is required"
-        });
-      }
-  
-      const emailLower = email.toLowerCase();
-  
-      // Check if user exists
-      const existingUser = await User.findOne({ email: emailLower });
-      
-      // 🔥 NEW: Check if user is already a customer
-      if (existingUser && existingUser.role === 'customer') {
-        return res.status(400).json({
-          success: false,
-          message: "This email is already registered as a customer. Please try a different email or contact support."
-        });
-      }
-  
-      // 🔥 NEW: Check if user is admin (optional security)
-      if (existingUser && existingUser.role === 'admin') {
-        return res.status(400).json({
-          success: false,
-          message: "This email is not available for vendor registration."
-        });
-      }
-  
-      // Generate 6-digit OTP
-      const otp = Math.floor(100000 + Math.random() * 900000).toString();
-      
-      // Store OTP temporarily with expiry
-      const otpData = {
-        otp: otp,
-        email: emailLower,
-        userType: (existingUser && existingUser.role === 'vendor') ? 'existing' : 'new',
-        createdAt: Date.now(),
-        expiresAt: Date.now() + (5 * 60 * 1000) // 5 minutes
-      };
-      console.log(otp)
-      otpStore.set(emailLower, otpData);
-  
-      // Clean up expired OTPs every time (simple cleanup)
-      cleanExpiredOTPs();
-  
-      // Send OTP email
-      //await sendOTPEmail(emailLower, otp);
-  
-      // Response
-      res.status(200).json({
-        success: true,
-        message: "OTP sent successfully",
-        userType: otpData.userType,
-        expiresIn: 300 // 5 minutes in seconds
-      });
-  
-    } catch (error) {
-      console.error('Send OTP error:', error);
-      res.status(500).json({
+  try {
+    const { email } = req.body;
+
+    // Basic validation
+    if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
+      return res.status(400).json({
         success: false,
-        message: "Failed to send OTP. Please try again."
+        message: "Valid email is required"
       });
     }
-  };
+
+    const emailLower = email.toLowerCase();
+
+    // Check if user exists
+    const existingUser = await User.findOne({ email: emailLower });
+    
+    // Check if user is already a customer
+    if (existingUser && existingUser.role === 'customer') {
+      return res.status(400).json({
+        success: false,
+        message: "This email is already registered as a customer. Please try a different email or contact support."
+      });
+    }
+
+    // Check if user is admin
+    if (existingUser && existingUser.role === 'admin') {
+      return res.status(400).json({
+        success: false,
+        message: "This email is not available for vendor registration."
+      });
+    }
+
+    // Generate 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    // Store OTP temporarily with expiry
+    const otpData = {
+      otp: otp,
+      email: emailLower,
+      userType: (existingUser && existingUser.role === 'vendor') ? 'existing' : 'new',
+      createdAt: Date.now(),
+      expiresAt: Date.now() + (5 * 60 * 1000) // 5 minutes
+    };
+    console.log('Vendor OTP:', otp);
+    otpStore.set(emailLower, otpData);
+
+    // Clean up expired OTPs
+    cleanExpiredOTPs();
+
+    // 🔥 Send vendor OTP with proper type
+   // await sendVendorOTP(emailLower, otp, otpData.userType === 'existing' ? 'login' : 'signup');
+
+    // Response
+    res.status(200).json({
+      success: true,
+      message: "OTP sent successfully",
+      userType: otpData.userType,
+      expiresIn: 300 // 5 minutes in seconds
+    });
+
+  } catch (error) {
+    console.error('Send Vendor OTP error:', error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to send OTP. Please try again."
+    });
+  }
+};
+
   
 
 // Controller 2: Verify OTP and Handle Login/Signup
