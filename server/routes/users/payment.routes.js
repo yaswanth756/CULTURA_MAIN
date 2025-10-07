@@ -1,75 +1,55 @@
-/* routes/payment.routes.js */
 import express from 'express';
-import { body, param } from 'express-validator';
 import {
-  createPaymentIntent,
-  confirmPayment,
-  handleWebhook,
-  getPaymentStatus
+  createPaymentOrder,
+  verifyPayment,
+  handlePaymentFailure,
+  getPaymentDetails,
+  getUserPayments,
+  initiateRefund
 } from '../../controllers/users/payment.controller.js';
-import { authenticate } from '../../middleware/auth.middleware.js';
-import {
-  paymentRateLimit,
-  webhookRateLimit,
-  paymentSecurity,
-  verifyWebhookSignature
-} from '../../middleware/stripe.middleware.js';
 
 const router = express.Router();
 
-// Apply security headers to all payment routes
-router.use(paymentSecurity);
+/**
+ * @route   POST /api/payments/create-order
+ * @desc    Create a new Razorpay order for payment
+ * @access  Public (requires bookingId)
+ */
+router.post('/create-order', createPaymentOrder);
 
-// Create Payment Intent
-router.post('/create-intent',
-  paymentRateLimit,
-  authenticate,
-  [
-    body('bookingId')
-      .isMongoId()
-      .withMessage('Invalid booking ID'),
-    body('amount')
-      .isNumeric()
-      .withMessage('Amount must be a number')
-      .custom(value => value > 0)
-      .withMessage('Amount must be greater than 0'),
-    body('currency')
-      .optional()
-      .isIn(['inr', 'usd'])
-      .withMessage('Currency must be INR or USD')
-  ],
-  createPaymentIntent
-);
+/**
+ * @route   POST /api/payments/verify
+ * @desc    Verify Razorpay payment signature
+ * @access  Public
+ */
+router.post('/verify', verifyPayment);
 
-// Confirm Payment
-router.post('/confirm',
-  paymentRateLimit,
-  authenticate,
-  [
-    body('paymentIntentId')
-      .matches(/^pi_/)
-      .withMessage('Invalid payment intent ID')
-  ],
-  confirmPayment
-);
+/**
+ * @route   POST /api/payments/failure
+ * @desc    Record payment failure
+ * @access  Public
+ */
+router.post('/failure', handlePaymentFailure);
 
-// Get Payment Status
-router.get('/status/:paymentIntentId',
-  authenticate,
-  [
-    param('paymentIntentId')
-      .matches(/^pi_/)
-      .withMessage('Invalid payment intent ID')
-  ],
-  getPaymentStatus
-);
+/**
+ * @route   GET /api/payments/:paymentId
+ * @desc    Get payment details by ID
+ * @access  Private (requires auth)
+ */
+router.get('/:paymentId', getPaymentDetails);
 
-// Webhook Endpoint (No auth required, but signature verified)
-router.post('/webhook',
-  webhookRateLimit,
-  express.raw({ type: 'application/json' }),
-  verifyWebhookSignature,
-  handleWebhook
-);
+/**
+ * @route   GET /api/payments/user/:userId
+ * @desc    Get user's payment history
+ * @access  Private (requires auth)
+ */
+router.get('/user/:userId', getUserPayments);
+
+/**
+ * @route   POST /api/payments/refund
+ * @desc    Initiate payment refund
+ * @access  Private (admin/vendor)
+ */
+router.post('/refund', initiateRefund);
 
 export default router;

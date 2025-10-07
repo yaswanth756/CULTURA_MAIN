@@ -206,19 +206,23 @@ const navigate = useNavigate();
     }
 
     // Create booking data
+    const baseAmountRupees = listing.price.base; // This is in rupees
+    const depositAmountRupees = Math.ceil(baseAmountRupees * 0.1); // 10% deposit in rupees
+  
+    // Create booking data (keep amounts in rupees for display)
     const bookingData = {
       listingId: listing._id,
       vendorId: listing.vendorId._id,
       eventDate: eventDate.toISOString(),
       location: selectedLocation?.description || locationQuery,
       coordinates: selectedLocation ? [selectedLocation.longitude, selectedLocation.latitude] : null,
-      amount: listing.price.base,
-      depositAmount: Math.ceil(listing.price.base * 0.1),
+      amount: baseAmountRupees, // Keep in rupees for display
+      depositAmount: depositAmountRupees, // Keep in rupees for display
       priceType: listing.price.type,
       serviceTitle: listing.title,
       vendorName: listing.vendorId.profile?.businessName || 'Vendor'
     };
-
+  
     // Navigate to secure payment page with booking data
     navigate(`/securepayment/${listing._id}`, { 
       state: bookingData 

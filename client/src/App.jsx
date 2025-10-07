@@ -1,35 +1,46 @@
+import { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate, Outlet } from "react-router-dom";
+import LoadingDots from './components/LoadingDots';
 
-// USER IMPORTS
-import Home from './pages/Home';
-import Test from './pages/Test';
-import Listings from './pages/Listings';
-import ListingDetails from './pages/ListingDetails';
-import SecurePayment from './pages/SecurePayment';
+
+// ✅ CRITICAL: Eager load only essential components
 import MainLayout from './components/MainLayout';
 import ProtectedRoute from './components/Protected';
-
-import ProfilePage from "./pages/ProfilePage";
-import AboutMePanel from "./components/profile/AboutMePanel";
-import BookingsPanel from "./components/profile/BookingsPanel";
-import FavoritesPanel from "./components/profile/FavoritesPanel";
-import ReviewsPanel from "./components/profile/ReviewsPanel";
-import SettingsPanel from "./components/profile/SettingsPanel";
-
-// VENDOR IMPORTS
-import VendorLayout from './vendor/components/VendorLayout';
-import VendorProfilePage from './vendor/pages/ProfilePage';
-import VendorListingsPage from './vendor/pages/ListingsPage';
-import VendorBookingsPage from './vendor/pages/BookingsPage';
-import VendorEarningsPage from './vendor/pages/EarningsPage';
-import VendorAnalyticsPage from './vendor/pages/AnalyticsPage';
 import ProtectedVendorRoute from './vendor/components/ProtectedVendorRoute';
-import Login from './vendor/pages/Login';
+
+
+// ✅ OPTIMIZED: Lazy load all pages for code splitting
+const Home = lazy(() => import('./pages/Home'));
+const Test = lazy(() => import('./pages/Test'));
+const Listings = lazy(() => import('./pages/Listings'));
+const ListingDetails = lazy(() => import('./pages/ListingDetails'));
+const SecurePayment = lazy(() => import('./pages/SecurePayment'));
+
+
+// Profile pages
+const ProfilePage = lazy(() => import('./pages/ProfilePage'));
+const AboutMePanel = lazy(() => import('./components/profile/AboutMePanel'));
+const BookingsPanel = lazy(() => import('./components/profile/BookingsPanel'));
+const FavoritesPanel = lazy(() => import('./components/profile/FavoritesPanel'));
+const ReviewsPanel = lazy(() => import('./components/profile/ReviewsPanel'));
+const SettingsPanel = lazy(() => import('./components/profile/SettingsPanel'));
+
+
+// Vendor pages
+const VendorLayout = lazy(() => import('./vendor/components/VendorLayout'));
+const VendorProfilePage = lazy(() => import('./vendor/pages/ProfilePage'));
+const VendorListingsPage = lazy(() => import('./vendor/pages/ListingsPage'));
+const VendorBookingsPage = lazy(() => import('./vendor/pages/BookingsPage'));
+const VendorEarningsPage = lazy(() => import('./vendor/pages/EarningsPage'));
+const VendorAnalyticsPage = lazy(() => import('./vendor/pages/AnalyticsPage'));
+const Login = lazy(() => import('./vendor/pages/Login'));
+
 
 // PROVIDERS
 import { EventProvider } from './context/EventContext';
 import { AuthProvider } from './context/AuthContext';
 import { VendorProvider } from './vendor/context/VendorContext';
+
 
 // Wraps vendor routes with provider and an Outlet so nested routes render correctly
 const VendorProviderLayout = () => (
@@ -38,9 +49,10 @@ const VendorProviderLayout = () => (
   </VendorProvider>
 );
 
+
 function App() {
   return (
-
+    <Suspense fallback={<LoadingDots />}>
       <Routes>
         {/* ------------------ USER ROUTES ------------------ */}
         <Route element={
@@ -56,6 +68,7 @@ function App() {
           <Route path="/listing/:id" element={<ListingDetails />} />
           <Route path="/securepayment/:id" element={<SecurePayment />} />
 
+
           {/* Protected Profile Routes */}
           <Route element={<ProtectedRoute />}>
             <Route path="/profile" element={<ProfilePage />}>
@@ -68,6 +81,7 @@ function App() {
             </Route>
           </Route>
         </Route>
+
 
         {/* ------------------ VENDOR ROUTES ------------------ */}
         <Route element={<VendorProviderLayout />}>
@@ -86,8 +100,9 @@ function App() {
           </Route>
         </Route>
       </Routes>
-
+    </Suspense>
   );
 }
+
 
 export default App;

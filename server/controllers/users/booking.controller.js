@@ -43,7 +43,7 @@ export const createBooking = async (req, res) => {
         currency: pricing.currency || 'INR'
       },
       status: 'pending',
-      paymentStatus: 'paid'
+      paymentStatus: 'pending'
     });
 
     await booking.save();

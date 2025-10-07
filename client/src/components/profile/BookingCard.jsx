@@ -19,6 +19,9 @@ const BookingCard = ({
   const bookingId = _id || id;
   const letter = (vendor || "V").toString().trim().charAt(0).toUpperCase();
 
+  // ✅ Calculate display amount: show 0 if completed, otherwise show actual amount
+  const displayPayableAmount = bookingStatus === "completed" ? 0 : payableAmount;
+
   const getStatusStyle = (status) => {
     switch (status) {
       case "confirmed": return "bg-emerald-100 text-emerald-800";
@@ -76,7 +79,7 @@ const BookingCard = ({
             >
               <div className="flex items-baseline gap-3">
                 <h3 className="font-bold text-base sm:text-lg text-gray-800 truncate hover:text-blue-600 transition-colors">
-                  {title || 'Service Booking'}
+                  {vendor}
                 </h3>
                 <span className="text-xs font-mono text-gray-400 truncate">#{bookingNumber}</span>
               </div>
@@ -121,7 +124,7 @@ const BookingCard = ({
               <div className="text-right">
                 <div className="text-[12px] sm:text-sm text-gray-500">Balance</div>
                 <div className="text-sm sm:text-base font-bold text-blue-600">
-                  {formatINR(payableAmount)}
+                  {formatINR(displayPayableAmount)}
                 </div>
               </div>
             </div>

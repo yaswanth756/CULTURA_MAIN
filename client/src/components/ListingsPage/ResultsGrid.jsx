@@ -235,7 +235,7 @@ const ResultsGrid = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-50">
       {/* Location Selector */}
       <div className="flex py-2 px-7 gap-4 overflow-x-auto justify-between sticky top-24 z-40 bg-gray-100">
         {popularCitiesApTs.map((city) => (

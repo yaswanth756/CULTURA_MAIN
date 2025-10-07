@@ -97,7 +97,7 @@ const BookingDetailsModal = ({
   const bookingId = _id || id; // Handle both _id and id
   const letter = (vendor || "V").toString().trim().charAt(0).toUpperCase();
   const formatINR = (n) => `₹${Number(n || 0).toLocaleString("en-IN")}`;
-  
+  console.log(booking);
   const statusColor =
     String(bookingStatus || "").toLowerCase() === "confirmed"
       ? "bg-emerald-100 text-emerald-700"
