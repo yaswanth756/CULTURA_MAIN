@@ -156,14 +156,14 @@ const ResultsComponent = ({
                   {/* Bottom Gradient + Price Badge */}
                   <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/40 to-transparent" />
                   <div className="absolute left-2 bottom-2 z-10">
-                    <span className="inline-flex items-center px-2.5 py-1 font-medim rounded-full text-sm  bg-white  text-black ring-1 ">
-                      From <span className="text-gray-800 pl-2">{priceLabel} {priceTypeLabels[listing?.price?.type]}</span>
+                    <span className="inline-flex items-center px-2.5 py-1 font-medim rounded-full text-medium   text-white ">
+                      From <span className="text-white pl-2 font-medium text-xl">{priceLabel}{priceTypeLabels[listing?.price?.type]}</span>
                     </span>
                   </div>
                 </div>
 
                 {/* Content */}
-                <div className="p-4 space-y-3">
+                <div className="p-4 space-y-2">
                   {/* Title + Rating */}
                   <div className="flex items-start justify-between gap-3">
                     <h3 className="font-semibold text-gray-900 text-lg sm:text-xl leading-snug line-clamp-1">
@@ -203,7 +203,7 @@ const ResultsComponent = ({
                       ).map((loc, i) => (
                         <span
                           key={i}
-                          className="px-3 py-1 rounded-full text-xs font-medium bg-gray-50 text-gray-700 border"
+                          className="px-3 py-1 rounded-full text-xs font-medium  text-gray-700 "
                         >
                           {loc}
                         </span>

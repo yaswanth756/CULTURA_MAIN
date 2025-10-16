@@ -128,22 +128,29 @@ const SearchComponent = ({
   <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-white to-transparent z-10" />
 
   <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide scroll-smooth relative">
-    {categories.map((c) => (
-      <button
-        key={c.value}
-        onClick={() => onCategoryChange(c.value)}
-        className={`flex items-center gap-2 px-4 py-3 rounded-full border text-medium
-                   transition whitespace-nowrap flex-shrink-0 ${
-          filtersFromUrl.category === c.value
-            ? "bg-anzac-500 text-white border-anzac-500 shadow"
-            : "bg-white text-gray-700 border-gray-200 hover:border-anzac-300"
-        }`}
-      >
-        <c.Icon className="w-4 h-4" />
-        {c.label}
-      </button>
-    ))}
-  </div>
+  {categories.map((c) => (
+    <button
+      key={c.value}
+      onClick={() => onCategoryChange(c.value)}
+      className={`flex items-center gap-2 px-4 py-3 rounded-full border text-medium
+                 transition whitespace-nowrap flex-shrink-0 relative overflow-hidden group ${
+        filtersFromUrl.category === c.value
+          ? "bg-anzac-500 text-white border-anzac-500 shadow"
+          : "bg-white text-gray-700 border-gray-200 hover:border-anzac-300 hover:text-white"
+      }`}
+    >
+      {/* Animated background span - only visible on hover for inactive buttons */}
+      {filtersFromUrl.category !== c.value && (
+        <span className="absolute inset-0 bg-anzac-500 transition-all duration-300 ease-out origin-bottom scale-y-0 group-hover:scale-y-100"></span>
+      )}
+      
+      {/* Icon and text with z-index to stay on top */}
+      <c.Icon className="w-4 h-4 relative z-10" />
+      <span className="relative z-10">{c.label}</span>
+    </button>
+  ))}
+</div>
+
         </div>
 
 

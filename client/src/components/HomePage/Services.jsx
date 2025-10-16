@@ -150,11 +150,13 @@ const Services = () => {
                 </div>
 
                 <button
-                  onClick={() => (window.location.href = `/browse?servicetype=${service.slug}`)}
-                  className="px-6 py-2 bg-anzac-500 text-white rounded-full shadow-md hover:bg-anzac-600 hover:scale-105 transition-all duration-300 ease-out"
-                >
-                  Plan Now
-                </button>
+  onClick={() => (window.location.href = `/browse?servicetype=${service.slug}`)}
+  className="px-6 py-2 text-anzac-600 rounded-full border border-anzac-500 hover:text-white relative overflow-hidden transition-colors duration-300 ease-out group"
+>
+  <span className="absolute inset-0 bg-anzac-500 transition-all duration-300 ease-out origin-bottom scale-y-0 group-hover:scale-y-100"></span>
+  <span className="relative z-10">Plan Now</span>
+</button>
+
               </div>
             </div>
           ))}

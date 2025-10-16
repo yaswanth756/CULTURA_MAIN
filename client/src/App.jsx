@@ -52,7 +52,7 @@ const VendorProviderLayout = () => (
 
 function App() {
   return (
-    <Suspense fallback={<LoadingDots />}>
+    <Suspense fallback={null}>
       <Routes>
         {/* ------------------ USER ROUTES ------------------ */}
         <Route element={
@@ -64,8 +64,8 @@ function App() {
         }>
           <Route path="/" element={<Home />} />
           <Route path="/test" element={<Test />} />
-          <Route path="/browse" element={<Listings />} />
-          <Route path="/listing/:id" element={<ListingDetails />} />
+          <Route path="/browse" element={<Suspense fallback={<LoadingDots />}><Listings /></Suspense>} />
+          <Route path="/listing/:id" element={<Suspense fallback={<LoadingDots />}><ListingDetails /></Suspense>} />
           <Route path="/securepayment/:id" element={<SecurePayment />} />
 
 

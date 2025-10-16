@@ -89,6 +89,7 @@ const SecurePayment = () => {
       location: sanitizeInput(bookingData.location)
     };
   }, [bookingData]);
+  
 
   // Redirect if no booking data or validation failed
   useEffect(() => {
@@ -235,7 +236,7 @@ const SecurePayment = () => {
       key: paymentOrder.keyId,
       amount: paymentOrder.amount,
       currency: paymentOrder.currency,
-      name: "EventBazaar",
+      name:bookingData.serviceTitle,
       description: `Deposit for ${sanitizeInput(validatedBookingData.serviceTitle || 'Service')}`,
       image: "/logo.png",
       order_id: paymentOrder.orderId,

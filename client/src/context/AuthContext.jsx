@@ -31,7 +31,7 @@ export const AuthProvider = ({ children }) => {
       } else {
         console.error("Error fetching user profile:", error);
       }
-        //logout();
+        logout();
     } finally {
       setIsLoading(false);
     }

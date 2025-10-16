@@ -4,18 +4,22 @@ import React from "react";
 const LoadingDots = () => {
   return (
     <div className="flex justify-center items-center h-[500px]">
-      <div className="relative w-8 h-8">
-        <div className="absolute inset-0 rounded-full border-2 border-gray-200"></div>
-        <div className="absolute inset-0 rounded-full border-2 border-black border-t-transparent animate-spin"></div>
+      <div className="flex gap-2">
+        <div className="w-3 h-3 bg-[#E0B646] rounded-full animate-[bounce_1.4s_infinite_ease-in-out] [animation-delay:0s]"></div>
+        <div className="w-3 h-3 bg-[#E0B646] rounded-full animate-[bounce_1.4s_infinite_ease-in-out] [animation-delay:0.2s]"></div>
+        <div className="w-3 h-3 bg-[#E0B646] rounded-full animate-[bounce_1.4s_infinite_ease-in-out] [animation-delay:0.4s]"></div>
       </div>
       
       <style jsx>{`
-        .animate-spin {
-          animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
+        @keyframes bounce {
+          0%, 80%, 100% {
+            transform: scale(0);
+            opacity: 0.5;
+          }
+          40% {
+            transform: scale(1);
+            opacity: 1;
+          }
         }
       `}</style>
     </div>

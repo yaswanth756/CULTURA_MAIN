@@ -1,0 +1,13 @@
+# robots.txt for Utsavlokam
+
+User-agent: *
+Allow: /
+Disallow: /vendor/
+Disallow: /profile/
+Disallow: /securepayment/
+
+# Sitemap location
+Sitemap: https://utsavlokam.com/sitemap.xml
+
+# Crawl delay (optional)
+Crawl-delay: 1
