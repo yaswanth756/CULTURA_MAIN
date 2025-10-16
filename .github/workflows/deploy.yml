@@ -22,6 +22,8 @@ jobs:
             cd ~/CULTURA_MAIN/server
             git fetch origin
             git reset --hard origin/main
-            npm install --production
+            git clean -fd
+            rm -rf node_modules package-lock.json
+            npm install
             pm2 restart server --update-env
             pm2 save
