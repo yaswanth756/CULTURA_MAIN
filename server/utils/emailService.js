@@ -1,23 +1,19 @@
-import nodemailer from 'nodemailer';
+import { TransactionalEmailsApi, SendSmtpEmail } from '@getbrevo/brevo';
 
-// Create transporter
-const createTransporter = async () => {
-  return nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS
-    }
-  });
+// 🔥 Initialize Brevo API
+const getBrevoAPI = () => {
+  const emailAPI = new TransactionalEmailsApi();
+  emailAPI.authentications.apiKey.apiKey = process.env.BREVO_API_KEY;
+  return emailAPI;
 };
 
-// 🎨 Professional email templates
+// 🎨 Professional email templates (keeping your exact design)
 const getEmailTemplate = (otp, type, userRole) => {
   const isVendor = userRole === 'vendor';
   const platformName = 'Utsavlokam';
   
   const colors = {
-    primary: isVendor ? '#1f2937' : '#c48c2e', // Dark gray for vendors, gold for users
+    primary: isVendor ? '#1f2937' : '#c48c2e',
     secondary: isVendor ? '#374151' : '#d97706',
     background: isVendor ? '#f8fafc' : '#fef3c7'
   };
@@ -108,10 +104,10 @@ const getEmailTemplate = (otp, type, userRole) => {
   `;
 };
 
-// 🚀 Enhanced sendOTPEmail function
+// 🚀 Enhanced sendOTPEmail function with Brevo
 export const sendOTPEmail = async (email, otp, type = 'login', userRole = 'user') => {
   try {
-    const transporter = await createTransporter();
+    const emailAPI = getBrevoAPI();
     
     const isVendor = userRole === 'vendor';
     const platformName = 'Utsavlokam';
@@ -125,38 +121,45 @@ export const sendOTPEmail = async (email, otp, type = 'login', userRole = 'user'
 
     const subject = subjects[`${userRole}_${type}`] || `${platformName} - Verification Code`;
     const htmlContent = getEmailTemplate(otp, type, userRole);
+    
+    // Text fallback
+    const textContent = `
+      ${platformName} - Verification Code
+      
+      Your verification code: ${otp}
+      
+      This code is valid for 10 minutes.
+      Do not share this code with anyone.
+      
+      ${isVendor ? 'Welcome to our vendor network!' : 'Welcome to our platform!'}
+    `;
 
-    const mailOptions = {
-      from: `"${platformName}" <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
-      to: email,
-      subject,
-      html: htmlContent,
-      // Add text fallback
-      text: `
-        ${platformName} - Verification Code
-        
-        Your verification code: ${otp}
-        
-        This code is valid for 10 minutes.
-        Do not share this code with anyone.
-        
-        ${isVendor ? 'Welcome to our vendor network!' : 'Welcome to our platform!'}
-      `
+    // 📧 Build Brevo email message
+    const message = new SendSmtpEmail();
+    message.subject = subject;
+    message.htmlContent = htmlContent;
+    message.textContent = textContent;
+    message.sender = { 
+      name: platformName, 
+      email: process.env.EMAIL_FROM || 'noreply@utsavlokam.com' 
     };
+    message.to = [{ email: email }];
 
-    const result = await transporter.sendMail(mailOptions);
-    console.log('✅ Email sent successfully:', result.messageId);
+    // 🚀 Send via Brevo API
+    const result = await emailAPI.sendTransacEmail(message);
+    
+    console.log('✅ Email sent successfully via Brevo:', result.body.messageId);
     
     return {
       success: true,
-      messageId: result.messageId,
+      messageId: result.body.messageId,
       email,
       type,
       userRole
     };
 
   } catch (error) {
-    console.error('❌ Email sending error:', error);
+    console.error('❌ Brevo email sending error:', error);
     throw new Error(`Failed to send ${userRole} ${type} email: ${error.message}`);
   }
 };
