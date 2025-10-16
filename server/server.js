@@ -98,7 +98,7 @@ app.use('/api/vendor/analytics', vendorAnalyticsRoutes)
 
 app.use('/api', uploadRoutes);
 // Test route
-app.get("/", (req, res) => {
+app.get("/test", (req, res) => {
     return res.json({ message: "Server is running properly" })
 })
 
