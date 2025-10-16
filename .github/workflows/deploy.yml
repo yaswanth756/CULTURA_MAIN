@@ -1,12 +1,10 @@
 name: Deploy Backend to DigitalOcean
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
-    paths:
-      - 'server/**'
-      - '.github/workflows/deploy.yml'
 
 jobs:
   deploy:
@@ -22,6 +20,8 @@ jobs:
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
             cd ~/CULTURA_MAIN/server
-            git pull origin main
-            npm install
-            pm2 restart server
+            git fetch origin
+            git reset --hard origin/main
+            npm install --production
+            pm2 restart server --update-env
+            pm2 save
