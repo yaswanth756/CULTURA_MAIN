@@ -80,7 +80,6 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 // Request timing middleware
 //app.use(requestTimer({ dir: 'logs' }))
 
-  
 
 // Apply stricter rate limiting to auth routes
 app.use("/api/auth", authRoutes)
@@ -99,7 +98,7 @@ app.use('/api/vendor/analytics', vendorAnalyticsRoutes)
 
 app.use('/api', uploadRoutes);
 // Test route
-app.get("/test", (req, res) => {
+app.get("/", (req, res) => {
     return res.json({ message: "Server is running properly" })
 })
 
