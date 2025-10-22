@@ -431,30 +431,30 @@ const navigate = useNavigate();
         </form>
       </div>
 
-      {/* Mobile Bottom Bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 sm:hidden bg-white border-t shadow-lg">
-        <div className="px-4 py-3 pb-[calc(env(safe-area-inset-bottom)+12px)]">
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <div className="text-xs text-gray-500">From</div>
-              <div className="text-lg font-bold text-gray-900 leading-tight">
-                {formattedPrice}
-              </div>
-              <div className="text-xs text-gray-500">
-                Pay {depositAmount} now
-              </div>
-            </div>
-            <button
-              onClick={scrollToBooking}
-              className="flex-1 max-w-[160px] bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-semibold transition-all duration-200"
-              aria-label="Reserve now"
-            >
-              Reserve Now
-            </button>
-          </div>
+      {/* booking bar on mobile */}
+      <div className="sm:hidden fixed bottom-0 left-0 w-full bg-white border-t shadow-lg z-50">
+  <div className="px-4 py-3 pb-[calc(env(safe-area-inset-bottom)+12px)]">
+    <div className="flex items-center justify-between gap-4">
+      <div>
+        <div className="text-xs text-gray-500">From</div>
+        <div className="text-lg font-bold text-gray-900 leading-tight">
+          {formattedPrice}
         </div>
-      
+        <div className="text-xs text-gray-500">
+          Pay {depositAmount} now
+        </div>
       </div>
+      <button
+        onClick={scrollToBooking}
+        className="flex-1 max-w-[160px] bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-semibold transition-all duration-200"
+        aria-label="Reserve now"
+      >
+        Reserve Now
+      </button>
+    </div>
+  </div>
+</div>
+
     </>
   );
 };

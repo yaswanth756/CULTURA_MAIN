@@ -14,6 +14,7 @@
   "dependencies": {
     "@stripe/react-stripe-js": "^4.0.2",
     "@stripe/stripe-js": "^7.9.0",
+    "aos": "^2.3.4",
     "axios": "^1.12.2",
     "country-state-city": "^3.2.1",
     "date-fns": "^4.1.0",
@@ -45,6 +46,7 @@
     "postcss": "^8.5.6",
     "rollup-plugin-visualizer": "^5.12.0",
     "tailwindcss": "^3.4.17",
+    "terser": "^5.44.0",
     "vite": "^7.1.2",
     "vite-plugin-compression": "^0.5.1"
   }

@@ -68,10 +68,15 @@ app.use(compression()) // Compress responses
 
 // CORS configuration - be more specific than allowing all
 app.use(cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    origin: [
+        "https://utsavlokam.app",
+        "https://www.utsavlokam.app",
+        "http://localhost:5173"  // for local development
+    ],
     credentials: true,
     optionsSuccessStatus: 200
-}))
+}));
+
 
 // Body parsing with size limits
 app.use(express.json({ limit: '10mb' }))
