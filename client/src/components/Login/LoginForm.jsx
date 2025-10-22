@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { buildApiUrl } from "../../utils/api";
+import { useGoogleLogin } from '@react-oauth/google';
 import {
   Mail,
   Lock,
@@ -21,12 +22,70 @@ const LoginForm = ({ setModelOpen }) => {
     phone: "",
   });
   const navigate = useNavigate();
-const location = useLocation();
+  const location = useLocation();
   const [step, setStep] = useState(1);
   const [isSignup, setIsSignup] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
+  // Google Login Handler
+  const googleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      try {
+        setLoading(true);
+        
+        // Get user info from Google
+        const userInfoResponse = await axios.get(
+          'https://www.googleapis.com/oauth2/v3/userinfo',
+          {
+            headers: { Authorization: `Bearer ${tokenResponse.access_token}` }
+          }
+        );
+
+        const { email, name, picture, sub } = userInfoResponse.data;
+
+        // Send to your backend for verification and user creation
+        const { data } = await axios.post(
+          buildApiUrl("/api/auth/google-auth"),
+          { 
+            email,
+            name,
+            picture,
+            googleId: sub
+          }
+        );
+
+        localStorage.setItem("token", data.token);
+        setSuccess(data.message);
+
+        // Reset form
+        setFormData({ email: "", otp: "", name: "", phone: "" });
+        setStep(1);
+        setIsSignup(false);
+        setModelOpen(false);
+
+        // Handle redirect
+        const redirectUrl = localStorage.getItem('redirectUrl');
+        if (redirectUrl) {
+          localStorage.removeItem('redirectUrl');
+          navigate(redirectUrl, { replace: true });
+        } else {
+          navigate(location.pathname || "/", { replace: true });
+        }
+
+        window.location.reload();
+      } catch (err) {
+        console.error('Google login error:', err);
+        setError(err.response?.data?.message || "Failed to login with Google");
+      } finally {
+        setLoading(false);
+      }
+    },
+    onError: () => {
+      setError("Google login failed. Please try again.");
+    }
+  });
 
   // ================= HANDLE INPUT =================
   const handleChange = (e) => {
@@ -133,8 +192,7 @@ const location = useLocation();
 
   // ================= HANDLE GOOGLE LOGIN =================
   const handleGoogleLogin = () => {
-    // Logic will be added later (OAuth / Firebase / Backend)
-    alert("Google login clicked");
+    googleLogin();
   };
 
   return (
@@ -302,7 +360,9 @@ const location = useLocation();
       {/* GOOGLE LOGIN BUTTON */}
       <button
         onClick={handleGoogleLogin}
-        className="w-full py-2 px-4 border border-gray-300 rounded-full flex items-center justify-center space-x-2 hover:bg-gray-50 transition duration-200 text-sm sm:text-base"
+        type="button"
+        disabled={loading}
+        className="w-full py-2 px-4 border border-gray-300 rounded-full flex items-center justify-center space-x-2 hover:bg-gray-50 transition duration-200 text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <img
           src="https://www.gstatic.com/marketing-cms/assets/images/d5/dc/cfe9ce8b4425b410b49b7f2dd3f3/g.webp=s96-fcrop64=1,00000000ffffffff-rw"

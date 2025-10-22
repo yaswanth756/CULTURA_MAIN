@@ -1,6 +1,10 @@
 import User from "../../models/User.js";
 import jwt from 'jsonwebtoken';
 import { sendUserOTP } from '../../utils/emailService.js';
+import { OAuth2Client } from 'google-auth-library'; // 🔥 NEW: Google OAuth
+
+// 🔥 NEW: Initialize Google OAuth client
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // ================== OTP STORAGE ==================
 const otpStore = new Map();
@@ -451,6 +455,84 @@ export const getUserFavoritesProfile = async (req, res) => {
     res.status(500).json({ 
       success: false,
       message: "Failed to fetch favorites" 
+    });
+  }
+};
+
+// 🔥 NEW: Google OAuth Login
+export const googleAuth = async (req, res) => {
+  try {
+    const { email, name, picture, googleId } = req.body;
+
+    if (!email || !googleId) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Email and Google ID are required' 
+      });
+    }
+
+    // Check if user exists
+    let user = await User.findOne({ email: email.toLowerCase() });
+
+    if (user) {
+      // Existing user - just login
+      user.loginCount += 1;
+      
+      // Update Google ID if not set
+      if (!user.googleId) {
+        user.googleId = googleId;
+      }
+      
+      // Update avatar if not set and Google provides one
+      if (!user.profile.avatar && picture) {
+        user.profile.avatar = picture;
+      }
+      
+      await user.save();
+    } else {
+      // New user - create account
+      const [firstName, ...lastNameParts] = name.split(' ');
+      
+      user = new User({
+        email: email.toLowerCase(),
+        phone: `+91-${Math.floor(1000000000 + Math.random() * 9000000000)}`, // Temporary phone
+        role: 'customer',
+        profile: { 
+          firstName: firstName || name,
+          avatar: picture || ''
+        },
+        location: { city: 'Not specified', address: 'Not specified' },
+        status: 'active',
+        loginCount: 1,
+        googleId: googleId // Store Google ID for future reference
+      });
+
+      await user.save();
+    }
+
+    const token = generateToken(user._id);
+
+    return res.status(200).json({
+      success: true,
+      message: user.loginCount === 1 ? 'Account created successfully' : 'Login successful',
+      user: {
+        _id: user._id,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+        profile: user.profile,
+        location: user.location,
+        status: user.status,
+        createdAt: user.createdAt
+      },
+      token,
+      isNewUser: user.loginCount === 1
+    });
+  } catch (error) {
+    console.error('Google Auth Error:', error);
+    return res.status(500).json({ 
+      success: false, 
+      message: 'Failed to authenticate with Google. Please try again.' 
     });
   }
 };

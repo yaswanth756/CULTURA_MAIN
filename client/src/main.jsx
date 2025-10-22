@@ -5,6 +5,7 @@ import App from './App.jsx'
 import { BrowserRouter } from "react-router-dom";
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import { GoogleOAuthProvider } from '@react-oauth/google'; // 🔥 NEW
 
 // Ref guard to prevent double rendering in StrictMode
 const AppWithRefGuard = () => {
@@ -16,10 +17,12 @@ const AppWithRefGuard = () => {
   }, []);
 
   return (
-    <BrowserRouter>
-      <App />
-      <ToastContainer position="top-right" autoClose={3000} newestOnTop />
-    </BrowserRouter>
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+      <BrowserRouter>
+        <App />
+        <ToastContainer position="top-right" autoClose={3000} newestOnTop />
+      </BrowserRouter>
+    </GoogleOAuthProvider>
   );
 };
 

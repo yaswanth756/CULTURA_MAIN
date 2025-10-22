@@ -6,8 +6,8 @@ import {
   getUserFavorites,
   toggleFavorites,
   updateUserProfile,
-  getUserFavoritesProfile
-  
+  getUserFavoritesProfile,
+  googleAuth
 } from "../../controllers/users/auth.controller.js";
 import { authenticate,allowRoles } from "../../middleware/auth.middleware.js";
 
@@ -33,6 +33,7 @@ router.post("/favoritetoggle",authenticate,toggleFavorites);
 
 router.get("/getuserfavoritesProfile",authenticate,getUserFavoritesProfile);
 
-
+// 🔥 NEW: Add Google Auth route
+router.post("/google-auth", googleAuth);
 
 export default router;
