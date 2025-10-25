@@ -77,9 +77,9 @@ export const sendOTP = async (req, res) => {
 
     // Clean up expired OTPs
     cleanExpiredOTPs();
-
+    console.log(otp);
     // 🔥 Send vendor OTP with proper type
- await sendVendorOTP(emailLower, otp, otpData.userType === 'existing' ? 'login' : 'signup');
+ //await sendVendorOTP(emailLower, otp, otpData.userType === 'existing' ? 'login' : 'signup');
 
     // Response
     res.status(200).json({
@@ -104,7 +104,6 @@ export const sendOTP = async (req, res) => {
 export const verifyOTPAndAuth = async (req, res) => {
   try {
     const { email, otp, vendorDetails } = req.body;
-   
 
     if (!email || !otp) {
       return res.status(400).json({
@@ -155,7 +154,7 @@ export const verifyOTPAndAuth = async (req, res) => {
       await user.save();
 
     } else {
-      // NEW VENDOR
+      // NEW VENDOR - Enhanced validation
       if (
         !vendorDetails || 
         !vendorDetails.firstName || 
@@ -171,13 +170,32 @@ export const verifyOTPAndAuth = async (req, res) => {
           message: "All vendor details (including phone) are required for new registration"
         });
       }
-      let phone = vendorDetails.phone
+
+      // 🔥 NEW: Validate document uploads
+      if (!vendorDetails.panImage || !vendorDetails.aadhaarImage || !vendorDetails.businessRegImage) {
+        return res.status(400).json({
+          success: false,
+          message: "All documents (PAN, Aadhaar, Business Registration) are required"
+        });
+      }
+
+      // Require terms agreement
+      if (req.body.agreedToTerms !== true) {
+        return res.status(400).json({
+          success: false,
+          message: "You must agree to the Terms and Conditions to sign up"
+        });
+      }
+
+      // Format phone number
+      let phone = vendorDetails.phone;
       if (/^\+91\d{10}$/.test(phone)) {
         phone = phone.replace(/^\+91/, "+91-");
       }
+
       user = new User({
         email: emailLower,
-        phone,  // ✅ SAVE PHONE HERE
+        phone,
         role: "vendor",
         profile: {
           firstName: vendorDetails.firstName,
@@ -194,9 +212,17 @@ export const verifyOTPAndAuth = async (req, res) => {
           verified: false,
           rating: 0,
           reviewCount: 0,
+          // 🔥 NEW: Save document URLs
+          documents: {
+            panImage: vendorDetails.panImage,
+            aadhaarImage: vendorDetails.aadhaarImage,
+            businessRegImage: vendorDetails.businessRegImage,
+            uploadedAt: new Date()
+          },
           onboardingCompleted: true
         },
         status: 'active',
+        agreedToTerms: true,
         loginCount: 1,
         lastLogin: new Date()
       });
@@ -219,13 +245,17 @@ export const verifyOTPAndAuth = async (req, res) => {
       user: {
         id: user._id,
         email: user.email,
-        phone: user.phone, // ✅ RETURN PHONE IN RESPONSE TOO
+        phone: user.phone,
         role: user.role,
         firstName: user.profile.firstName,
         businessName: user.profile.businessName,
         avatar: user.profile.avatar,
         verified: user.vendorInfo.verified,
-        onboardingCompleted: user.vendorInfo.onboardingCompleted
+        onboardingCompleted: user.vendorInfo.onboardingCompleted,
+        // 🔥 NEW: Include documents status in response
+        documentsUploaded: !!(user.vendorInfo.documents?.panImage && 
+                             user.vendorInfo.documents?.aadhaarImage && 
+                             user.vendorInfo.documents?.businessRegImage)
       }
     });
 
@@ -237,6 +267,7 @@ export const verifyOTPAndAuth = async (req, res) => {
     });
   }
 };
+
 
   
 

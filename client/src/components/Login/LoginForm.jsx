@@ -1,3 +1,4 @@
+// LoginForm.jsx - RESPONSIVE OPTIMIZED
 import React, { useState } from "react";
 import axios from "axios";
 import { buildApiUrl } from "../../utils/api";
@@ -35,7 +36,6 @@ const LoginForm = ({ setModelOpen }) => {
       try {
         setLoading(true);
         
-        // Get user info from Google
         const userInfoResponse = await axios.get(
           'https://www.googleapis.com/oauth2/v3/userinfo',
           {
@@ -45,7 +45,6 @@ const LoginForm = ({ setModelOpen }) => {
 
         const { email, name, picture, sub } = userInfoResponse.data;
 
-        // Send to your backend for verification and user creation
         const { data } = await axios.post(
           buildApiUrl("/api/auth/google-auth"),
           { 
@@ -59,13 +58,11 @@ const LoginForm = ({ setModelOpen }) => {
         localStorage.setItem("token", data.token);
         setSuccess(data.message);
 
-        // Reset form
         setFormData({ email: "", otp: "", name: "", phone: "" });
         setStep(1);
         setIsSignup(false);
         setModelOpen(false);
 
-        // Handle redirect
         const redirectUrl = localStorage.getItem('redirectUrl');
         if (redirectUrl) {
           localStorage.removeItem('redirectUrl');
@@ -87,16 +84,13 @@ const LoginForm = ({ setModelOpen }) => {
     }
   });
 
-  // ================= HANDLE INPUT =================
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     setError("");
   };
 
-  // ================= VALIDATION =================
   const validateEmail = (email) => /^\S+@\S+\.\S+$/.test(email);
 
-  // ================= SEND OTP =================
   const handleSendOtp = async (e) => {
     e.preventDefault();
     if (!formData.email) {
@@ -126,7 +120,6 @@ const LoginForm = ({ setModelOpen }) => {
     }
   };
 
-  // ================= VERIFY OTP =================
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -158,28 +151,21 @@ const LoginForm = ({ setModelOpen }) => {
       localStorage.setItem("token", data.token);
       setSuccess(data.message);
   
-      // Reset form state
       setFormData({ email: "", otp: "", name: "", phone: "" });
       setStep(1);
       setIsSignup(false);
       setModelOpen(false);
   
-      // Check for stored redirect URL (from BookingForm)
       const redirectUrl = localStorage.getItem('redirectUrl');
       
       if (redirectUrl) {
-        // Clean up the stored redirect URL
         localStorage.removeItem('redirectUrl');
-        
-        // Navigate to the stored URL (which includes all form parameters)
         navigate(redirectUrl, { replace: true });
       } else {
-        // Fallback to current location if no redirect URL stored
         const redirectPath = location.pathname || "/";
         navigate(redirectPath, { replace: true });
       }
       
-      // Reload to ensure auth state is properly updated
       window.location.reload();
       
     } catch (err) {
@@ -188,21 +174,21 @@ const LoginForm = ({ setModelOpen }) => {
       setLoading(false);
     }
   };
-  
 
-  // ================= HANDLE GOOGLE LOGIN =================
   const handleGoogleLogin = () => {
     googleLogin();
   };
 
   return (
-    <div className="w-full max-w-md mx-auto bg-white py-6">
+    <div className="w-full max-w-md mx-auto bg-white py-4 sm:py-6">
       <form
         onSubmit={step === 1 ? handleSendOtp : handleSubmit}
-        className="space-y-5"
+        className="space-y-4 sm:space-y-5"
       >
         {error && (
-          <p className="text-red-600 text-sm rounded-md">{error}</p>
+          <p className="text-red-600 text-xs sm:text-sm bg-red-50 p-3 rounded-lg border border-red-200">
+            {error}
+          </p>
         )}
 
         {step === 1 ? (
@@ -210,19 +196,19 @@ const LoginForm = ({ setModelOpen }) => {
           <div className="relative">
             <label
               htmlFor="email"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2"
             >
               Email
             </label>
-            <div className="flex items-center">
-              <Mail className="absolute left-3 top-9 w-5 h-5 text-gray-400" />
+            <div className="relative flex items-center">
+              <Mail className="absolute left-3 w-4 h-4 sm:w-5 sm:h-5 text-gray-400 pointer-events-none" />
               <input
                 type="email"
                 id="email"
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-anzac-500 text-gray-800 text-sm sm:text-base disabled:bg-gray-100"
+                className="w-full pl-10 sm:pl-11 pr-3 sm:pr-4 py-2.5 sm:py-3 min-h-[48px] border border-gray-300 rounded-xl sm:rounded-2xl focus:outline-none focus:ring-2 focus:ring-anzac-500 focus:border-transparent text-gray-800 text-sm sm:text-base disabled:bg-gray-100 disabled:cursor-not-allowed transition-all"
                 placeholder="Enter your email"
                 disabled={loading}
               />
@@ -234,19 +220,19 @@ const LoginForm = ({ setModelOpen }) => {
             <div className="relative">
               <label
                 htmlFor="otp"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2"
               >
                 OTP
               </label>
-              <div className="flex items-center">
-                <Lock className="absolute left-3 top-9 w-5 h-5 text-gray-400" />
+              <div className="relative flex items-center">
+                <Lock className="absolute left-3 w-4 h-4 sm:w-5 sm:h-5 text-gray-400 pointer-events-none" />
                 <input
                   type="text"
                   id="otp"
                   name="otp"
                   value={formData.otp}
                   onChange={handleChange}
-                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-anzac-500 text-gray-800 text-sm sm:text-base disabled:bg-gray-100"
+                  className="w-full pl-10 sm:pl-11 pr-3 sm:pr-4 py-2.5 sm:py-3 min-h-[48px] border border-gray-300 rounded-xl sm:rounded-2xl focus:outline-none focus:ring-2 focus:ring-anzac-500 focus:border-transparent text-gray-800 text-sm sm:text-base disabled:bg-gray-100 disabled:cursor-not-allowed transition-all"
                   placeholder="Enter the OTP"
                   disabled={loading}
                 />
@@ -260,19 +246,19 @@ const LoginForm = ({ setModelOpen }) => {
                 <div className="relative">
                   <label
                     htmlFor="name"
-                    className="block text-sm font-medium text-gray-700 mb-1"
+                    className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2"
                   >
                     Name
                   </label>
-                  <div className="flex items-center">
-                    <User className="absolute left-3 top-9 w-5 h-5 text-gray-400" />
+                  <div className="relative flex items-center">
+                    <User className="absolute left-3 w-4 h-4 sm:w-5 sm:h-5 text-gray-400 pointer-events-none" />
                     <input
                       type="text"
                       id="name"
                       name="name"
                       value={formData.name}
                       onChange={handleChange}
-                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-anzac-500 text-gray-800 text-sm sm:text-base disabled:bg-gray-100"
+                      className="w-full pl-10 sm:pl-11 pr-3 sm:pr-4 py-2.5 sm:py-3 min-h-[48px] border border-gray-300 rounded-xl sm:rounded-2xl focus:outline-none focus:ring-2 focus:ring-anzac-500 focus:border-transparent text-gray-800 text-sm sm:text-base disabled:bg-gray-100 disabled:cursor-not-allowed transition-all"
                       placeholder="Enter your name"
                       disabled={loading}
                     />
@@ -283,41 +269,39 @@ const LoginForm = ({ setModelOpen }) => {
                 <div className="relative">
                   <label
                     htmlFor="phone"
-                    className="block text-sm font-medium text-gray-700 mb-1"
+                    className="block text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2"
                   >
                     Phone
                   </label>
-                  <div className="flex items-center">
-                    <Phone className="absolute left-3 top-9 w-5 h-5 text-gray-400" />
+                  <div className="relative flex items-center">
+                    <Phone className="absolute left-3 w-4 h-4 sm:w-5 sm:h-5 text-gray-400 pointer-events-none" />
                     <input
                       type="tel"
                       id="phone"
                       name="phone"
                       value={formData.phone}
                       onChange={handleChange}
-                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-anzac-500 text-gray-800 text-sm sm:text-base disabled:bg-gray-100"
+                      className="w-full pl-10 sm:pl-11 pr-3 sm:pr-4 py-2.5 sm:py-3 min-h-[48px] border border-gray-300 rounded-xl sm:rounded-2xl focus:outline-none focus:ring-2 focus:ring-anzac-500 focus:border-transparent text-gray-800 text-sm sm:text-base disabled:bg-gray-100 disabled:cursor-not-allowed transition-all"
                       placeholder="Enter your phone number"
                       disabled={loading}
                     />
                   </div>
                 </div>
-                <p className="text-sm text-gray-600 mb-4">
-                  OTP sent to{" "}
-                  <span className="font-medium text-anzac-600">
-                    {formData.email}
-                  </span>
-                </p>
               </>
             )}
 
             {/* BACK BUTTON */}
             <button
               type="button"
-              onClick={() => (setStep(1), setError(""), setSuccess(""))}
-              className="w-full py-2 px-4 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-full transition duration-200 text-sm sm:text-base flex items-center justify-center"
+              onClick={() => {
+                setStep(1);
+                setError("");
+                setSuccess("");
+              }}
+              className="w-full min-h-[48px] py-2.5 sm:py-3 px-4 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-xl sm:rounded-full transition duration-200 text-sm sm:text-base flex items-center justify-center font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={loading}
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
+              <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
               Back to Email
             </button>
           </>
@@ -326,24 +310,24 @@ const LoginForm = ({ setModelOpen }) => {
         {/* SUBMIT BUTTON */}
         <button
           type="submit"
-          className="w-full py-2 px-4 bg-anzac-500 text-white rounded-full transition duration-200 text-sm sm:text-base flex items-center justify-center hover:bg-anzac-600"
+          className="w-full min-h-[48px] py-2.5 sm:py-3 px-4 bg-anzac-500 text-white rounded-xl sm:rounded-full hover:bg-anzac-600 transition duration-200 text-sm sm:text-base flex items-center justify-center font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
           disabled={loading}
         >
           {loading ? (
             "Processing..."
           ) : step === 1 ? (
             <>
-              <Send className="w-5 h-5 mr-2" />
+              <Send className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
               Send OTP
             </>
           ) : isSignup ? (
             <>
-              <UserPlus className="w-5 h-5 mr-2" />
+              <UserPlus className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
               Sign Up
             </>
           ) : (
             <>
-              <LogIn className="w-5 h-5 mr-2" />
+              <LogIn className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
               Login
             </>
           )}
@@ -351,9 +335,9 @@ const LoginForm = ({ setModelOpen }) => {
       </form>
 
       {/* OR SEPARATOR */}
-      <div className="flex items-center my-4">
+      <div className="flex items-center my-4 sm:my-5">
         <div className="flex-grow h-px bg-gray-300"></div>
-        <span className="px-3 text-sm text-gray-500">or</span>
+        <span className="px-3 text-xs sm:text-sm text-gray-500">or</span>
         <div className="flex-grow h-px bg-gray-300"></div>
       </div>
 
@@ -362,7 +346,7 @@ const LoginForm = ({ setModelOpen }) => {
         onClick={handleGoogleLogin}
         type="button"
         disabled={loading}
-        className="w-full py-2 px-4 border border-gray-300 rounded-full flex items-center justify-center space-x-2 hover:bg-gray-50 transition duration-200 text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full min-h-[48px] py-2.5 sm:py-3 px-4 border border-gray-300 rounded-xl sm:rounded-full flex items-center justify-center space-x-2 hover:bg-gray-50 transition duration-200 text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
       >
         <img
           src="https://www.gstatic.com/marketing-cms/assets/images/d5/dc/cfe9ce8b4425b410b49b7f2dd3f3/g.webp=s96-fcrop64=1,00000000ffffffff-rw"

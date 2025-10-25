@@ -64,16 +64,32 @@ const userSchema = new mongoose.Schema(
       rating:         { type: Number, min: 0, max: 5, default: 0 },
       reviewCount:    { type: Number, min: 0, default: 0 },
       
-      // 🔥 NEW: Services they plan to list
       services: [{
         type: String,
-        
       }],
       
-      // 🔥 NEW: Onboarding completion status
+      // 🔥 NEW: Document uploads for verification
+      documents: {
+        panImage: { 
+          type: String, 
+          trim: true,
+          default: ""
+        },
+        aadhaarImage: { 
+          type: String, 
+          trim: true,
+          default: ""
+        },
+        businessRegImage: { 
+          type: String, 
+          trim: true,
+          default: ""
+        },
+        uploadedAt: { type: Date }
+      },
+      
       onboardingCompleted: { type: Boolean, default: false },
       
-      // 🔥 NEW: Verification timestamps
       submittedAt:    { type: Date },
       verifiedAt:     { type: Date },
       rejectedAt:     { type: Date },
@@ -82,7 +98,6 @@ const userSchema = new mongoose.Schema(
 
     status: { type: String, enum: ["active","inactive","suspended"], default: "active" },
 
-    /*──────── prefs & relations ────────*/
     preferences: {
       notifications: {
         email: { type: Boolean, default: true },
@@ -325,6 +340,42 @@ userSchema.pre("validate", function (next) {
   
   next();
 });
+userSchema.pre("save", function (next) {
+  if (this.isModified("loginCount")) this.lastLogin = new Date();
+
+  if (this.role !== "vendor") {
+    this.vendorInfo = { 
+      verified: false, 
+      rating: 0, 
+      reviewCount: 0,
+      services: [],
+      documents: {
+        panImage: "",
+        aadhaarImage: "",
+        businessRegImage: ""
+      },
+      onboardingCompleted: false
+    };
+    this.profile.businessName = undefined;
+  } else {
+    // 🔥 UPDATED: Check if vendor onboarding is complete including documents
+    const requiredFields = [
+      this.profile.firstName,
+      this.profile.businessName,
+      this.location.city,
+      this.location.address,
+      this.vendorInfo.services && this.vendorInfo.services.length > 0,
+      this.vendorInfo.documents?.panImage,
+      this.vendorInfo.documents?.aadhaarImage,
+      this.vendorInfo.documents?.businessRegImage
+    ];
+    
+    this.vendorInfo.onboardingCompleted = requiredFields.every(field => field);
+  }
+  
+  next();
+});
+
 
 /*────────────────────  EXPORT  ────────────────────*/
 export default mongoose.model("User", userSchema);

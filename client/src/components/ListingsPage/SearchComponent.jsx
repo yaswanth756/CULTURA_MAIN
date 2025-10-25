@@ -55,13 +55,11 @@ const SearchComponent = ({
   onClearSingleFilter,
   onClearAll
 }) => {
-  // Typewriter animation states
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [displayText, setDisplayText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
 
-  // Typewriter animation effect
   useEffect(() => {
     const currentKeyword = SEARCH_KEYWORDS[placeholderIndex];
     
@@ -74,20 +72,16 @@ const SearchComponent = ({
     
     const timer = setTimeout(() => {
       if (!isDeleting) {
-        // Typing characters
         if (displayText.length < currentKeyword.length) {
           setDisplayText(currentKeyword.slice(0, displayText.length + 1));
         } else {
-          // Finished typing current word, pause then start deleting
           setIsPaused(true);
           setTimeout(() => setIsDeleting(true), 100);
         }
       } else {
-        // Deleting characters
         if (displayText.length > 0) {
           setDisplayText(displayText.slice(0, -1));
         } else {
-          // Finished deleting, move to next word
           setIsDeleting(false);
           setPlaceholderIndex((prev) => (prev + 1) % SEARCH_KEYWORDS.length);
         }
@@ -99,112 +93,109 @@ const SearchComponent = ({
 
   return (
     <div className="bg-white border-b border-gray-200">
-      <div className="max-w-6xl mx-auto px-4 py-6">
+      <div className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
         {/* Search Input with Animated Placeholder */}
-        <div className="relative mb-6">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5" />
+        <div className="relative mb-4 sm:mb-6">
+          <Search className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-gray-500 w-4 h-4 sm:w-5 sm:h-5" />
           <input
             value={filtersFromUrl.search}
             onChange={onSearchChange}
             placeholder={`Search by ${displayText}${!isDeleting && !isPaused ? '|' : ''}`}
-            className="w-full pl-12 pr-24 py-3 rounded-full border border-gray-300 
+            className="w-full pl-10 sm:pl-12 pr-20 sm:pr-24 py-2.5 sm:py-3 min-h-[44px] rounded-full border border-gray-300 
                        focus:ring-2 focus:ring-anzac-200 focus:border-anzac-500 outline-none 
                        shadow-sm transition-all duration-300 placeholder:text-gray-500 
-                       placeholder:transition-opacity placeholder:duration-300"
+                       placeholder:transition-opacity placeholder:duration-300 text-sm sm:text-base"
           />
           <button
             onClick={onShowFilters}
             className="absolute right-2 top-1/2 -translate-y-1/2 bg-anzac-500 text-white 
-                       px-4 py-2 rounded-full hover:bg-anzac-600 transition flex items-center gap-2"
+                       px-3 sm:px-4 py-2 min-h-[36px] rounded-full hover:bg-anzac-600 transition flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm"
           >
-            <SlidersHorizontal className="w-4 h-4" />
-            Filters
+            <SlidersHorizontal className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <span className="hidden sm:block">Filters</span>
           </button>
         </div>
 
         {/* Categories */}
         <div className="relative">
-  {/* Right shadow fade */}
-  <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-white to-transparent z-10" />
+          {/* Right shadow fade */}
+          <div className="pointer-events-none absolute right-0 top-0 h-full w-8 sm:w-10 bg-gradient-to-l from-white to-transparent z-10" />
 
-  <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide scroll-smooth relative">
-  {categories.map((c) => (
-    <button
-      key={c.value}
-      onClick={() => onCategoryChange(c.value)}
-      className={`flex items-center gap-2 px-4 py-3 rounded-full border text-medium
-                 transition whitespace-nowrap flex-shrink-0 relative overflow-hidden group ${
-        filtersFromUrl.category === c.value
-          ? "bg-anzac-500 text-white border-anzac-500 shadow"
-          : "bg-white text-gray-700 border-gray-200 hover:border-anzac-300 hover:text-white"
-      }`}
-    >
-      {/* Animated background span - only visible on hover for inactive buttons */}
-      {filtersFromUrl.category !== c.value && (
-        <span className="absolute inset-0 bg-anzac-500 transition-all duration-300 ease-out origin-bottom scale-y-0 group-hover:scale-y-100"></span>
-      )}
-      
-      {/* Icon and text with z-index to stay on top */}
-      <c.Icon className="w-4 h-4 relative z-10" />
-      <span className="relative z-10">{c.label}</span>
-    </button>
-  ))}
-</div>
-
+          <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-2 scrollbar-hide scroll-smooth">
+            {categories.map((c) => (
+              <button
+                key={c.value}
+                onClick={() => onCategoryChange(c.value)}
+                className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-3 rounded-full border text-xs sm:text-sm font-medium
+                           transition whitespace-nowrap flex-shrink-0 relative overflow-hidden group min-h-[36px] sm:min-h-[40px] ${
+                  filtersFromUrl.category === c.value
+                    ? "bg-anzac-500 text-white border-anzac-500 shadow"
+                    : "bg-white text-gray-700 border-gray-200 hover:border-anzac-300 hover:text-white"
+                }`}
+              >
+                {/* Animated background */}
+                {filtersFromUrl.category !== c.value && (
+                  <span className="absolute inset-0 bg-anzac-500 transition-all duration-300 ease-out origin-bottom scale-y-0 group-hover:scale-y-100"></span>
+                )}
+                
+                <c.Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4 relative z-10 flex-shrink-0" />
+                <span className="relative z-10">{c.label}</span>
+              </button>
+            ))}
+          </div>
         </div>
-
 
         {/* Active Filters Display */}
         {(filtersFromUrl.search || filtersFromUrl.location || filtersFromUrl.vendor || filtersFromUrl.priceMin || filtersFromUrl.rating) && (
-          <div className="mt-4">
-            <div className="flex items-center gap-3 flex-wrap">
-              <span className="text-sm font-medium text-gray-700">Active filters:</span>
+          <div className="mt-3 sm:mt-4">
+            <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+              <span className="text-xs sm:text-sm font-medium text-gray-700">Active filters:</span>
               
               {filtersFromUrl.search && (
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-anzac-100 text-anzac-800 rounded-lg text-sm font-medium">
-                  <Search className="w-3 h-3" />
-                  <span>"{filtersFromUrl.search}"</span>
-                  <button onClick={() => onClearSingleFilter('q')} className="ml-1 p-0.5 rounded-full hover:bg-anzac-200">
+                <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 bg-anzac-100 text-anzac-800 rounded-lg text-xs sm:text-sm font-medium">
+                  <Search className="w-3 h-3 flex-shrink-0" />
+                  <span className="truncate max-w-[120px] sm:max-w-none">"{filtersFromUrl.search}"</span>
+                  <button onClick={() => onClearSingleFilter('q')} className="ml-0.5 sm:ml-1 p-0.5 rounded-full hover:bg-anzac-200 min-w-[20px] min-h-[20px] flex items-center justify-center">
                     <X className="w-3 h-3" />
                   </button>
                 </div>
               )}
 
               {filtersFromUrl.location && (
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-anzac-50 text-anzac-800 rounded-lg text-sm font-medium">
-                  <MapPin className="w-3 h-3" />
-                  <span>{filtersFromUrl.location}</span>
-                  <button onClick={() => onClearSingleFilter('location')} className="ml-1 p-0.5 rounded-full hover:bg-anzac-200">
+                <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 bg-anzac-50 text-anzac-800 rounded-lg text-xs sm:text-sm font-medium">
+                  <MapPin className="w-3 h-3 flex-shrink-0" />
+                  <span className="truncate max-w-[100px] sm:max-w-none">{filtersFromUrl.location}</span>
+                  <button onClick={() => onClearSingleFilter('location')} className="ml-0.5 sm:ml-1 p-0.5 rounded-full hover:bg-anzac-200 min-w-[20px] min-h-[20px] flex items-center justify-center">
                     <X className="w-3 h-3" />
                   </button>
                 </div>
               )}
 
               {filtersFromUrl.vendor && (
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-anzac-50 text-anzac-800 rounded-lg text-sm font-medium">
-                  <User className="w-3 h-3" />
-                  <span>{filtersFromUrl.vendor}</span>
-                  <button onClick={() => onClearSingleFilter('vendor')} className="ml-1 p-0.5 rounded-full hover:bg-anzac-200">
+                <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 bg-anzac-50 text-anzac-800 rounded-lg text-xs sm:text-sm font-medium">
+                  <User className="w-3 h-3 flex-shrink-0" />
+                  <span className="truncate max-w-[100px] sm:max-w-none">{filtersFromUrl.vendor}</span>
+                  <button onClick={() => onClearSingleFilter('vendor')} className="ml-0.5 sm:ml-1 p-0.5 rounded-full hover:bg-anzac-200 min-w-[20px] min-h-[20px] flex items-center justify-center">
                     <X className="w-3 h-3" />
                   </button>
                 </div>
               )}
 
               {filtersFromUrl.priceMin && (
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-anzac-50 text-anzac-800 rounded-lg text-sm font-medium">
-                  <IndianRupee className="w-3 h-3" />
+                <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 bg-anzac-50 text-anzac-800 rounded-lg text-xs sm:text-sm font-medium">
+                  <IndianRupee className="w-3 h-3 flex-shrink-0" />
                   <span>₹{parseInt(filtersFromUrl.priceMin).toLocaleString()} - ₹{parseInt(filtersFromUrl.priceMax).toLocaleString()}</span>
-                  <button onClick={() => onClearSingleFilter('price')} className="ml-1 p-0.5 rounded-full hover:bg-anzac-200">
+                  <button onClick={() => onClearSingleFilter('price')} className="ml-0.5 sm:ml-1 p-0.5 rounded-full hover:bg-anzac-200 min-w-[20px] min-h-[20px] flex items-center justify-center">
                     <X className="w-3 h-3" />
                   </button>
                 </div>
               )}
 
               {filtersFromUrl.rating && (
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-anzac-50 text-anzac-800 rounded-lg text-sm font-medium">
-                  <Star className="w-3 h-3" />
+                <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 bg-anzac-50 text-anzac-800 rounded-lg text-xs sm:text-sm font-medium">
+                  <Star className="w-3 h-3 flex-shrink-0" />
                   <span>{filtersFromUrl.rating}+ rating</span>
-                  <button onClick={() => onClearSingleFilter('rating')} className="ml-1 p-0.5 rounded-full hover:bg-anzac-200">
+                  <button onClick={() => onClearSingleFilter('rating')} className="ml-0.5 sm:ml-1 p-0.5 rounded-full hover:bg-anzac-200 min-w-[20px] min-h-[20px] flex items-center justify-center">
                     <X className="w-3 h-3" />
                   </button>
                 </div>
@@ -212,7 +203,7 @@ const SearchComponent = ({
 
               <button
                 onClick={onClearAll}
-                className="inline-flex items-center gap-1 px-3 py-1.5 text-gray-600 hover:text-gray-900  rounded-full text-sm  transition-colors"
+                className="inline-flex items-center gap-1 px-2 sm:px-3 py-1 sm:py-1.5 min-h-[32px] text-gray-600 hover:text-gray-900 rounded-full text-xs sm:text-sm transition-colors"
               >
                 <RotateCcw className="w-3 h-3" />
                 Clear all
@@ -231,7 +222,6 @@ const SearchComponent = ({
           display: none; 
         }
         
-        /* Enhanced placeholder animation */
         input::placeholder {
           opacity: 1;
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -242,15 +232,10 @@ const SearchComponent = ({
           opacity: 0.7;
           transform: translateY(-1px);
         }
-        
-        /* Subtle cursor blink effect */
-        @keyframes blink {
-          0%, 50% { opacity: 1; }
-          51%, 100% { opacity: 0; }
-        }
       `}</style>
     </div>
   );
 };
+
 
 export default SearchComponent;

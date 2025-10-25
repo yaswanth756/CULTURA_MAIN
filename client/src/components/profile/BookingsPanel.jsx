@@ -144,7 +144,7 @@ const BookingsPanel = () => {
   const formatINR = useCallback((n) => `₹${Number(n || 0).toLocaleString()}`, []);
 
   return (
-    <div className="max-w-6xl mx-auto p-6" data-aos="fade-up">
+    <div className="max-w-6xl mx-auto p-2 sm:p-6" data-aos="fade-up">
       <h1 className="text-[22px] font-semibold text-gray-900 mb-5 tracking-tight">
         My Bookings
       </h1>

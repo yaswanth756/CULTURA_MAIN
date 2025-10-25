@@ -12,16 +12,17 @@
     "preview:build": "npm run build && npm run preview"
   },
   "dependencies": {
+    "@react-google-maps/api": "^2.20.7",
     "@react-oauth/google": "^0.12.2",
     "@stripe/react-stripe-js": "^4.0.2",
     "@stripe/stripe-js": "^7.9.0",
+    "@vis.gl/react-google-maps": "^1.6.1",
     "aos": "^2.3.4",
     "axios": "^1.12.2",
     "country-state-city": "^3.2.1",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.23.12",
     "jwt-decode": "^4.0.0",
-    "leaflet": "^1.9.4",
     "lodash": "^4.17.21",
     "lucide-react": "^0.544.0",
     "rc-slider": "^11.1.9",
@@ -29,7 +30,6 @@
     "react-datepicker": "^8.7.0",
     "react-dom": "^19.1.1",
     "react-google-autocomplete": "^2.7.5",
-    "react-leaflet": "^5.0.0",
     "react-router-dom": "^7.9.1",
     "react-toastify": "^11.0.5",
     "recharts": "^3.2.1"

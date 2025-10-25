@@ -1,8 +1,10 @@
-/* src/components/ResultsComponent.jsx */
+/* src/components/ResultsComponent.jsx - RESPONSIVE ONLY (Same Design) */
 import React, { useMemo } from "react";
 import { Search, Star, Heart, MapPin, Camera } from "lucide-react";
 import { buildApiUrl } from "../../utils/api";
+
 const API_BASE = buildApiUrl('/api');
+
 const priceTypeLabels = {
   fixed: "",
   per_person: "/ person",
@@ -53,6 +55,7 @@ const ResultsComponent = ({
       window.open(`/listing/${listingId}`, "_blank");
     }
   };
+
   const getPageTitle = () => {
     if (filtersFromUrl.vendor) return `Results for "${filtersFromUrl.vendor}"`;
     if (filtersFromUrl.category && filtersFromUrl.category !== "all") {
@@ -65,10 +68,10 @@ const ResultsComponent = ({
   const isFavorited = (id) => favoritesSet.has(id);
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold text-gray-800">{getPageTitle()}</h2>
-        <div className="text-sm text-gray-500">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-4 py-6 sm:py-8">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-4 sm:mb-6">
+        <h2 className="text-lg sm:text-xl font-semibold text-gray-800">{getPageTitle()}</h2>
+        <div className="text-xs sm:text-sm text-gray-500">
           {pagination ? (
             <>
               Showing {displayedVendors.length} of {pagination.totalCount} vendor
@@ -88,11 +91,11 @@ const ResultsComponent = ({
           <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <Search className="w-8 h-8 text-gray-400" />
           </div>
-          <h3 className="text-lg font-medium text-gray-800 mb-2">No vendors found</h3>
-          <p className="text-gray-500 mb-4">Try adjusting your search criteria or filters</p>
+          <h3 className="text-base sm:text-lg font-medium text-gray-800 mb-2">No vendors found</h3>
+          <p className="text-sm sm:text-base text-gray-500 mb-4">Try adjusting your search criteria or filters</p>
         </div>
       ) : (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:gap-5 lg:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {displayedVendors.map((listing, index) => {
             const fav = isFavorited(listing._id);
             const priceLabel =
@@ -108,8 +111,8 @@ const ResultsComponent = ({
                 onClick={()=>handleListingClick(listing._id)}
               >
                 {/* Media */}
-                <div className="relative h-48 bg-gray-100 overflow-hidden">
-                  {/* Favorite Heart */}
+                <div className="relative h-48 sm:h-48 bg-gray-100 overflow-hidden">
+                  {/* Favorite Heart - IMPROVED TOUCH TARGET */}
                   <button
                     type="button"
                     aria-label={fav ? "Remove from favorites" : "Add to favorites"}
@@ -118,7 +121,7 @@ const ResultsComponent = ({
                       e.stopPropagation();
                       onToggleFavorite && onToggleFavorite(listing._id);
                     }}
-                    className="absolute top-2 right-2 z-10 inline-flex items-center justify-center p-2 rounded-full
+                    className="absolute top-2 right-2 z-10 inline-flex items-center justify-center min-w-[44px] min-h-[44px] p-2 rounded-full
                                bg-white/85 border border-white/70 shadow-sm backdrop-blur-sm
                                text-gray-700 hover:text-rose-600 hover:scale-105 transition"
                   >
@@ -156,31 +159,31 @@ const ResultsComponent = ({
                   {/* Bottom Gradient + Price Badge */}
                   <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/40 to-transparent" />
                   <div className="absolute left-2 bottom-2 z-10">
-                    <span className="inline-flex items-center px-2.5 py-1 font-medim rounded-full text-medium   text-white ">
-                      From <span className="text-white pl-2 font-medium text-xl">{priceLabel}{priceTypeLabels[listing?.price?.type]}</span>
+                    <span className="inline-flex items-center px-2.5 py-1 font-medium rounded-full text-sm sm:text-base text-white">
+                      From <span className="text-white pl-2 font-medium text-lg sm:text-xl">{priceLabel}{priceTypeLabels[listing?.price?.type]}</span>
                     </span>
                   </div>
                 </div>
 
                 {/* Content */}
-                <div className="p-4 space-y-2">
+                <div className="p-3 sm:p-4 space-y-2">
                   {/* Title + Rating */}
-                  <div className="flex items-start justify-between gap-3">
-                    <h3 className="font-semibold text-gray-900 text-lg sm:text-xl leading-snug line-clamp-1">
+                  <div className="flex items-start justify-between gap-2 sm:gap-3">
+                    <h3 className="font-semibold text-gray-900 text-base sm:text-lg lg:text-xl leading-snug line-clamp-1">
                       {listing.title}
                     </h3>
-                    <div className="shrink-0 flex items-center gap-1.5 text-sm bg-white border rounded-full px-3 py-1 shadow-sm">
-                      <Star className="w-4 h-4 text-anzac-500" />
+                    <div className="shrink-0 flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm bg-white border rounded-full px-2 sm:px-3 py-1 shadow-sm min-h-[32px]">
+                      <Star className="w-3 h-3 sm:w-4 sm:h-4 text-anzac-500" />
                       <span className="font-medium text-gray-900">
                         {listing.ratings?.average?.toFixed(1) || "0.0"}
                       </span>
-                      <span className="text-gray-500">({listing.ratings?.count || 0})</span>
+                      <span className="text-gray-500 hidden sm:inline">({listing.ratings?.count || 0})</span>
                     </div>
                   </div>
 
                   {/* Vendor */}
                   {listing.vendorName && (
-                    <div className="text-sm text-gray-600 flex items-center gap-1 py-2">
+                    <div className="text-xs sm:text-sm text-gray-600 flex items-center gap-1 py-1 sm:py-2">
                       <span>By {listing.vendorName}</span>
                       {listing.vendorVerified && (
                         <span className="ml-1 inline-flex items-center text-green-600 text-xs font-medium">
@@ -193,7 +196,7 @@ const ResultsComponent = ({
                   {/* Locations */}
                   <div>
                     <div className="text-xs font-medium text-gray-500 mb-1 flex items-center gap-1">
-                      <MapPin className="w-4 h-4 text-gray-400" />
+                      <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
                       <span>Available at</span>
                     </div>
                     <div className="flex flex-wrap gap-1.5">
@@ -203,7 +206,7 @@ const ResultsComponent = ({
                       ).map((loc, i) => (
                         <span
                           key={i}
-                          className="px-3 py-1 rounded-full text-xs font-medium  text-gray-700 "
+                          className="px-2 sm:px-3 py-1 rounded-full text-xs font-medium text-gray-700"
                         >
                           {loc}
                         </span>
@@ -213,10 +216,16 @@ const ResultsComponent = ({
 
                   {/* Footer chips */}
                   <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-anzac-50 text-anzac-700">
+                    <span className="inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs font-medium bg-anzac-50 text-anzac-700">
                       {listing.category}
                     </span>
-                    <button className="text-sm  font-medium transition" onClick={()=>handleListingClick(listing._id)}>
+                    <button 
+                      className="text-xs sm:text-sm font-medium transition min-h-[44px] px-2 flex items-center" 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleListingClick(listing._id);
+                      }}
+                    >
                       View details →
                     </button>
                   </div>

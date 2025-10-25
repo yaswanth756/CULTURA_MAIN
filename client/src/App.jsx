@@ -15,6 +15,8 @@ const Test = lazy(() => import('./pages/Test'));
 const Listings = lazy(() => import('./pages/Listings'));
 const ListingDetails = lazy(() => import('./pages/ListingDetails'));
 const SecurePayment = lazy(() => import('./pages/SecurePayment'));
+const TermsAndConditions = lazy(() => import('./pages/TermsAndConditions'));
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
 
 
 // Profile pages
@@ -67,6 +69,8 @@ function App() {
           <Route path="/browse" element={<Suspense fallback={<LoadingDots />}><Listings /></Suspense>} />
           <Route path="/listing/:id" element={<Suspense fallback={<LoadingDots />}><ListingDetails /></Suspense>} />
           <Route path="/securepayment/:id" element={<SecurePayment />} />
+          <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
 
 
           {/* Protected Profile Routes */}

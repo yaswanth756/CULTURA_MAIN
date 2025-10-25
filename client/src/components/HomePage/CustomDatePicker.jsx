@@ -109,10 +109,10 @@ export default function CustomDatePicker({
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-label="Add dates"
-        className="inline-flex items-center gap-2 sm:gap-3 rounded-full border-gray-200 px-2 sm:px-4 py-1 sm:py-2 bg-white w-full"
+        className="inline-flex items-center gap-4 sm:gap-3 rounded-full border-gray-200  sm:px-4 py-1 sm:py-2 bg-white w-full"
       >
         <CalendarIcon className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500 flex-shrink-0" />
-        <span className={`${selected ? "text-gray-900" : "text-gray-400"} truncate text-sm sm:text-base`}>
+        <span className={`${selected ? "text-gray-900" : "text-gray-400"} truncate  sm:text-base`}>
           {selected ? (
             <>
               <span className="sm:hidden">{fmtDisplayMobile(selected)}</span>
@@ -175,49 +175,58 @@ export default function CustomDatePicker({
           </div>
 
           {/* Days Grid */}
-          <div role="grid" className="grid grid-cols-7 gap-0.5 sm:gap-1">
-            {days.map((d, i) => {
-              const inMonth = d.getMonth() === viewMonth.getMonth();
+         {/* Days Grid */}
+<div
+  role="grid"
+  className="
+    grid grid-cols-7 gap-[3px] sm:gap-1
+    place-items-center
+  "
+>
+  {days.map((d, i) => {
+    const inMonth = d.getMonth() === viewMonth.getMonth();
 
-              if (!inMonth) {
-                return (
-                  <div
-                    key={i}
-                    role="gridcell"
-                    aria-hidden="true"
-                    className="h-8 w-8 sm:h-9 sm:w-9 mx-auto"
-                  />
-                );
-              }
+    if (!inMonth) {
+      return (
+        <div
+          key={i}
+          role="gridcell"
+          aria-hidden="true"
+          className="size-9 sm:size-10"
+        />
+      );
+    }
 
-              const selectedDay = selected && sameDay(d, selected);
-              const disabled = isPast(d);
-              const todayDay = sameDay(d, today); // Today check
+    const selectedDay = selected && sameDay(d, selected);
+    const disabled = isPast(d);
+    const todayDay = sameDay(d, today);
 
-              const base =
-                "h-8 w-8 sm:h-9 sm:w-9 mx-auto flex items-center justify-center text-xs sm:text-sm rounded-full transition";
+    const base =
+      "size-9 sm:size-10 flex items-center justify-center text-[13px] sm:text-sm rounded-full font-medium transition select-none";
 
-              let tone = "text-gray-900 hover:bg-gray-100";
-              if (todayDay) tone = "bg-gray-200 text-black"; // Today background
-              else if (selectedDay) tone = "bg-gray-900 text-white"; // Selected
+    let tone = "text-gray-900 hover:bg-gray-100";
+    if (todayDay) tone = "bg-gray-200 text-black";
+    else if (selectedDay) tone = "bg-gray-900 text-white";
 
-              const state = disabled ? "opacity-40" : "";
+    const state = disabled ? "opacity-40 cursor-not-allowed" : "";
 
-              return (
-                <button
-                  key={i}
-                  role="gridcell"
-                  aria-selected={!!selectedDay}
-                  aria-disabled={disabled}
-                  disabled={disabled}
-                  onClick={() => handlePick(d)}
-                  className={`${base} ${tone} ${state}`}
-                >
-                  {d.getDate()}
-                </button>
-              );
-            })}
-          </div>
+    return (
+      <button
+        key={i}
+        role="gridcell"
+        aria-selected={!!selectedDay}
+        aria-disabled={disabled}
+        disabled={disabled}
+        onClick={() => handlePick(d)}
+        className={`${base} ${tone} ${state}`}
+      >
+        {d.getDate()}
+      </button>
+    );
+  })}
+</div>
+
+
         </div>
       )}
     </div>

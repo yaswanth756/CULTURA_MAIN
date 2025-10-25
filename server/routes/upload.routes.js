@@ -62,7 +62,7 @@ router.post('/upload/single',  authenticateVendor, upload.single('image'), async
   });
   
   // Multiple images upload endpoint
-  router.post('/upload/multiple',  authenticateVendor, upload.array('images', 10), async (req, res) => {
+  router.post('/upload/multiple', upload.array('images', 10), async (req, res) => {
     try {
       if (!req.files || req.files.length === 0) {
         return res.status(400).json({

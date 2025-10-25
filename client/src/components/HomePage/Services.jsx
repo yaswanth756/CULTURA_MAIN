@@ -21,28 +21,30 @@ const Services = () => {
       throttleDelay: 99,
     });
 
-    // Refresh AOS when component updates
     return () => AOS.refresh();
   }, []);
 
   const services = [
     {
-      title: "Birthday",
-      slug: "birthday",
-      image: "https://plus.unsplash.com/premium_photo-1692880429643-c0f3c9489046?w=900&auto=format&fit=crop&q=60",
-      subcategories: ["Rooms", "Catering", "Cakes", "Decorations"],
+      title: 'Birthday',
+      slug: 'birthday',
+      image:
+        'https://plus.unsplash.com/premium_photo-1692880429643-c0f3c9489046?w=900&auto=format&fit=crop&q=60',
+      subcategories: ['Rooms', 'Catering', 'Cakes', 'Decorations'],
     },
     {
-      title: "Wedding", 
-      slug: "wedding",
-      image: "https://plus.unsplash.com/premium_photo-1663076211121-36754a46de8d?w=900&auto=format&fit=crop&q=60",
-      subcategories: ["Venues", "Photography", "Makeup", "Decor"],
+      title: 'Wedding',
+      slug: 'wedding',
+      image:
+        'https://plus.unsplash.com/premium_photo-1663076211121-36754a46de8d?w=900&auto=format&fit=crop&q=60',
+      subcategories: ['Venues', 'Photography', 'Makeup', 'Decor'],
     },
     {
-      title: "House Ceremony",
-      slug: "house-ceremony", 
-      image: "https://media.istockphoto.com/id/1279427161/photo/boiling-the-milk-for-indian-traditional-housewarming.jpg?s=612x612&w=0&k=20&c=K8yBqA4b9TgZstapFToWbsAtgP_gT_ufpH5104Ghp1w=",
-      subcategories: ["Priests", "Catering", "Mandap", "Music"],
+      title: 'House Ceremony',
+      slug: 'house-ceremony',
+      image:
+        'https://media.istockphoto.com/id/1279427161/photo/boiling-the-milk-for-indian-traditional-housewarming.jpg?s=612x612&w=0&k=20&c=K8yBqA4b9TgZstapFToWbsAtgP_gT_ufpH5104Ghp1w=',
+      subcategories: ['Priests', 'Catering', 'Mandap', 'Music'],
     },
   ];
 
@@ -70,22 +72,22 @@ const Services = () => {
         }
 
         /* Custom smooth animations */
-        [data-aos="smooth-fade-up"] {
+        [data-aos='smooth-fade-up'] {
           transform: translate3d(0, 60px, 0);
           opacity: 0;
         }
 
-        [data-aos="smooth-fade-up"].aos-animate {
+        [data-aos='smooth-fade-up'].aos-animate {
           transform: translate3d(0, 0, 0);
           opacity: 1;
         }
 
-        [data-aos="smooth-scale"] {
+        [data-aos='smooth-scale'] {
           transform: scale3d(0.8, 0.8, 1);
           opacity: 0;
         }
 
-        [data-aos="smooth-scale"].aos-animate {
+        [data-aos='smooth-scale'].aos-animate {
           transform: scale3d(1, 1, 1);
           opacity: 1;
         }
@@ -97,8 +99,8 @@ const Services = () => {
       `}</style>
 
       <div className="py-20 px-6 bg-gray-50 pb-28">
-        <div 
-          className="mb-14 space-y-2" 
+        <div
+          className="mb-14 space-y-2"
           data-aos="smooth-fade-up"
           data-aos-duration="1000"
           data-aos-easing="ease-out-cubic"
@@ -106,7 +108,7 @@ const Services = () => {
           <h2 className="text-3xl font-medium text-center text-gray-800">
             Celebrate in Style
           </h2>
-          <div 
+          <div
             className="w-32 h-1 mx-auto mb-14 bg-gradient-to-r from-anzac-400 via-anzac-500 to-anzac-600 rounded-full"
             data-aos="smooth-scale"
             data-aos-delay="300"
@@ -122,14 +124,14 @@ const Services = () => {
               data-aos-delay={index * 150}
               data-aos-duration="1000"
               data-aos-easing="ease-out-cubic"
-              className="smooth-card relative bg-gradient-to-tr from-anzac-50 via-white to-anzac-100 rounded-sm overflow-hidden group"
+              className="group/card smooth-card relative bg-gradient-to-tr from-anzac-50 via-white to-anzac-100 rounded-sm overflow-hidden"
               style={{ '--stagger-delay': index }}
             >
               <div className="h-56 overflow-hidden">
                 <img
                   src={service.image}
                   alt={service.title}
-                  className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+                  className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover/card:scale-110"
                 />
               </div>
 
@@ -142,7 +144,7 @@ const Services = () => {
                   {service.subcategories.map((sub, i) => (
                     <span
                       key={i}
-                      className="px-4 py-1 text-sm bg-anzac-50 text-anzac-700 rounded-full border border-anzac-200 hover:bg-anzac-100 transition-all duration-300"
+                      className="px-4 py-1 text-sm bg-anzac-50 text-anzac-700 rounded-full border border-anzac-200 transition-colors duration-300 group-hover/card:bg-anzac-100"
                     >
                       {sub}
                     </span>
@@ -150,13 +152,15 @@ const Services = () => {
                 </div>
 
                 <button
-  onClick={() => (window.location.href = `/browse?servicetype=${service.slug}`)}
-  className="px-6 py-2 text-anzac-600 rounded-full border border-anzac-500 hover:text-white relative overflow-hidden transition-colors duration-300 ease-out group"
->
-  <span className="absolute inset-0 bg-anzac-500 transition-all duration-300 ease-out origin-bottom scale-y-0 group-hover:scale-y-100"></span>
-  <span className="relative z-10">Plan Now</span>
-</button>
-
+                  onClick={() =>
+                    (window.location.href = `/browse?servicetype=${service.slug}`)
+                  }
+                  className="group/button relative inline-flex items-center justify-center px-6 py-2 rounded-full border border-anzac-500 text-anzac-600 overflow-hidden transition-colors duration-300 ease-out isolate hover:text-white group-hover/card:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-anzac-500/30"
+                >
+                  {/* Animated overlay */}
+                  <span className="pointer-events-none absolute inset-0 origin-bottom scale-y-0 bg-anzac-500 transition-transform duration-300 ease-out group-hover/button:scale-y-100 group-hover/card:scale-y-100" />
+                  <span className="relative z-10">Plan Now</span>
+                </button>
               </div>
             </div>
           ))}

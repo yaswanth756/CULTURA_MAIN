@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-// --- Helpers (same as main calendar) ---
+// --- Helpers ---
 const sameDay = (a, b) =>
   a.getFullYear() === b.getFullYear() &&
   a.getMonth() === b.getMonth() &&
@@ -53,40 +53,40 @@ export default function MiniCalendar({
   const days = useMemo(() => buildGrid(viewMonth), [viewMonth]);
 
   return (
-    <div className="w-[260px] sm:w-[350px]  h-[250px] rounded-xl border-gray-200 bg-white p-2 sm:p-5 shadow-xl">
+    <div className="w-[330px] sm:w-[350px] mx-auto rounded-xl  border-gray-200 bg-white p-4 sm:p-5 ">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <button
           type="button"
           onClick={() => setViewMonth((m) => addMonths(m, -1))}
-          className="p-1 rounded-full hover:bg-gray-100"
+          className="p-2 rounded-full hover:bg-gray-100 transition-colors min-w-[36px] min-h-[36px] flex items-center justify-center"
           aria-label="Previous month"
         >
-          <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4 text-gray-700" />
+          <ChevronLeft className="w-5 h-5 text-gray-700" />
         </button>
 
-        <h2 className="text-xs sm:text-sm font-semibold text-gray-900">
+        <h2 className="text-base font-semibold text-gray-900">
           {fmtMonthYear(viewMonth)}
         </h2>
 
         <button
           type="button"
           onClick={() => setViewMonth((m) => addMonths(m, 1))}
-          className="p-1 rounded-full hover:bg-gray-100"
+          className="p-2 rounded-full hover:bg-gray-100 transition-colors min-w-[36px] min-h-[36px] flex items-center justify-center"
           aria-label="Next month"
         >
-          <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 text-gray-700" />
+          <ChevronRight className="w-5 h-5 text-gray-700" />
         </button>
       </div>
 
       {/* Weekdays */}
-      <div className="grid grid-cols-7 text-center text-[10px] text-gray-600 mb-1 select-none">
+      <div className="grid grid-cols-7 text-center text-xs font-semibold text-gray-600 mb-2 select-none">
         {weekdayHeader.map((d) => (
           <div
             key={d.full}
             role="columnheader"
             aria-label={d.full}
-            className="uppercase tracking-widest h-4 flex items-center justify-center"
+            className="uppercase h-8 flex items-center justify-center"
           >
             {d.short}
           </div>
@@ -98,24 +98,25 @@ export default function MiniCalendar({
         {days.map((d, i) => {
           const inMonth = d.getMonth() === viewMonth.getMonth();
           if (!inMonth)
-            return <div key={i} className="h-6 w-6 mx-auto" aria-hidden="true" />;
+            return <div key={i} className="h-10 w-full" aria-hidden="true" />;
 
           const selectedDay = selected && sameDay(d, selected);
           const disabled = normalize(d) < normalize(today);
           const todayDay = sameDay(d, today);
 
           const base =
-            "h-6 w-6 mx-auto flex items-center justify-center text-[10px] sm:text-sm rounded-full transition";
+            "h-10 w-full flex items-center justify-center text-sm rounded-lg transition-all duration-150 font-medium";
 
-          let tone = "text-gray-900 hover:bg-gray-100";
-          if (todayDay && !selectedDay) tone = "bg-gray-200 text-black";
-          if (selectedDay) tone = "bg-gray-800 text-white";
+          let tone = "text-gray-900 hover:bg-gray-100 active:bg-gray-200";
+          if (todayDay && !selectedDay) tone = "bg-gray-200 text-black hover:bg-gray-300";
+          if (selectedDay) tone = "bg-gray-800 text-white hover:bg-gray-900";
 
-          const state = disabled ? "opacity-40 cursor-not-allowed" : "";
+          const state = disabled ? "opacity-40 cursor-not-allowed" : "cursor-pointer";
 
           return (
             <button
               key={i}
+              type="button"
               aria-selected={!!selectedDay}
               disabled={disabled}
               onClick={() => !disabled && onPick(d)}

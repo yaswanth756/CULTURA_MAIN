@@ -4,6 +4,7 @@ import MiniCalendar from "../MiniCalendar";
 import { useNavigate } from 'react-router-dom';
 import { useEventContext } from "../../context/EventContext";
 import { useAuth } from "../../context/AuthContext";
+
 const priceTypeLabels = {
   fixed: "",
   per_person: "/ person",
@@ -59,7 +60,7 @@ const BookingForm = ({ listing }) => {
   const { setModelOpen } = useEventContext();
   const { user } = useAuth();
 
-const navigate = useNavigate();
+  const navigate = useNavigate();
   const bookingRef = useRef(null);
   const calendarRef = useRef(null);
   const locationRef = useRef(null);
@@ -206,24 +207,22 @@ const navigate = useNavigate();
     }
 
     // Create booking data
-    const baseAmountRupees = listing.price.base; // This is in rupees
-    const depositAmountRupees = Math.ceil(baseAmountRupees * 0.1); // 10% deposit in rupees
+    const baseAmountRupees = listing.price.base;
+    const depositAmountRupees = Math.ceil(baseAmountRupees * 0.1);
   
-    // Create booking data (keep amounts in rupees for display)
     const bookingData = {
       listingId: listing._id,
       vendorId: listing.vendorId._id,
       eventDate: eventDate.toISOString(),
       location: selectedLocation?.description || locationQuery,
       coordinates: selectedLocation ? [selectedLocation.longitude, selectedLocation.latitude] : null,
-      amount: baseAmountRupees, // Keep in rupees for display
-      depositAmount: depositAmountRupees, // Keep in rupees for display
+      amount: baseAmountRupees,
+      depositAmount: depositAmountRupees,
       priceType: listing.price.type,
       serviceTitle: listing.title,
       vendorName: listing.vendorId.profile?.businessName || 'Vendor'
     };
   
-    // Navigate to secure payment page with booking data
     navigate(`/securepayment/${listing._id}`, { 
       state: bookingData 
     });
@@ -231,28 +230,28 @@ const navigate = useNavigate();
 
   return (
     <>
-      {/* Desktop Booking Sidebar */}
-      <div className="lg:sticky lg:top-[14%] bg-white  border-gray-200 border rounded-3xl p-7 space-y-5 md:w-[440px] shadow-sm">
+      {/* Desktop & Mobile Booking Sidebar */}
+      <div className="lg:sticky lg:top-[14%] bg-white border-gray-200 border rounded-2xl sm:rounded-3xl p-4 sm:p-7 space-y-4 sm:space-y-5 w-full md:w-[440px] shadow-sm mb-20 sm:mb-0">
         {/* Price Header */}
-        <div className="flex items-center justify-between border-b pb-5">
+        <div className="flex items-center justify-between border-b pb-4 sm:pb-5">
           <div>
-            <p className="text-sm text-gray-500">Starting from</p>
-            <p className="text-3xl font-bold text-gray-900">
+            <p className="text-xs sm:text-sm text-gray-500">Starting from</p>
+            <p className="text-2xl sm:text-3xl font-bold text-gray-900">
               {formattedPrice}{" "}
-              <span className="text-sm">
+              <span className="text-xs sm:text-sm">
                 {priceTypeLabels[listing?.price?.type]}
               </span>
             </p>
-            <p className="text-[12px] text-gray-500">
+            <p className="text-[11px] sm:text-[12px] text-gray-500 mt-1">
               Pay {depositAmount} now (10% deposit)
             </p>
           </div>
           <div className="flex items-center gap-1">
-            <Star className="w-5 h-5 text-yellow-500 " />
-            <span className="font-semibold text-gray-900">
+            <Star className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500" />
+            <span className="font-semibold text-sm sm:text-base text-gray-900">
               {listing.ratings?.average || 0}
             </span>
-            <span className="text-sm text-gray-500">
+            <span className="text-xs sm:text-sm text-gray-500">
               ({listing.ratings?.count || 0})
             </span>
           </div>
@@ -260,21 +259,21 @@ const navigate = useNavigate();
 
         {/* Vendor Info */}
         {listing.vendorId && (
-          <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl">
+          <div className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-gray-50 rounded-xl">
             <img
               src={
                 listing.vendorId.profile?.avatar ||
                 "https://img.freepik.com/premium-vector/man-professional-business-casual-young-avatar-icon-illustration_1277826-623.jpg?ga=GA1.1.530000802.1735748529&semt=ais_hybrid&w=740&q=80"
               }
               alt={listing.vendorId.profile?.businessName || "Vendor"}
-              className="w-14 h-14 rounded-full"
+              className="w-12 h-12 sm:w-14 sm:h-14 rounded-full flex-shrink-0"
               loading="lazy"
             />
-            <div>
-              <h3 className="font-semibold text-gray-900">
+            <div className="min-w-0 flex-1">
+              <h3 className="font-semibold text-sm sm:text-base text-gray-900 truncate">
                 {listing.vendorId.profile?.businessName || "Vendor"}
               </h3>
-              <p className="text-sm text-gray-600">
+              <p className="text-xs sm:text-sm text-gray-600">
                 {listing.vendorId.vendorInfo?.verified && "✓ Verified"}
               </p>
             </div>
@@ -285,81 +284,99 @@ const navigate = useNavigate();
         {listing.vendorId?.phone && (
           <a
             href={`tel:${listing.vendorId.phone}`}
-            className="w-full flex pl-2 gap-2   py-3 font-medium transition-all duration-200 text-gray-800"
+            className="w-full flex items-center sm:justify-start pl-0 sm:pl-2 gap-2 py-3 font-medium transition-all duration-200 text-gray-800 hover:text-green-600"
             aria-label="Call vendor"
           >
-            <Phone className="w-5 h-5 text-green-400" />
-            {listing.vendorId.phone}
+            <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
+            <span className="text-sm sm:text-base">{listing.vendorId.phone}</span>
           </a>
         )}
 
         {/* Booking Form */}
         <form
           ref={bookingRef}
-          className="space-y-5"
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (!eventDate) {
-              alert("Please select an event date!");
-              return;
-            }
-            if (!selectedLocation && !locationQuery) {
-              alert("Please enter event location!");
-              return;
-            }
-            alert(`Booking request submitted for ${eventDate.toDateString()} at ${selectedLocation?.description || locationQuery}!`);
-          }}
+          className="space-y-4 sm:space-y-5"
+          onSubmit={handleFormSubmit}
         >
           {/* Event Date */}
-          <div className="relative" ref={calendarRef}>
-            <label className="text-sm font-medium text-gray-700">
-              Event Date *
-            </label>
-            <div
-              className="flex items-center border border-gray-300 rounded-xl px-3 py-3 focus-within:ring-2  bg-white cursor-pointer text-gray-400"
-              onClick={() => {
-                setCalendarOpen((v) => !v);
-                if (!calendarOpen) {
-                  setCalendarViewMonth(eventDate || today);
-                }
-              }}
-            >
-              <CalendarIcon className="w-4 h-4 text-gray-400 mr-3" />
-              <span className="flex-1 text-gray-500">
-                {eventDate
-                  ? eventDate.toDateString()
-                  : "Select event date"}
-              </span>
-            </div>
+         {/* Event Date */}
+<div className="relative" ref={calendarRef}>
+  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
+    Event Date *
+  </label>
+  <div
+    className="flex items-center border border-gray-300 rounded-xl px-3 py-3 sm:py-3 focus-within:ring-2 bg-white cursor-pointer active:bg-gray-50 transition-colors"
+    onClick={() => {
+      setCalendarOpen((v) => !v);
+      if (!calendarOpen) {
+        setCalendarViewMonth(eventDate || today);
+      }
+    }}
+  >
+    <CalendarIcon className="w-4 h-4 text-gray-400 mr-2 sm:mr-3 flex-shrink-0" />
+    <span className="flex-1 text-sm sm:text-base text-gray-500">
+      {eventDate
+        ? eventDate.toDateString()
+        : "Select event date"}
+    </span>
+  </div>
 
-            {calendarOpen && (
-              <div className="absolute z-50 mt-2">
-                <MiniCalendar
-                  viewMonth={calendarViewMonth}
-                  setViewMonth={setCalendarViewMonth}
-                  selected={eventDate}
-                  onPick={(d) => {
-                    setEventDate(d);
-                    setCalendarOpen(false);
-                  }}
-                  today={today}
-                />
-              </div>
-            )}
-          </div>
+  {/* Calendar Modal with X button and outside click */}
+  {calendarOpen && (
+    <div 
+      className="fixed sm:absolute inset-0 sm:inset-auto z-50 sm:mt-2 flex items-center justify-center sm:block bg-black/50 sm:bg-transparent p-4 sm:p-0"
+      onClick={(e) => {
+        // Close when clicking on overlay (not on calendar itself)
+        if (e.target === e.currentTarget) {
+          setCalendarOpen(false);
+        }
+      }}
+    >
+      <div className="max-w-sm w-full relative bg-white rounded-2xl sm:rounded-lg overflow-hidden">
+        {/* Mobile Header with X button */}
+        <div className="sm:hidden sticky top-0 bg-white px-4 py-3 border-b border-gray-200 flex items-center justify-between z-10">
+          <h3 className="text-base font-semibold text-gray-900">Select Date</h3>
+          <button
+            type="button"
+            onClick={() => setCalendarOpen(false)}
+            className="p-1.5 hover:bg-gray-100 rounded-full transition-colors"
+            aria-label="Close calendar"
+          >
+            <X className="w-5 h-5 text-gray-500" />
+          </button>
+        </div>
+        
+        {/* Calendar Component */}
+        <div className="sm:shadow-lg sm:rounded-lg">
+          <MiniCalendar
+            viewMonth={calendarViewMonth}
+            setViewMonth={setCalendarViewMonth}
+            selected={eventDate}
+            onPick={(d) => {
+              setEventDate(d);
+              setCalendarOpen(false);
+            }}
+            today={today}
+          />
+        </div>
+      </div>
+    </div>
+  )}
+</div>
+
 
           {/* Event Location with Autocomplete */}
           <div className="relative" ref={locationRef}>
-            <label className="text-sm font-medium text-gray-700">
+            <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
               Event Location *
             </label>
             <div className="relative">
-              <div className="flex items-center border border-gray-300 rounded-xl px-3 py-3  bg-white">
-                <MapPin className="w-4 h-4 text-gray-400 mr-3 flex-shrink-0" />
+              <div className="flex items-center border border-gray-300 rounded-xl px-3 py-3 sm:py-3 bg-white">
+                <MapPin className="w-4 h-4 text-gray-400 mr-2 sm:mr-3 flex-shrink-0" />
                 <input
                   type="text"
-                  placeholder="Search city, place, or pincode..."
-                  className="flex-1 outline-none text-gray-900 placeholder-gray-500"
+                  placeholder="Search city, place..."
+                  className="flex-1 outline-none text-sm sm:text-base text-gray-900 placeholder-gray-500"
                   value={locationQuery}
                   onChange={handleLocationChange}
                   onFocus={() => {
@@ -370,13 +387,13 @@ const navigate = useNavigate();
                   required
                 />
                 {locationLoading && (
-                  <Loader2 className="w-4 h-4 text-gray-400 animate-spin mr-2" />
+                  <Loader2 className="w-4 h-4 text-gray-400 animate-spin mr-2 flex-shrink-0" />
                 )}
                 {locationQuery && (
                   <button
                     type="button"
                     onClick={clearLocation}
-                    className="p-1 hover:bg-gray-100 rounded-full"
+                    className="p-1 hover:bg-gray-100 rounded-full active:bg-gray-200 transition-colors flex-shrink-0"
                   >
                     <X className="w-3 h-3 text-gray-400" />
                   </button>
@@ -385,21 +402,33 @@ const navigate = useNavigate();
 
               {/* Location Suggestions Dropdown */}
               {locationOpen && locationSuggestions.length > 0 && (
-                <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-60 overflow-y-auto">
+                <div className="fixed sm:absolute left-0 right-0 sm:left-auto sm:right-auto bottom-0 sm:bottom-auto sm:w-full sm:mt-1 bg-white border-t sm:border border-gray-200 sm:rounded-xl shadow-lg max-h-[50vh] sm:max-h-60 overflow-y-auto z-50">
+                  <div className="sm:hidden sticky top-0 bg-gray-50 px-4 py-2 border-b border-gray-200">
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-medium text-gray-700">Select Location</p>
+                      <button
+                        type="button"
+                        onClick={() => setLocationOpen(false)}
+                        className="p-1 hover:bg-gray-200 rounded-full"
+                      >
+                        <X className="w-4 h-4 text-gray-500" />
+                      </button>
+                    </div>
+                  </div>
                   {locationSuggestions.map((location) => (
                     <button
                       key={location.id}
                       type="button"
-                      className="w-full px-4 py-3 text-left hover:bg-gray-50 border-b border-gray-100 last:border-b-0 focus:bg-gray-50 focus:outline-none"
+                      className="w-full px-4 py-3 sm:py-3 text-left hover:bg-gray-50 active:bg-gray-100 border-b border-gray-100 last:border-b-0 focus:bg-gray-50 focus:outline-none transition-colors"
                       onClick={() => handleLocationSelect(location)}
                     >
                       <div className="flex items-start gap-3">
                         <MapPin className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
                         <div className="min-w-0 flex-1">
-                          <p className="font-medium text-gray-900 truncate">
+                          <p className="font-medium text-sm sm:text-base text-gray-900 truncate">
                             {location.name}
                           </p>
-                          <p className="text-sm text-gray-500 truncate">
+                          <p className="text-xs sm:text-sm text-gray-500 line-clamp-2">
                             {location.description}
                           </p>
                           {location.postcode && (
@@ -419,42 +448,40 @@ const navigate = useNavigate();
           {/* Reserve Button */}
           <button
             type="submit"
-            className="w-full bg-anzac-500 hover:bg-anzac-600 text-white py-3 rounded-xl font-semibold transition-all duration-200 shadow-md hover:shadow-lg"
-            onClick={handleFormSubmit}
+            className="w-full bg-anzac-500 hover:bg-anzac-600 active:bg-anzac-700 text-white py-3 sm:py-3 rounded-xl font-semibold transition-all duration-200 shadow-md hover:shadow-lg text-sm sm:text-base"
           >
             Reserve Now
           </button>
 
-          <p className="text-xs text-gray-500 text-center border-t pt-4">
+          <p className="text-[11px] sm:text-xs text-gray-500 text-center border-t pt-3 sm:pt-4">
             Free · cancellation · available
           </p>
         </form>
       </div>
 
-      {/* booking bar on mobile */}
-      <div className="sm:hidden fixed bottom-0 left-0 w-full bg-white border-t shadow-lg z-50">
-  <div className="px-4 py-3 pb-[calc(env(safe-area-inset-bottom)+12px)]">
-    <div className="flex items-center justify-between gap-4">
-      <div>
-        <div className="text-xs text-gray-500">From</div>
-        <div className="text-lg font-bold text-gray-900 leading-tight">
-          {formattedPrice}
-        </div>
-        <div className="text-xs text-gray-500">
-          Pay {depositAmount} now
+      {/* Mobile Bottom Booking Bar */}
+      <div className="sm:hidden fixed bottom-0 left-0 right-0 w-full bg-white border-t shadow-lg z-40">
+        <div className="px-4 py-3 pb-[calc(env(safe-area-inset-bottom)+12px)]">
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <div className="text-xs text-gray-500">From</div>
+              <div className="text-lg font-bold text-gray-900 leading-tight truncate">
+                {formattedPrice}
+              </div>
+              <div className="text-[11px] text-gray-500">
+                Pay {depositAmount} now
+              </div>
+            </div>
+            <button
+              onClick={scrollToBooking}
+              className="flex-shrink-0 bg-anzac-500 hover:bg-anzac-600 active:bg-anzac-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 text-sm"
+              aria-label="Reserve now"
+            >
+              Go to Booking
+            </button>
+          </div>
         </div>
       </div>
-      <button
-        onClick={scrollToBooking}
-        className="flex-1 max-w-[160px] bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-semibold transition-all duration-200"
-        aria-label="Reserve now"
-      >
-        Reserve Now
-      </button>
-    </div>
-  </div>
-</div>
-
     </>
   );
 };

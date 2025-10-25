@@ -94,10 +94,10 @@ const BookingDetailsModal = ({
     imageUrl,
   } = booking;
   
-  const bookingId = _id || id; // Handle both _id and id
+  const bookingId = _id || id;
   const letter = (vendor || "V").toString().trim().charAt(0).toUpperCase();
   const formatINR = (n) => `₹${Number(n || 0).toLocaleString("en-IN")}`;
-  console.log(booking);
+  
   const statusColor =
     String(bookingStatus || "").toLowerCase() === "confirmed"
       ? "bg-emerald-100 text-emerald-700"
@@ -114,7 +114,6 @@ const BookingDetailsModal = ({
     String(paymentStatus || "").toLowerCase() !== "paid" &&
     Number(payableAmount || 0) > 0;
 
-  // 🚀 INSTANT UPDATE CANCEL FUNCTION
   const handleCancel = async () => {
     try {
       const updatedBooking = {
@@ -193,75 +192,78 @@ const BookingDetailsModal = ({
           aria-labelledby={titleId}
           aria-describedby={descId}
           ref={dialogRef}
-          className="fixed inset-0 z-[80] grid place-items-center px-4 py-8"
+          className="fixed inset-0 z-[80] flex items-center justify-center px-3 sm:px-4 py-4 sm:py-8"
           onClick={(e) => e.stopPropagation()}
           data-aos="fade-up"
         >
-          <div className="w-full max-w-2xl rounded-2xl border bg-white shadow-2xl">
+          <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-xl sm:rounded-2xl border bg-white shadow-2xl">
             {/* Header */}
-            <div className="flex items-start gap-4 p-5 border-b">
-              <div className="relative h-14 w-14 rounded-xl overflow-hidden bg-gradient-to-br from-blue-100 to-indigo-100 border">
+            <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 lg:p-5 border-b sticky top-0 bg-white z-10">
+              <div className="relative h-12 w-12 sm:h-14 sm:w-14 rounded-lg sm:rounded-xl overflow-hidden bg-gradient-to-br from-blue-100 to-indigo-100 border flex-shrink-0">
                 {imageUrl ? (
                   <img src={imageUrl} alt={title} className="h-full w-full object-cover" />
                 ) : (
-                  <div className="h-full w-full grid place-items-center text-blue-700 font-semibold">
+                  <div className="h-full w-full grid place-items-center text-blue-700 font-semibold text-lg sm:text-xl">
                     {letter}
                   </div>
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <h2 id={titleId} className="text-[16px] font-semibold text-gray-900 truncate">
+                <h2 id={titleId} className="text-sm sm:text-base lg:text-[16px] font-semibold text-gray-900 truncate">
                   {title}
                 </h2>
-                <div className="mt-1 flex flex-wrap items-center gap-2 text-[13px] text-gray-600">
-                  <span className="font-medium text-gray-900">{vendor}</span>
+                <div className="mt-1 flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs sm:text-[13px] text-gray-600">
+                  <span className="font-medium text-gray-900 truncate">{vendor}</span>
                   {vendorVerified && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 text-emerald-700 px-2 py-0.5">
-                      <ShieldCheck className="h-3.5 w-3.5" />
-                      Verified
+                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 text-emerald-700 px-1.5 sm:px-2 py-0.5 whitespace-nowrap">
+                      <ShieldCheck className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                      <span className="hidden sm:inline">Verified</span>
+                      <span className="sm:hidden">✓</span>
                     </span>
                   )}
                   {vendorRating ? (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 text-amber-700 px-2 py-0.5">
-                      <Star className="h-3.5 w-3.5" />
+                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 text-amber-700 px-1.5 sm:px-2 py-0.5 whitespace-nowrap">
+                      <Star className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                       {Number(vendorRating).toFixed(1)}
                     </span>
                   ) : null}
-                  <span className="ml-auto font-mono text-gray-500">#{bookingNumber}</span>
+                  <span className="ml-auto font-mono text-xs text-gray-500">#{bookingNumber}</span>
                 </div>
               </div>
               <button
                 ref={closeBtnRef}
                 onClick={onClose}
-                className="rounded-full p-2 text-gray-500 hover:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                className="rounded-full p-1.5 sm:p-2 text-gray-500 hover:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 flex-shrink-0 min-w-[32px] min-h-[32px] flex items-center justify-center"
                 aria-label="Close"
               >
-                <X className="h-5 w-5" />
+                <X className="h-4 w-4 sm:h-5 sm:w-5" />
               </button>
             </div>
 
             {/* Body */}
-            <div id={descId} className="p-5 space-y-5">
+            <div id={descId} className="p-3 sm:p-4 lg:p-5 space-y-4 sm:space-y-5">
               {/* When & Where */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="rounded-xl border p-3" data-aos="fade-up">
-                  <div className="text-[12px] text-gray-500 mb-1">When</div>
-                  <div className="flex items-center gap-2 text-[14px] text-gray-900">
-                    <Calendar className="h-4 w-4 text-gray-500" />
-                    {new Date(serviceDate).toLocaleString("en-IN", {
-                      weekday: "short",
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div className="rounded-lg sm:rounded-xl border p-2.5 sm:p-3" data-aos="fade-up">
+                  <div className="text-[11px] sm:text-xs text-gray-500 mb-1">When</div>
+                  <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-gray-900">
+                    <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-500 flex-shrink-0" />
+                    <span className="truncate">
+                      {new Date(serviceDate).toLocaleString("en-IN", {
+                        weekday: "short",
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </span>
                   </div>
                 </div>
-                <div className="rounded-xl border p-3" data-aos="fade-up" data-aos-delay="60">
-                  <div className="text-[12px] text-gray-500 mb-1">Where</div>
-                  <div className="flex items-center gap-2 text-[14px] text-gray-900">
-                    <MapPin className="h-4 w-4 text-gray-500" />
+                <div className="rounded-lg sm:rounded-xl border p-2.5 sm:p-3" data-aos="fade-up" data-aos-delay="60">
+                  <div className="text-[11px] sm:text-xs text-gray-500 mb-1">Where</div>
+                  <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-gray-900">
+                    <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-500 flex-shrink-0" />
                     <span className="truncate">{location || "Not provided"}</span>
                   </div>
                 </div>
@@ -269,42 +271,42 @@ const BookingDetailsModal = ({
 
               {/* Status chips */}
               <div className="flex flex-wrap items-center gap-2" data-aos="fade-up">
-                <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] ${statusColor}`}>
+                <span className={`inline-flex items-center gap-1.5 rounded-full px-2 sm:px-2.5 py-1 text-[11px] sm:text-xs ${statusColor}`}>
                   Status: {String(bookingStatus || "pending").toUpperCase()}
                 </span>
-                <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] ${payColor}`}>
+                <span className={`inline-flex items-center gap-1.5 rounded-full px-2 sm:px-2.5 py-1 text-[11px] sm:text-xs ${payColor}`}>
                   Payment: {String(paymentStatus || "pending").toUpperCase()}
                 </span>
               </div>
 
               {/* Amounts */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4" data-aos="fade-up">
-                <div className="rounded-lg bg-gray-50 p-3">
-                  <div className="text-[12px] text-gray-500">Base</div>
-                  <div className="text-[15px] font-semibold text-gray-900">{formatINR(baseAmount)}</div>
+              <div className="grid grid-cols-3 gap-2 sm:gap-3 lg:gap-4" data-aos="fade-up">
+                <div className="rounded-lg bg-gray-50 p-2.5 sm:p-3">
+                  <div className="text-[11px] sm:text-xs text-gray-500">Base</div>
+                  <div className="text-xs sm:text-sm lg:text-[15px] font-semibold text-gray-900 truncate">{formatINR(baseAmount)}</div>
                 </div>
-                <div className="rounded-lg bg-gray-50 p-3">
-                  <div className="text-[12px] text-gray-500">Deposit</div>
-                  <div className="text-[15px] font-semibold text-emerald-700">{formatINR(depositAmount)}</div>
+                <div className="rounded-lg bg-gray-50 p-2.5 sm:p-3">
+                  <div className="text-[11px] sm:text-xs text-gray-500">Deposit</div>
+                  <div className="text-xs sm:text-sm lg:text-[15px] font-semibold text-emerald-700 truncate">{formatINR(depositAmount)}</div>
                 </div>
-                <div className="rounded-lg bg-gray-50 p-3">
-                  <div className="text-[12px] text-gray-500">Remaining</div>
-                  <div className="text-[15px] font-semibold text-blue-700">{formatINR(payableAmount)}</div>
+                <div className="rounded-lg bg-gray-50 p-2.5 sm:p-3">
+                  <div className="text-[11px] sm:text-xs text-gray-500">Remaining</div>
+                  <div className="text-xs sm:text-sm lg:text-[15px] font-semibold text-blue-700 truncate">{formatINR(payableAmount)}</div>
                 </div>
               </div>
 
               {/* Contact */}
-              <div className="rounded-xl border p-3 flex items-center justify-between" data-aos="fade-up">
-                <div className="text-[13px] text-gray-600">
+              <div className="rounded-lg sm:rounded-xl border p-2.5 sm:p-3 flex sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0" data-aos="fade-up">
+                <div className="text-xs sm:text-[13px] text-gray-600">
                   Vendor contact
-                  <div className="text-[14px] text-gray-900">{vendorPhone || "N/A"}</div>
+                  <div className="text-sm sm:text-[14px] text-gray-900 font-medium">{vendorPhone || "N/A"}</div>
                 </div>
                 {vendorPhone && (
                   <a
                     href={`tel:${vendorPhone.replace(/\s+/g, "")}`}
-                    className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-3 py-2 text-white hover:bg-emerald-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                    className="flex items-center gap-1.5 sm:gap-2 rounded-lg bg-emerald-600 px-3 sm:px-4 py-2 min-h-[40px] text-xs sm:text-sm text-white hover:bg-emerald-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 whitespace-nowrap"
                   >
-                    <PhoneCall className="h-4 w-4" />
+                    <PhoneCall className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                     Call vendor
                   </a>
                 )}
@@ -312,11 +314,11 @@ const BookingDetailsModal = ({
             </div>
 
             {/* Footer actions */}
-            <div className="p-5 border-t flex flex-wrap gap-2 justify-end" data-aos="fade-up">
+            <div className="p-3 sm:p-4 lg:p-5 border-t flex flex-col sm:flex-row flex-wrap gap-2 justify-end sticky bottom-0 bg-white" data-aos="fade-up">
               {canCancel && bookingStatus !== 'cancelled' && (
                 <button
                   onClick={handleCancel}
-                  className="rounded-lg border border-gray-300 px-4 py-2 text-gray-800 hover:bg-gray-50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                  className="w-full sm:w-auto rounded-lg border border-gray-300 px-4 py-2 min-h-[44px] text-sm text-gray-800 hover:bg-gray-50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                 >
                   Cancel booking
                 </button>
@@ -324,14 +326,14 @@ const BookingDetailsModal = ({
               {canPay && (
                 <button
                   onClick={handlePay}
-                  className="rounded-lg bg-gray-900 px-4 py-2 text-white hover:bg-black transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                  className="w-full sm:w-auto rounded-lg bg-gray-900 px-4 py-2 min-h-[44px] text-sm text-white hover:bg-black transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                 >
                   Pay now
                 </button>
               )}
               <button
                 onClick={onClose}
-                className="rounded-lg px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                className="w-full sm:w-auto rounded-lg px-4 py-2 min-h-[44px] text-sm text-gray-700 hover:bg-gray-50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
               >
                 Close
               </button>

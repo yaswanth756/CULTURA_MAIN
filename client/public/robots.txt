@@ -2,12 +2,12 @@
 
 User-agent: *
 Allow: /
-Disallow: /vendor/
+Disallow: /vendor/dashboard/
 Disallow: /profile/
 Disallow: /securepayment/
 
 # Sitemap location
-Sitemap: https://utsavlokam.com/sitemap.xml
+Sitemap: https://utsavlokam.app/sitemap.xml
 
 # Crawl delay (optional)
 Crawl-delay: 1

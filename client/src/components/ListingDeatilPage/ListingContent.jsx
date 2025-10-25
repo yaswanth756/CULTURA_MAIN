@@ -1,64 +1,56 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { MapPin, Star, CheckCircle2, Camera, PhoneCall, Info, User } from 'lucide-react';
-import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from 'react-leaflet';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
+import { MapPin, Star, CheckCircle2, Camera, PhoneCall, Info } from 'lucide-react';
+import { APIProvider, Map, AdvancedMarker, Pin, InfoWindow, useMap } from '@vis.gl/react-google-maps';
 import axios from 'axios';
-import { buildApiUrl } from '../../utils/api'; // ✅ ADD THIS IMPORT
+import { buildApiUrl } from '../../utils/api';
 
-// --- Utility: Auto-fit map to markers ---
-const AutoFit = ({ markers, fallbackCenter }) => {
-  const map = useMap();
-  useEffect(() => {
-    if (markers.length > 1) {
-      const bounds = markers.reduce(
-        (b, m) => b.extend([m.lat, m.lon]),
-        L.latLngBounds([markers[0].lat, markers[0].lon], [markers[0].lat, markers[0].lon])
-      );
-      map.fitBounds(bounds, { padding: [32, 32] });
-    } else if (markers.length === 1) {
-      map.setView([markers[0].lat, markers[0].lon], 12);
-    } else {
-      map.setView(fallbackCenter, 4);
-    }
-  }, [markers, fallbackCenter, map]);
-  return null;
-};
-
-// --- Map View with client-side geocoding of serviceAreas (policy-friendly) ---
+// --- Google Maps View Component ---
 const MapView = ({ listing }) => {
   const [markers, setMarkers] = useState([]);
-  const geocodeCacheRef = useRef(new Map());
+  const [selectedMarker, setSelectedMarker] = useState(null);
+  const geocodeCacheRef = useRef(new window.Map());
   const serviceAreas = listing?.serviceAreas || [];
+  const map = useMap();
 
-  // Prefer listing.location if provided; else India centroid as gentle default
+  // Fallback center (India or listing location)
   const fallbackCenter = useMemo(() => {
-    if (listing?.location?.lat && listing?.location?.lng) return [listing.location.lat, listing.location.lng];
-    return [20.5937, 78.9629]; // India
+    if (listing?.location?.lat && listing?.location?.lng) {
+      return { lat: listing.location.lat, lng: listing.location.lng };
+    }
+    return { lat: 20.5937, lng: 78.9629 }; // India
   }, [listing?.location?.lat, listing?.location?.lng]);
 
+  const [mapCenter, setMapCenter] = useState(fallbackCenter);
+  const [mapZoom, setMapZoom] = useState(5);
+
+  // Geocode service areas using Google Geocoding API
   useEffect(() => {
     let stopped = false;
-    const controller = new AbortController();
     const cache = geocodeCacheRef.current;
 
     const geocode = async (name) => {
       if (cache.has(name)) return cache.get(name);
-      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(name)}&limit=1&addressdetails=0`;
-      const res = await fetch(url, {
-        headers: {
-          'User-Agent': 'CulturaMain/1.0 (contact@yourdomain.example)',
-          'Accept': 'application/json',
-          'Referer': 'https://yourdomain.example'
-        },
-        signal: controller.signal
+      
+      if (!window.google?.maps?.Geocoder) return null;
+      
+      const geocoder = new window.google.maps.Geocoder();
+      
+      return new Promise((resolve) => {
+        geocoder.geocode({ address: name }, (results, status) => {
+          if (status === 'OK' && results?.[0]) {
+            const location = results[0].geometry.location;
+            const hit = { 
+              name, 
+              lat: location.lat(), 
+              lng: location.lng() 
+            };
+            cache.set(name, hit);
+            resolve(hit);
+          } else {
+            resolve(null);
+          }
+        });
       });
-      if (!res.ok) return null;
-      const json = await res.json();
-      if (!json?.length) return null;
-      const hit = { name, lat: parseFloat(json[0].lat), lon: parseFloat(json[0].lon) };
-      cache.set(name, hit);
-      return hit;
     };
 
     (async () => {
@@ -70,47 +62,92 @@ const MapView = ({ listing }) => {
           if (stopped) return;
           if (hit) out.push(hit);
         } catch (_) {
-          // swallow fetch abort or transient errors
+          // Handle errors silently
         }
-        // Respect public Nominatim limits: absolute max 1 r/s
-        await new Promise((r) => setTimeout(r, 1000));
+        // Small delay to respect rate limits
+        await new Promise((r) => setTimeout(r, 300));
       }
-      if (!stopped) setMarkers(out);
+      
+      if (!stopped && out.length > 0) {
+        setMarkers(out);
+        
+        // Auto-fit bounds
+        if (map && window.google?.maps?.LatLngBounds) {
+          if (out.length === 1) {
+            setMapCenter({ lat: out[0].lat, lng: out[0].lng });
+            setMapZoom(12);
+          } else if (out.length > 1) {
+            const bounds = new window.google.maps.LatLngBounds();
+            out.forEach(m => bounds.extend({ lat: m.lat, lng: m.lng }));
+            
+            // Calculate center
+            const center = bounds.getCenter();
+            setMapCenter({ lat: center.lat(), lng: center.lng() });
+            
+            // Calculate zoom level
+            const ne = bounds.getNorthEast();
+            const sw = bounds.getSouthWest();
+            const latDiff = Math.abs(ne.lat() - sw.lat());
+            const lngDiff = Math.abs(ne.lng() - sw.lng());
+            const maxDiff = Math.max(latDiff, lngDiff);
+            
+            let zoom = 12;
+            if (maxDiff > 10) zoom = 5;
+            else if (maxDiff > 5) zoom = 7;
+            else if (maxDiff > 2) zoom = 9;
+            else if (maxDiff > 1) zoom = 10;
+            
+            setMapZoom(zoom);
+          }
+        }
+      }
     })();
 
     return () => {
       stopped = true;
-      controller.abort();
     };
-  }, [serviceAreas]);
+  }, [serviceAreas, map]);
 
   return (
     <div className="w-full h-64 lg:h-80 rounded-lg overflow-hidden ring-1 ring-slate-200 bg-white">
-      <MapContainer center={fallbackCenter} zoom={5} scrollWheelZoom className="w-full h-full">
-        <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          maxZoom={19}
-        />
-        {markers.map((m, i) => (
-          <CircleMarker
-            key={`${m.name}-${i}`}
-            center={[m.lat, m.lon]}
-            radius={6}
-            color="#0ea5e9"
-            fillColor="#38bdf8"
-            fillOpacity={0.6}
-        >
-            <Popup>{m.name}</Popup>
-          </CircleMarker>
+      <Map
+        mapId="bf51a910020fa25a"
+        center={mapCenter}
+        zoom={mapZoom}
+        gestureHandling="greedy"
+        disableDefaultUI={false}
+        style={{ width: '100%', height: '100%' }}
+      >
+        {markers.map((marker, index) => (
+          <AdvancedMarker
+            key={`${marker.name}-${index}`}
+            position={{ lat: marker.lat, lng: marker.lng }}
+            onClick={() => setSelectedMarker(marker)}
+          >
+            <Pin
+              background="#0ea5e9"
+              borderColor="#0284c7"
+              glyphColor="#ffffff"
+            />
+          </AdvancedMarker>
         ))}
-        <AutoFit markers={markers} fallbackCenter={fallbackCenter} />
-      </MapContainer>
+
+        {selectedMarker && (
+          <InfoWindow
+            position={{ lat: selectedMarker.lat, lng: selectedMarker.lng }}
+            onCloseClick={() => setSelectedMarker(null)}
+          >
+            <div className="p-2">
+              <h3 className="font-semibold text-sm text-slate-900">{selectedMarker.name}</h3>
+            </div>
+          </InfoWindow>
+        )}
+      </Map>
     </div>
   );
 };
 
-// 🔥 NEW: Dynamic Reviews Component
+// 🔥 Dynamic Reviews Component
 const ReviewsSection = ({ listingId }) => {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -136,7 +173,7 @@ const ReviewsSection = ({ listingId }) => {
       } catch (err) {
         console.error('Reviews fetch error:', err);
         setError('Failed to load reviews');
-        setReviews([]); // Show empty state instead of error
+        setReviews([]);
       } finally {
         setLoading(false);
       }
@@ -145,13 +182,11 @@ const ReviewsSection = ({ listingId }) => {
     fetchReviews();
   }, [listingId]);
 
-  // 🎨 Helper function to get user initials for avatar
   const getInitials = (firstName) => {
     if (!firstName) return 'U';
     return firstName.charAt(0).toUpperCase();
   };
 
-  // 🎨 Helper function to format review date
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -165,7 +200,6 @@ const ReviewsSection = ({ listingId }) => {
     return `${Math.ceil(diffDays / 365)} years ago`;
   };
 
-  // 🎨 Star rating display
   const StarRating = ({ rating }) => (
     <div className="flex items-center gap-0.5">
       {[1, 2, 3, 4, 5].map((star) => (
@@ -219,7 +253,6 @@ const ReviewsSection = ({ listingId }) => {
         </div>
 
         {reviews.length === 0 ? (
-          // 🎨 Beautiful empty state
           <div className="text-center py-12">
             <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Star className="w-8 h-8 text-slate-400" />
@@ -234,7 +267,6 @@ const ReviewsSection = ({ listingId }) => {
             {reviews.map((review) => (
               <div key={review._id} className="border-b border-slate-100 last:border-b-0 pb-6 last:pb-0">
                 <div className="flex items-start gap-4">
-                  {/* 🎨 User Avatar */}
                   <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
                     <span className="text-white font-semibold text-sm">
                       {getInitials(review.customerId?.profile?.firstName)}
@@ -242,7 +274,6 @@ const ReviewsSection = ({ listingId }) => {
                   </div>
 
                   <div className="flex-1 min-w-0">
-                    {/* 🎨 User Info & Rating */}
                     <div className="flex items-center justify-between mb-2">
                       <div>
                         <h4 className="font-medium text-slate-900">
@@ -257,14 +288,12 @@ const ReviewsSection = ({ listingId }) => {
                       </div>
                     </div>
 
-                    {/* 🎨 Review Content */}
                     <div className="prose prose-sm prose-slate max-w-none">
                       <p className="text-slate-700 leading-relaxed">
                         {review.comment}
                       </p>
                     </div>
 
-                    {/* 🎨 Helpful votes (if you want to add this feature later) */}
                     {review.helpfulVotes > 0 && (
                       <div className="mt-3 flex items-center gap-2 text-xs text-slate-500">
                         <CheckCircle2 className="w-3 h-3" />
@@ -276,7 +305,6 @@ const ReviewsSection = ({ listingId }) => {
               </div>
             ))}
 
-            {/* 🎨 Show More Button */}
             {pagination && pagination.hasNext && (
               <div className="text-center pt-4">
                 <button className="px-6 py-2 text-sm text-slate-700 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors">
@@ -326,7 +354,6 @@ const ListingContent = ({ listing }) => {
     );
   };
 
-  // Keyboard support for gallery
   useEffect(() => {
     if (!listing?.images?.length) return;
     const onKey = (e) => {
@@ -350,111 +377,112 @@ const ListingContent = ({ listing }) => {
   );
 
   return (
-    <div className="space-y-8">
-      {/* Image Gallery (UNCHANGED) */}
-      <div className="flex flex-col lg:flex-row gap-3 h-auto lg:h-[420px]">
-        <div className="lg:w-2/3 relative overflow-hidden rounded-xl shadow-lg">
-          {listing.images && listing.images.length > 0 ? (
-            <SafeImage
-              className="w-full h-72 lg:h-full object-cover transition-transform duration-300 hover:scale-105"
-              src={listing.images[currentImageIndex]}
-              alt={`${listing.title} image ${currentImageIndex + 1}`}
-              loading="lazy"
-            />
-          ) : (
-            <ImagePlaceholder className="w-full h-72 lg:h-full" />
-          )}
-          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-6">
-            <div className="flex items-center justify-between">
-              <h1 className="text-white text-2xl lg:text-3xl font-bold">{listing.title}</h1>
-            </div>
-            <div className="mt-3 flex flex-wrap items-center gap-3 text-white/90 text-sm">
-              <div className="flex items-center gap-1.5">
-                <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                <span className="font-semibold">{listing.ratings?.average || 0}</span>
-                <span>({listing.ratings?.count || 0} reviews)</span>
+    <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
+      <div className="space-y-8">
+        {/* Image Gallery */}
+        <div className="flex flex-col lg:flex-row gap-3 h-auto lg:h-[420px]">
+          <div className="lg:w-2/3 relative overflow-hidden rounded-xl shadow-lg">
+            {listing.images && listing.images.length > 0 ? (
+              <SafeImage
+                className="w-full h-72 lg:h-full object-cover transition-transform duration-300 hover:scale-105"
+                src={listing.images[currentImageIndex]}
+                alt={`${listing.title} image ${currentImageIndex + 1}`}
+                loading="lazy"
+              />
+            ) : (
+              <ImagePlaceholder className="w-full h-72 lg:h-full" />
+            )}
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-6">
+              <div className="flex items-center justify-between">
+                <h1 className="text-white text-2xl lg:text-3xl font-bold">{listing.title}</h1>
               </div>
-              <div className="flex items-center gap-1.5">
-                <MapPin className="w-4 h-4" />
-                <span className="line-clamp-1">{(listing.serviceAreas || []).join(', ')}</span>
+              <div className="mt-3 flex flex-wrap items-center gap-3 text-white/90 text-sm">
+                <div className="flex items-center gap-1.5">
+                  <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                  <span className="font-semibold">{listing.ratings?.average || 0}</span>
+                  <span>({listing.ratings?.count || 0} reviews)</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <MapPin className="w-4 h-4" />
+                  <span className="line-clamp-1">{(listing.serviceAreas || []).join(', ')}</span>
+                </div>
               </div>
             </div>
+            {listing.images && listing.images.length > 0 && (
+              <div className="absolute top-4 right-4 bg-black/60 text-white text-xs px-3 py-1.5 rounded-full">
+                {currentImageIndex + 1}/{listing.images.length}
+              </div>
+            )}
           </div>
-          {listing.images && listing.images.length > 0 && (
-            <div className="absolute top-4 right-4 bg-black/60 text-white text-xs px-3 py-1.5 rounded-full">
-              {currentImageIndex + 1}/{listing.images.length}
+
+          {listing.images && listing.images.length > 1 && (
+            <div className="lg:w-1/3 flex flex-row lg:flex-col gap-2">
+              {listing.images.map((image, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  className={`relative overflow-hidden rounded-lg h-28 lg:h-1/2 flex-1 group transition-all duration-200 ${
+                    idx === currentImageIndex ? 'ring-2 ring-slate-900 ring-offset-2' : 'hover:ring-1 hover:ring-slate-300'
+                  }`}
+                  onClick={() => setCurrentImageIndex(idx)}
+                  aria-label={`View image ${idx + 1}`}
+                >
+                  <SafeImage
+                    className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+                    src={image}
+                    alt={`thumbnail ${idx + 1}`}
+                    loading="lazy"
+                  />
+                </button>
+              ))}
             </div>
           )}
         </div>
-        {/* Thumbnails */}
-        {listing.images && listing.images.length > 1 && (
-          <div className="lg:w-1/3 flex flex-row lg:flex-col gap-2">
-            {listing.images.map((image, idx) => (
-              <button
-                key={idx}
-                type="button"
-                className={`relative overflow-hidden rounded-lg h-28 lg:h-1/2 flex-1 group transition-all duration-200 ${
-                  idx === currentImageIndex ? 'ring-2 ring-slate-900 ring-offset-2' : 'hover:ring-1 hover:ring-slate-300'
-                }`}
-                onClick={() => setCurrentImageIndex(idx)}
-                aria-label={`View image ${idx + 1}`}
-              >
-                <SafeImage
-                  className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
-                  src={image}
-                  alt={`thumbnail ${idx + 1}`}
-                  loading="lazy"
-                />
-              </button>
-            ))}
+
+        {/* Assistance banner */}
+        <div className="p-4 rounded-xl ring-1 ring-slate-200 bg-slate-50 flex items-start gap-3">
+          <div className="shrink-0 mt-0.5 text-slate-500">
+            <PhoneCall className="w-5 h-5" />
           </div>
-        )}
+          <div className="text-sm leading-relaxed text-slate-700">
+            After booking, coordinators call within 10–15 minutes to confirm details and assist end‑to‑end.
+          </div>
+        </div>
+
+        {/* About */}
+        <Section title="About this service">
+          <p>{listing.description}</p>
+        </Section>
+
+        {/* Reviews */}
+        <ReviewsSection listingId={listing._id} />
+
+        {/* Service Location with Google Maps */}
+        <section className="bg-white rounded-xl ring-1 ring-slate-200">
+          <div className="p-6">
+            <h2 className="text-lg font-semibold tracking-tight text-slate-900">Service Location</h2>
+            <div className="mt-3">
+              <MapView listing={listing} />
+              <p className="mt-2 text-xs text-slate-500">
+                Map displays service areas. Click markers for details.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Service coverage note */}
+        <section className="bg-white rounded-xl">
+          <div className="p-4">
+            <div className="flex items-start gap-3 text-sm">
+              <Info className="w-4 h-4 mt-0.5" />
+              <p className="text-slate-700">
+                We provide comprehensive services inside the highlighted areas anywhere, and additional locations may be available on request; travel charges may apply.
+              </p>
+            </div>
+          </div>
+        </section>
       </div>
-
-      {/* Assistance banner */}
-      <div className="p-4 rounded-xl ring-1 ring-slate-200 bg-slate-50 flex items-start gap-3">
-        <div className="shrink-0 mt-0.5 text-slate-500">
-          <PhoneCall className="w-5 h-5" />
-        </div>
-        <div className="text-sm leading-relaxed text-slate-700">
-          After booking, coordinators call within 10–15 minutes to confirm details and assist end‑to‑end.
-        </div>
-      </div>
-
-      {/* About */}
-      <Section title="About this service">
-        <p>{listing.description}</p>
-      </Section>
-
-      {/* Features */}
-     
-
-      {/* 🔥 NEW: Dynamic Reviews Section */}
-      <ReviewsSection listingId={listing._id} />
-
-      {/* Service Location */}
-      <section className="bg-white rounded-xl ring-1 ring-slate-200">
-        <div className="p-6">
-          <h2 className="text-lg font-semibold tracking-tight text-slate-900">Service Location</h2>
-          <div className="mt-3">
-            <MapView listing={listing} />
-            <p className="mt-2 text-xs text-slate-500">Map auto‑centers to the areas served.</p>
-          </div>
-        </div>
-      </section>
-
-      {/* Service coverage note */}
-      <section className="bg-white rounded-xl">
-        <div className="p-4">
-          <div className="flex items-start gap-3 text-sm">
-            <Info className="w-4 h-4 mt-0.5" />
-            <p className="text-slate-700">
-              We provide comprehensive services inside the highlighted areas anywhere, and additional locations may be available on request; travel charges may apply.
-            </p>
-          </div>
-        </div>
-      </section>
-    </div>
+    </APIProvider>
   );
 };
 

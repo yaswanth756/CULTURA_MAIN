@@ -52,8 +52,6 @@ export default defineConfig({
           
           // Maps & Charts
           'maps-charts': [
-            'leaflet',
-            'react-leaflet',
             'recharts'
           ],
           

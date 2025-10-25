@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { buildApiUrl } from '../../utils/api'
-import { X, ChevronDown, Music, Camera, Utensils, Palette, Flower, Car, Headphones, Mic } from 'lucide-react'
+import { X, ChevronDown, Music, Camera, Utensils, Palette, Flower, Car, Headphones, Mic, Upload, Trash2, FileText, Image as ImageIcon } from 'lucide-react'
 import { toast } from 'react-toastify'
 import { useNavigate } from 'react-router-dom'
 
@@ -12,6 +12,7 @@ const Login = () => {
   const [showServiceMenu, setShowServiceMenu] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [otpExpiry, setOtpExpiry] = useState(null)
+  const [agreedToTerms, setAgreedToTerms] = useState(false)
   const navigate = useNavigate()
   
   const [vendorDetails, setVendorDetails] = useState({
@@ -20,7 +21,17 @@ const Login = () => {
     businessName: '',
     city: '',
     address: '',
-    services: []
+    services: [],
+    panImage: '',
+    aadhaarImage: '',
+    businessRegImage: ''
+  })
+
+  // Document upload states
+  const [documentUploads, setDocumentUploads] = useState({
+    pan: { preview: null, file: null, uploading: false, uploaded: false },
+    aadhaar: { preview: null, file: null, uploading: false, uploaded: false },
+    businessReg: { preview: null, file: null, uploading: false, uploaded: false }
   })
 
   // Services data with icons
@@ -40,18 +51,127 @@ const Login = () => {
   ]
 
   // E.164 helpers
-  const isE164 = (p) => /^\+[1-9]\d{1,14}$/.test(p) // strict E.164 [web:2]
+  const isE164 = (p) => /^\+[1-9]\d{1,14}$/.test(p)
   const normalizeToE164 = (raw) => {
     if (!raw) return ''
     const rawTrim = raw.trim()
-    const digitsPlus = rawTrim.replace(/[^\d+]/g, '') // keep + and digits
+    const digitsPlus = rawTrim.replace(/[^\d+]/g, '')
     const justDigits = digitsPlus.replace(/\D/g, '')
-    // Auto +91 for 10-digit Indian numbers starting 6–9
     if (!digitsPlus.startsWith('+') && /^\d{10}$/.test(justDigits) && /^[6-9]/.test(justDigits)) {
       return `+91${justDigits}`
     }
     if (digitsPlus.startsWith('+')) return digitsPlus
     return `+${justDigits}`
+  }
+
+  // Handle document file selection
+  const handleDocumentSelect = (docType, event) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    // Validate file type
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+    if (!validTypes.includes(file.type)) {
+      toast.error('Please upload a valid image file (JPG, PNG, or WebP)')
+      return
+    }
+
+    // Validate file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('File size must be less than 5MB')
+      return
+    }
+
+    // Create preview
+    const preview = URL.createObjectURL(file)
+    setDocumentUploads(prev => ({
+      ...prev,
+      [docType]: { ...prev[docType], preview, file, uploaded: false }
+    }))
+  }
+
+  // Upload document to server
+  const handleDocumentUpload = async (docType) => {
+    const doc = documentUploads[docType]
+    if (!doc.file) {
+      toast.error('Please select a file first')
+      return
+    }
+
+    setDocumentUploads(prev => ({
+      ...prev,
+      [docType]: { ...prev[docType], uploading: true }
+    }))
+
+    try {
+      const formData = new FormData()
+      formData.append('images', doc.file)
+
+      const response = await fetch(buildApiUrl('/api/upload/multiple'), {
+        method: 'POST',
+        body: formData
+      })
+
+      const data = await response.json()
+
+      if (data.success && data.urls && data.urls.length > 0) {
+        const imageUrl = data.urls[0].url
+        
+        // Update vendor details with the image URL
+        const fieldMap = {
+          pan: 'panImage',
+          aadhaar: 'aadhaarImage',
+          businessReg: 'businessRegImage'
+        }
+        
+        setVendorDetails(prev => ({
+          ...prev,
+          [fieldMap[docType]]: imageUrl
+        }))
+
+        setDocumentUploads(prev => ({
+          ...prev,
+          [docType]: { ...prev[docType], uploading: false, uploaded: true }
+        }))
+
+        toast.success('Document uploaded successfully!')
+      } else {
+        throw new Error('Upload failed')
+      }
+    } catch (error) {
+      console.error('Upload error:', error)
+      toast.error('Failed to upload document')
+      setDocumentUploads(prev => ({
+        ...prev,
+        [docType]: { ...prev[docType], uploading: false }
+      }))
+    }
+  }
+
+  // Delete document
+  const handleDocumentDelete = (docType) => {
+    const doc = documentUploads[docType]
+    if (doc.preview) {
+      URL.revokeObjectURL(doc.preview)
+    }
+
+    const fieldMap = {
+      pan: 'panImage',
+      aadhaar: 'aadhaarImage',
+      businessReg: 'businessRegImage'
+    }
+
+    setVendorDetails(prev => ({
+      ...prev,
+      [fieldMap[docType]]: ''
+    }))
+
+    setDocumentUploads(prev => ({
+      ...prev,
+      [docType]: { preview: null, file: null, uploading: false, uploaded: false }
+    }))
+
+    toast.info('Document removed')
   }
 
   // Step 1: Send OTP
@@ -127,6 +247,22 @@ const Login = () => {
         toast.error('Please select at least one service')
         return
       }
+      if (!vendorDetails.panImage) {
+        toast.error('Please upload PAN card image')
+        return
+      }
+      if (!vendorDetails.aadhaarImage) {
+        toast.error('Please upload Aadhaar card image')
+        return
+      }
+      if (!vendorDetails.businessRegImage) {
+        toast.error('Please upload Business Registration document')
+        return
+      }
+      if (!agreedToTerms) {
+        toast.error('You must agree to the Terms and Conditions to sign up')
+        return
+      }
     }
 
     setIsLoading(true)
@@ -144,8 +280,12 @@ const Login = () => {
           businessName: vendorDetails.businessName.trim(),
           city: vendorDetails.city.trim(),
           address: vendorDetails.address.trim(),
-          services: vendorDetails.services
+          services: vendorDetails.services,
+          panImage: vendorDetails.panImage,
+          aadhaarImage: vendorDetails.aadhaarImage,
+          businessRegImage: vendorDetails.businessRegImage
         }
+        requestBody.agreedToTerms = agreedToTerms
       }
 
       const response = await fetch(buildApiUrl('/api/vendor/verify-otp'), {
@@ -159,9 +299,9 @@ const Login = () => {
         localStorage.setItem('vendorToken', data.token)
         localStorage.setItem('vendorUser', JSON.stringify(data.user))
         toast.success(data.message)
-        const redirectPath =  "/vendor/dashboard";
-        navigate(redirectPath, { replace: true });
-        window.location.reload();
+        const redirectPath = "/vendor/dashboard"
+        navigate(redirectPath, { replace: true })
+        window.location.reload()
       } else {
         toast.error(data.message || 'Verification failed')
       }
@@ -224,17 +364,97 @@ const Login = () => {
     return `${selectedServices.length} Selected`
   }
 
-  const getSelectedServicesPills = () => {
-    const selectedServices = vendorDetails.services || []
-    return selectedServices.map(serviceValue => {
-      const service = services.find(s => s.value === serviceValue)
-      return service ? { ...service, value: serviceValue } : null
-    }).filter(Boolean)
+  // Document Upload Component
+  const DocumentUploadField = ({ docType, label, icon: Icon }) => {
+    const doc = documentUploads[docType]
+    const fileInputRef = React.useRef(null)
+
+    return (
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-gray-700">
+          {label} <span className="text-red-500">*</span>
+        </label>
+        
+        {!doc.preview ? (
+          <div
+            onClick={() => fileInputRef.current?.click()}
+            className="border-2 border-dashed border-gray-300 rounded-2xl p-6 text-center cursor-pointer hover:border-anzac-400 transition-all bg-gray-50 hover:bg-gray-100"
+          >
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={(e) => handleDocumentSelect(docType, e)}
+              className="hidden"
+              disabled={isLoading}
+            />
+            <div className="flex flex-col items-center gap-2">
+              <div className="w-12 h-12 rounded-full bg-anzac-100 flex items-center justify-center">
+                <Icon className="w-6 h-6 text-anzac-600" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-700">Click to upload {label}</p>
+                <p className="text-xs text-gray-500 mt-1">JPG, PNG or WebP (Max 5MB)</p>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="relative border-2 border-gray-200 rounded-2xl p-4 bg-white">
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden bg-gray-100">
+                <img
+                  src={doc.preview}
+                  alt={label}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-900 truncate">
+                  {doc.file?.name}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {(doc.file?.size / 1024).toFixed(2)} KB
+                </p>
+                {doc.uploaded && (
+                  <div className="flex items-center gap-1 mt-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span className="text-xs text-green-600 font-medium">Uploaded</span>
+                  </div>
+                )}
+                <div className="flex gap-2 mt-3">
+                  {!doc.uploaded && !doc.uploading && (
+                    <button
+                      type="button"
+                      onClick={() => handleDocumentUpload(docType)}
+                      disabled={isLoading}
+                      className="text-xs px-3 py-1.5 bg-anzac-500 text-white rounded-lg hover:bg-anzac-600 transition-colors disabled:opacity-50"
+                    >
+                      Upload
+                    </button>
+                  )}
+                  {doc.uploading && (
+                    <span className="text-xs text-gray-500 px-3 py-1.5">Uploading...</span>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => handleDocumentDelete(docType)}
+                    disabled={isLoading || doc.uploading}
+                    className="text-xs px-3 py-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    )
   }
 
   return (
-    <div className="flex min-h-screen justify-center items-center bg-gray-50 relative">
-      <div className='space-y-6 max-w-md w-full mx-4 mt-2'>
+    <div className="flex min-h-screen justify-center items-center bg-gray-50 relative py-8 ">
+      <div className='space-y-6 mx-4'>
         <div className="flex items-center gap-3 justify-center">
           <img
             src="https://ik.imagekit.io/jezimf2jod/WhatsApp%20Image%202025-09-11%20at%201.01.04%20PM.jpeg"
@@ -286,12 +506,12 @@ const Login = () => {
                     {isNewVendor ? 'Complete Registration' : 'Verify OTP'}
                   </h2>
                   <p className="text-sm text-gray-600">
-                    OTP sent to <span className="font-medium">{email}</span>
+                    OTP sent to <span className="font-medium text-anzac-500">{email}</span>
                   </p>
                 </div>
                 
-                <div className="space-y-4">
-                  {/* OTP Field - Always shown */}
+                <div className="space-y-5">
+                  {/* OTP Field */}
                   <div>
                     <label htmlFor="otp" className="block text-sm font-medium text-gray-700 mb-2">
                       Verification Code
@@ -309,14 +529,14 @@ const Login = () => {
                     />
                   </div>
                   
-                  {/* Additional fields for new vendors only */}
+                  {/* New Vendor Fields */}
                   {isNewVendor && (
-                    <div className="space-y-4 pt-2 border-t border-gray-100">
+                    <div className="space-y-5 pt-4 border-t border-gray-100">
+                      {/* Basic Info */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {/* Full Name */}
                         <div>
                           <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">
-                            Full Name
+                            Full Name <span className="text-red-500">*</span>
                           </label>
                           <input
                             type="text"
@@ -330,10 +550,9 @@ const Login = () => {
                           />
                         </div>
 
-                        {/* Phone */}
                         <div>
                           <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-                            Phone
+                            Phone <span className="text-red-500">*</span>
                           </label>
                           <input
                             type="tel"
@@ -344,15 +563,12 @@ const Login = () => {
                             placeholder="+91 9876543210"
                             required
                             disabled={isLoading}
-                            pattern={'^\\+[1-9]\\d{1,14}$'}
-                            title="Use E.164 format like +919876543210"
                           />
                         </div>
 
-                        {/* Business Name */}
                         <div>
                           <label htmlFor="businessName" className="block text-sm font-medium text-gray-700 mb-2">
-                            Business Name
+                            Business Name <span className="text-red-500">*</span>
                           </label>
                           <input
                             type="text"
@@ -366,10 +582,9 @@ const Login = () => {
                           />
                         </div>
 
-                        {/* City */}
                         <div>
                           <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-2">
-                            City
+                            City <span className="text-red-500">*</span>
                           </label>
                           <input
                             type="text"
@@ -382,52 +597,92 @@ const Login = () => {
                             disabled={isLoading}
                           />
                         </div>
+                      </div>
 
-                        {/* Address */}
-                        <div>
-                          <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-2">
-                            Address
-                          </label>
-                          <input
-                            type="text"
-                            id="address"
-                            value={vendorDetails.address}
-                            onChange={(e) => handleDetailChange('address', e.target.value)}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-anzac-500 focus:border-transparent outline-none transition-all"
-                            placeholder="Street, Area, Landmark"
-                            required
-                            disabled={isLoading}
+                      <div>
+                        <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-2">
+                          Address <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          id="address"
+                          value={vendorDetails.address}
+                          onChange={(e) => handleDetailChange('address', e.target.value)}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-anzac-500 focus:border-transparent outline-none transition-all"
+                          placeholder="Street, Area, Landmark"
+                          required
+                          disabled={isLoading}
+                        />
+                      </div>
+
+                      {/* Services */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Services Offered <span className="text-red-500">*</span>
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => setShowServiceMenu(true)}
+                          disabled={isLoading}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-anzac-500 focus:border-transparent outline-none transition-all text-left flex items-center justify-between hover:border-gray-400 disabled:opacity-50"
+                        >
+                          <span className={vendorDetails.services?.length ? 'text-gray-900' : 'text-gray-500'}>
+                            {getSelectedServicesText()}
+                          </span>
+                          <ChevronDown className="w-4 h-4 text-gray-400" />
+                        </button>
+                      </div>
+
+                      {/* Document Uploads Section */}
+                      <div className="space-y-4 pt-4 border-t border-gray-100">
+                        <h3 className="text-sm font-semibold text-gray-900">Upload Documents</h3>
+                        <p className="text-xs text-gray-600 -mt-2">Please upload clear images of the following documents</p>
+                        
+                        <div className="gap-5 space-y-2">
+                          <DocumentUploadField 
+                            docType="pan" 
+                            label="PAN Card" 
+                            icon={FileText}
+                          />
+                          <DocumentUploadField 
+                            docType="aadhaar" 
+                            label="Aadhaar Card" 
+                            icon={FileText}
+                          />
+                          <DocumentUploadField 
+                            docType="businessReg" 
+                            label="Business Registration" 
+                            icon={FileText}
                           />
                         </div>
+                      </div>
 
-                        {/* Services Offered */}
-                        <div className="relative">
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Services Offered <span className="text-red-500">*</span>
-                          </label>
-
-                          {/* Selected Services Pills */}
-                        
-
-                          {/* Services Selector Button */}
-                          <button
-                            type="button"
-                            onClick={() => setShowServiceMenu(true)}
-                            disabled={isLoading}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-anzac-500 focus:border-transparent outline-none transition-all text-left flex items-center justify-between hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
-                            <span className={vendorDetails.services?.length ? 'text-gray-900' : 'text-gray-500'}>
-                              {getSelectedServicesText()}
-                            </span>
-                            <ChevronDown className="w-4 h-4 text-gray-400" />
-                          </button>
-                        </div>
+                      {/* Terms Checkbox */}
+                      <div className="flex items-start gap-2 pt-2">
+                        <input
+                          type="checkbox"
+                          id="terms"
+                          checked={agreedToTerms}
+                          onChange={(e) => setAgreedToTerms(e.target.checked)}
+                          className="mt-1 w-4 h-4 text-anzac-500 border-gray-300 rounded focus:ring-anzac-500"
+                          disabled={isLoading}
+                        />
+                        <label htmlFor="terms" className="text-sm text-gray-600">
+                          I agree to the{' '}
+                          <a href="/terms-and-conditions" target="_blank" className="text-anzac-500 hover:text-anzac-600 underline">
+                            Terms and Conditions
+                          </a>
+                          {' '}and{' '}
+                          <a href="/privacy-policy" target="_blank" className="text-anzac-500 hover:text-anzac-600 underline">
+                            Privacy Policy
+                          </a>
+                        </label>
                       </div>
                     </div>
                   )}
                 </div>
                 
-                <div className="space-y-3">
+                <div className="space-y-3 pt-2">
                   <button
                     type="submit"
                     disabled={isLoading}
@@ -444,6 +699,7 @@ const Login = () => {
                     ← Back to email
                   </button>
                 </div>
+                
                 <div className="text-center">
                   <button
                     type="button"
@@ -461,9 +717,9 @@ const Login = () => {
           <div className="px-8 py-4 bg-gray-50 border-t border-gray-100 rounded-b-2xl">
             <p className="text-xs text-gray-500 text-center">
               By continuing, you agree to our{' '}
-              <a href="#" className="text-anzac-500 hover:text-anzac-600">Terms of Service</a>
+              <a href="/terms-and-conditions" target="_blank" rel="noopener noreferrer" className="text-anzac-500 hover:text-anzac-600">Terms of Service</a>
               {' '}and{' '}
-              <a href="#" className="text-anzac-500 hover:text-anzac-600">Privacy Policy</a>
+              <a href="/privacy-policy" target='_blank' className="text-anzac-500 hover:text-anzac-600">Privacy Policy</a>
             </p>
           </div>
         </div>
@@ -492,7 +748,7 @@ const Login = () => {
             <div className="p-6 overflow-y-auto max-h-[60vh]">
               <ul className="flex flex-wrap gap-3">
                 {services.map(({ value, label, icon: Icon }) => {
-                  const isSelected = vendorDetails.services?.includes(value);
+                  const isSelected = vendorDetails.services?.includes(value)
                   return (
                     <li key={value}>
                       <button
@@ -508,7 +764,7 @@ const Login = () => {
                         <span>{label}</span>
                       </button>
                     </li>
-                  );
+                  )
                 })}
               </ul>
             </div>

@@ -4,7 +4,6 @@ import { ArrowLeft } from "lucide-react";
 import AOS from "aos";
 import "aos/dist/aos.css";
 
-
 import ListingContent from "../components/ListingDeatilPage/ListingContent";
 import { buildApiUrl } from "../utils/api";
 import BookingForm from "../components/ListingDeatilPage/BookingForm";
@@ -26,7 +25,6 @@ const ListingDetails = () => {
   // Fetch listing data
   useEffect(() => {
     const fetchListing = async () => {
-      // Prevent double fetching in React StrictMode
       if (hasFetchedRef.current) return;
       hasFetchedRef.current = true;
 
@@ -53,6 +51,31 @@ const ListingDetails = () => {
     }
   }, [id]);
 
+  const handleReserveClick = () => {
+    // Scroll to booking form on desktop, or trigger booking action
+    const bookingForm = document.getElementById('booking-form');
+    if (bookingForm) {
+      bookingForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  const formatPrice = (listing) => {
+    if (!listing?.price?.base) return "Contact for price";
+    const formatted = `₹${Number(listing.price.base).toLocaleString()}`;
+    switch (listing.price.type) {
+      case "per_person":
+        return `${formatted}/person`;
+      case "per_day":
+        return `${formatted}/day`;
+      case "per_hour":
+        return `${formatted}/hour`;
+      case "per_event":
+        return `${formatted}/event`;
+      default:
+        return formatted;
+    }
+  };
+
   // Loading state
   if (loading) {
     return (
@@ -66,10 +89,7 @@ const ListingDetails = () => {
   if (error || !listing) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div
-          className="text-center max-w-md mx-auto px-4"
-          data-aos="fade-up"
-        >
+        <div className="text-center max-w-md mx-auto px-4" data-aos="fade-up">
           <div className="bg-white p-8 rounded-xl shadow-sm">
             <h2 className="text-xl font-semibold text-gray-900 mb-2">
               Listing Not Found
@@ -93,19 +113,37 @@ const ListingDetails = () => {
   // Success state
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 mb:pb-24 lg:pb-6">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* LEFT SIDE - Content */}
           <div className="lg:w-2/3" data-aos="fade-right">
             <ListingContent listing={listing} />
           </div>
 
-          {/* RIGHT SIDE - Booking Form */}
-          <div className="lg:w-1/3" data-aos="fade-left">
-            <BookingForm listing={listing} />
+          {/* RIGHT SIDE - Booking Form (Hidden on mobile) */}
+          <div className="hidden lg:block lg:w-1/3" data-aos="fade-left">
+            <div className="sm:sticky sm:top-28" id="booking-form">
+              <BookingForm listing={listing} />
+            </div>
           </div>
         </div>
       </div>
+
+      {/* STICKY BOTTOM BAR - Mobile Only (Airbnb Style) */}
+     
+
+      {/* Mobile Booking Form Modal (appears when Reserve is clicked) */}
+      <div className="lg:hidden" id="booking-form">
+        <BookingForm listing={listing} />
+      </div>
+
+      <style jsx>{`
+        @supports (padding-bottom: env(safe-area-inset-bottom)) {
+          .pb-safe {
+            padding-bottom: calc(env(safe-area-inset-bottom) + 12px);
+          }
+        }
+      `}</style>
     </div>
   );
 };
