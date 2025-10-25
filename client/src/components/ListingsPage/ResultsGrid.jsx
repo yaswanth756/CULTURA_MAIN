@@ -237,7 +237,7 @@ const ResultsGrid = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Location Selector */}
-      <div className="flex py-2 px-7 gap-4 overflow-x-auto justify-between sticky top-[10.5%] z-20 bg-gray-100">
+      <div className="flex py-2 px-7 gap-4 overflow-x-auto justify-between sticky top-[9.5%] sm:top-[11.85%] z-20 bg-gray-100">
         {popularCitiesApTs.map((city) => (
           <button
             key={city}

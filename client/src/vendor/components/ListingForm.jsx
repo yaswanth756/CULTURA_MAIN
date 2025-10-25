@@ -7,8 +7,6 @@ import { toast } from "react-toastify";
 import {
   X,
   Save,
-  Plus,
-  Tag,
   MapPin,
   Image as ImageIcon,
   FileText,
@@ -30,8 +28,6 @@ const ListingForm = ({ onCancel, onSubmit }) => {
     currency: "INR",
     images: [],
     serviceAreas: "",
-    features: "",
-    tags: "",
   });
   const [isLoading, setIsLoading] = useState(false);
   const [uploadLoading, setUploadLoading] = useState(false);
@@ -91,23 +87,18 @@ const ListingForm = ({ onCancel, onSubmit }) => {
       let newUrls = [];
 
       if (files.length === 1) {
-        // Single file upload
         const url = await handleSingleFileUpload(files[0]);
         newUrls = [url];
       } else {
-        // Multiple files upload
         newUrls = await handleMultipleFilesUpload(files);
       }
 
-      // Add new URLs to existing images
       setForm((p) => ({ 
         ...p, 
         images: [...p.images, ...newUrls] 
       }));
 
       toast.success(`${files.length} image(s) uploaded successfully!`);
-
-      // Clear file input
       e.target.value = '';
 
     } catch (error) {
@@ -155,19 +146,13 @@ const ListingForm = ({ onCancel, onSubmit }) => {
           type: form.priceType,
           currency: form.currency,
         },
-        images: form.images, // Now contains Cloudinary URLs
+        images: form.images,
         serviceAreas: form.serviceAreas
           .split(",")
           .map((s) => s.trim())
           .filter(Boolean),
-        features: form.features
-          .split(",")
-          .map((s) => s.trim())
-          .filter(Boolean),
-        tags: form.tags
-          .split(",")
-          .map((s) => s.trim().toLowerCase())
-          .filter(Boolean),
+        features: [], // Silent - empty array
+        tags: [], // Silent - empty array
       };
       
       const token = localStorage.getItem("vendorToken");
@@ -213,7 +198,7 @@ const ListingForm = ({ onCancel, onSubmit }) => {
 
       {/* Modal */}
       <div className="absolute inset-0 p-4 md:p-8 grid place-items-center pointer-events-none">
-        <div className="pointer-events-auto bg-white w-full max-w-3xl rounded-2xl border shadow-2xl overflow-hidden">
+        <div className="pointer-events-auto bg-white w-full max-w-3xl rounded-2xl border shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b bg-gray-50">
             <h4 className="font-semibold text-gray-900 text-lg">Add New Listing</h4>
@@ -226,12 +211,12 @@ const ListingForm = ({ onCancel, onSubmit }) => {
             </button>
           </div>
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          {/* Form - Scrollable */}
+          <form onSubmit={handleSubmit} className="p-6 space-y-6 overflow-y-auto">
             {/* Basic info */}
             <div className="grid md:grid-cols-2 gap-5">
               <div>
-                <label className="text-sm text-gray-700 flex items-center gap-1">
+                <label className="text-sm font-medium text-gray-700 flex items-center gap-1 mb-2">
                   <Package className="w-4 h-4 text-gray-500" /> Title *
                 </label>
                 <input
@@ -240,13 +225,13 @@ const ListingForm = ({ onCancel, onSubmit }) => {
                     setForm((p) => ({ ...p, title: e.target.value }))
                   }
                   disabled={isLoading || uploadLoading}
-                  className="mt-1 w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-gray-900/10 outline-none disabled:opacity-50"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900/10 focus:border-gray-900 outline-none disabled:opacity-50 disabled:bg-gray-50"
                   placeholder="Cinematic Wedding Photography"
                   maxLength={150}
                 />
               </div>
               <div>
-                <label className="text-sm text-gray-700 flex items-center gap-1">
+                <label className="text-sm font-medium text-gray-700 flex items-center gap-1 mb-2">
                   <Layers className="w-4 h-4 text-gray-500" /> Category *
                 </label>
                 <select
@@ -255,7 +240,7 @@ const ListingForm = ({ onCancel, onSubmit }) => {
                     setForm((p) => ({ ...p, category: e.target.value }))
                   }
                   disabled={isLoading || uploadLoading}
-                  className="mt-1 w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-gray-900/10 outline-none disabled:opacity-50"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900/10 focus:border-gray-900 outline-none disabled:opacity-50 disabled:bg-gray-50"
                 >
                   <option value="venues">Venues</option>
                   <option value="catering">Catering</option>
@@ -274,20 +259,22 @@ const ListingForm = ({ onCancel, onSubmit }) => {
             {/* Subcategory + Price */}
             <div className="grid md:grid-cols-2 gap-5">
               <div>
-                <label className="text-sm text-gray-700">Subcategory *</label>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                  Subcategory *
+                </label>
                 <input
                   value={form.subcategory}
                   onChange={(e) =>
                     setForm((p) => ({ ...p, subcategory: e.target.value }))
                   }
                   disabled={isLoading || uploadLoading}
-                  className="mt-1 w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-gray-900/10 outline-none disabled:opacity-50"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900/10 focus:border-gray-900 outline-none disabled:opacity-50 disabled:bg-gray-50"
                   placeholder="wedding, reception, sangeet…"
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-sm text-gray-700 flex items-center gap-1">
+                  <label className="text-sm font-medium text-gray-700 flex items-center gap-1 mb-2">
                     <IndianRupee className="w-4 h-4 text-gray-500" /> Price *
                   </label>
                   <input
@@ -298,19 +285,21 @@ const ListingForm = ({ onCancel, onSubmit }) => {
                       setForm((p) => ({ ...p, priceBase: e.target.value }))
                     }
                     disabled={isLoading || uploadLoading}
-                    className="mt-1 w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-gray-900/10 outline-none disabled:opacity-50"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900/10 focus:border-gray-900 outline-none disabled:opacity-50 disabled:bg-gray-50"
                     placeholder="10000"
                   />
                 </div>
                 <div>
-                  <label className="text-sm text-gray-700">Price Type *</label>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">
+                    Price Type *
+                  </label>
                   <select
                     value={form.priceType}
                     onChange={(e) =>
                       setForm((p) => ({ ...p, priceType: e.target.value }))
                     }
                     disabled={isLoading || uploadLoading}
-                    className="mt-1 w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-gray-900/10 outline-none disabled:opacity-50"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900/10 focus:border-gray-900 outline-none disabled:opacity-50 disabled:bg-gray-50"
                   >
                     <option value="per_event">Per event</option>
                     <option value="per_person">Per person</option>
@@ -323,7 +312,7 @@ const ListingForm = ({ onCancel, onSubmit }) => {
 
             {/* Description */}
             <div>
-              <label className="text-sm text-gray-700 flex items-center gap-1">
+              <label className="text-sm font-medium text-gray-700 flex items-center gap-1 mb-2">
                 <FileText className="w-4 h-4 text-gray-500" /> Description *
               </label>
               <textarea
@@ -331,64 +320,39 @@ const ListingForm = ({ onCancel, onSubmit }) => {
                 onChange={(e) =>
                   setForm((p) => ({ ...p, description: e.target.value }))
                 }
-                rows={2}
+                rows={3}
                 disabled={isLoading || uploadLoading}
                 maxLength={1000}
-                className="mt-1 w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-gray-900/10 outline-none disabled:opacity-50"
-                placeholder="Describe the service, inclusions, options…"
+                className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900/10 focus:border-gray-900 outline-none disabled:opacity-50 disabled:bg-gray-50 resize-none"
+                placeholder="Describe your service, what's included, packages available…"
               />
               <div className="text-xs text-gray-500 mt-1">
                 {form.description.length}/1000 characters
               </div>
             </div>
 
-            {/* Service Areas / Features / Tags */}
-            <div className="grid md:grid-cols-3 gap-5">
-              <div>
-                <label className="text-sm text-gray-700 flex items-center gap-1">
-                  <MapPin className="w-4 h-4 text-gray-500" /> Service Areas
-                </label>
-                <input
-                  value={form.serviceAreas}
-                  onChange={(e) =>
-                    setForm((p) => ({ ...p, serviceAreas: e.target.value }))
-                  }
-                  disabled={isLoading || uploadLoading}
-                  className="mt-1 w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-gray-900/10 outline-none disabled:opacity-50"
-                  placeholder="Hyderabad, Secunderabad"
-                />
-              </div>
-              <div>
-                <label className="text-sm text-gray-700">Features</label>
-                <input
-                  value={form.features}
-                  onChange={(e) =>
-                    setForm((p) => ({ ...p, features: e.target.value }))
-                  }
-                  disabled={isLoading || uploadLoading}
-                  className="mt-1 w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-gray-900/10 outline-none disabled:opacity-50"
-                  placeholder="2 shooters, teaser film"
-                />
-              </div>
-              <div>
-                <label className="text-sm text-gray-700 flex items-center gap-1">
-                  <Tag className="w-4 h-4 text-gray-500" /> Tags
-                </label>
-                <input
-                  value={form.tags}
-                  onChange={(e) =>
-                    setForm((p) => ({ ...p, tags: e.target.value }))
-                  }
-                  disabled={isLoading || uploadLoading}
-                  className="mt-1 w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-gray-900/10 outline-none disabled:opacity-50"
-                  placeholder="cinematic, drone, teaser"
-                />
-              </div>
+            {/* Service Areas */}
+            <div>
+              <label className="text-sm font-medium text-gray-700 flex items-center gap-1 mb-2">
+                <MapPin className="w-4 h-4 text-gray-500" /> Service Areas
+              </label>
+              <input
+                value={form.serviceAreas}
+                onChange={(e) =>
+                  setForm((p) => ({ ...p, serviceAreas: e.target.value }))
+                }
+                disabled={isLoading || uploadLoading}
+                className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-900/10 focus:border-gray-900 outline-none disabled:opacity-50 disabled:bg-gray-50"
+                placeholder="Hyderabad, Secunderabad, Gachibowli"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Separate multiple areas with commas
+              </p>
             </div>
 
             {/* Images Upload Section */}
             <div>
-              <label className="text-sm text-gray-700 flex items-center gap-1 mb-3">
+              <label className="text-sm font-medium text-gray-700 flex items-center gap-1 mb-3">
                 <ImageIcon className="w-4 h-4 text-gray-500" /> 
                 Images ({form.images.length})
               </label>
@@ -399,17 +363,17 @@ const ListingForm = ({ onCancel, onSubmit }) => {
                   <input
                     type="file"
                     multiple
-                    accept="image/*,video/*"
+                    accept="image/*"
                     onChange={handleFileChange}
                     disabled={isLoading || uploadLoading}
                     className="hidden"
                   />
                   <div className={`
-                    inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-dashed 
+                    inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 border-dashed 
                     transition-colors text-sm font-medium
                     ${uploadLoading 
                       ? 'border-blue-300 bg-blue-50 text-blue-600 cursor-not-allowed' 
-                      : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50 text-gray-700'
+                      : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50 text-gray-700 cursor-pointer'
                     }
                   `}>
                     {uploadLoading ? (
@@ -420,69 +384,69 @@ const ListingForm = ({ onCancel, onSubmit }) => {
                     ) : (
                       <>
                         <Upload className="w-4 h-4" />
-                        Upload Images/Videos
+                        Upload Images
                       </>
                     )}
                   </div>
                 </label>
-                <p className="text-xs text-gray-500 mt-1">
-                  Select multiple files. Max 10MB per file. Supports images
+                <p className="text-xs text-gray-500 mt-2">
+                  Select multiple files. Max 10MB per file. JPG, PNG supported.
                 </p>
               </div>
 
               {/* Image Preview Grid */}
               {form.images.length > 0 && (
                 <div className="grid grid-cols-4 md:grid-cols-6 gap-3">
-                  {/* Image Preview Grid - SMALLER VERSION */}
-                    {form.images.length > 0 && (
-                      <div className="grid grid-cols-6 md:grid-cols-8 gap-2">
-                        {form.images.map((src, i) => (
-                          <div
-                            key={i}
-                            className="relative group aspect-square rounded-lg border overflow-hidden shadow-sm bg-gray-100 w-20 h-20"
-                          >
-                            <img 
-                              src={src} 
-                              alt={`Upload ${i + 1}`} 
-                              className="w-full h-full object-cover"
-                              onError={(e) => {
-                                e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f3f4f6"/><text x="50" y="50" text-anchor="middle" dy=".3em" fill="%236b7280">Error</text></svg>';
-                              }}
-                            />
-                            <button
-                              type="button"
-                              onClick={() => removeImage(i)}
-                              disabled={isLoading || uploadLoading}
-                              className="absolute top-0.5 right-0.5 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 disabled:opacity-50"
-                            >
-                              <Trash2 className="w-2.5 h-2.5" />
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
+                  {form.images.map((src, i) => (
+                    <div
+                      key={i}
+                      className="relative group aspect-square rounded-lg border border-gray-200 overflow-hidden shadow-sm bg-gray-100 hover:shadow-md transition-shadow"
+                    >
+                      <img 
+                        src={src} 
+                        alt={`Upload ${i + 1}`} 
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f3f4f6"/><text x="50" y="50" text-anchor="middle" dy=".3em" fill="%236b7280" font-size="12">Error</text></svg>';
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(i)}
+                        disabled={isLoading || uploadLoading}
+                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 disabled:opacity-50 shadow-md"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
                 </div>
               )}
 
               {/* Empty State */}
-              
+              {form.images.length === 0 && (
+                <div className="border-2 border-dashed border-gray-200 rounded-xl p-8 text-center">
+                  <ImageIcon className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                  <p className="text-sm text-gray-500">No images uploaded yet</p>
+                  <p className="text-xs text-gray-400 mt-1">Upload images to showcase your service</p>
+                </div>
+              )}
             </div>
 
             {/* Actions */}
-            <div className="flex items-center justify-end gap-3 pt-4 border-t">
+            <div className="flex items-center  justify-center sm:justify-end gap-3 pt-4 border-t">
               <button
                 type="button"
                 onClick={onCancel}
                 disabled={isLoading || uploadLoading}
-                className="px-4 py-2 rounded-xl border text-sm font-medium hover:bg-gray-50 transition disabled:opacity-50"
+                className="px-5 py-2.5 rounded-xl border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 transition disabled:opacity-50"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isLoading || uploadLoading}
-                className="px-4 py-2 rounded-xl bg-gray-900 text-white text-sm font-medium hover:bg-gray-800 transition disabled:opacity-50 flex items-center gap-2"
+                className="px-5 py-2.5 rounded-xl bg-gray-900 text-white text-sm font-medium hover:bg-gray-800 transition disabled:opacity-50 flex items-center gap-2 shadow-sm"
               >
                 {isLoading ? (
                   <>
@@ -491,7 +455,7 @@ const ListingForm = ({ onCancel, onSubmit }) => {
                   </>
                 ) : (
                   <>
-                    <Save className="w-4 h-4" /> Save Listing
+                    <Save className="w-4 h-4" /> Create Listing
                   </>
                 )}
               </button>

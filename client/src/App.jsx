@@ -103,6 +103,7 @@ function App() {
             <Route path="analytics" element={<VendorAnalyticsPage />} />
           </Route>
         </Route>
+        <Route path="/all-services" element={<Navigate to="/browse" replace />} />
       </Routes>
     </Suspense>
   );

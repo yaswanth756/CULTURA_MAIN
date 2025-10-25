@@ -5,60 +5,59 @@ import axios from 'axios';
 import { buildApiUrl } from '../../utils/api';
 import { toast } from 'react-toastify';
 import PendingNotice from '../components/PendingNotice';
-import { Plus, Search } from 'lucide-react';
+import { Plus, Search, X } from 'lucide-react';
 import ListingCard from '../components/ListingCard';
 import ListingModal from '../components/ListingModal';
 import ListingForm from '../components/ListingForm';
 
 // Skeletons
 const SkeletonBar = ({ className = '' }) => (
-  <div className={`bg-gray-200 rounded ${className}`} />
+  <div className={`bg-gray-200 rounded animate-pulse ${className}`} />
 );
 
 const SkeletonPill = () => (
-  <div className="relative max-w-xl">
-    <div className="w-full h-12 rounded-full bg-gray-200" />
+  <div className="relative">
+    <div className="w-full h-10 sm:h-12 rounded-full bg-gray-200 animate-pulse" />
   </div>
 );
 
 const SkeletonCard = () => (
-  <div className="bg-white border rounded-xl p-3">
-    <div className="h-40 bg-gray-200 rounded-lg" />
+  <div className="bg-white border border-gray-200 rounded-xl sm:rounded-2xl p-3 sm:p-4 animate-pulse">
+    <div className="h-32 sm:h-40 bg-gray-200 rounded-lg" />
     <div className="mt-3 space-y-2">
       <SkeletonBar className="h-4 w-3/5" />
       <SkeletonBar className="h-3 w-4/5" />
       <div className="flex gap-2 mt-2">
         <SkeletonBar className="h-6 w-16 rounded-full" />
         <SkeletonBar className="h-6 w-20 rounded-full" />
-        <SkeletonBar className="h-6 w-14 rounded-full" />
       </div>
       <div className="flex items-center justify-between mt-3">
         <SkeletonBar className="h-4 w-20" />
-        <SkeletonBar className="h-8 w-24 rounded-full" />
+        <SkeletonBar className="h-8 w-20 rounded-lg" />
       </div>
     </div>
   </div>
 );
 
 const ListingsSkeleton = () => (
-  <div className="space-y-5 animate-pulse">
+  <div className="space-y-4 sm:space-y-5">
     {/* Header row */}
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-      <div className="space-y-2">
-        <SkeletonBar className="h-5 w-40" />
-        <SkeletonBar className="h-3 w-56" />
+    <div className="flex items-center justify-between">
+      <div className="space-y-1.5">
+        <SkeletonBar className="h-6 sm:h-7 w-32 sm:w-40" />
+        <SkeletonBar className="h-3 sm:h-4 w-40 sm:w-56" />
       </div>
-      <SkeletonBar className="h-10 w-24 rounded-3xl" />
+      <SkeletonBar className="h-9 sm:h-10 w-20 sm:w-28 rounded-full" />
     </div>
 
     {/* Search pill */}
     <SkeletonPill />
 
     {/* Meta line */}
-    <SkeletonBar className="h-3 w-44" />
+    <SkeletonBar className="h-3 w-36 sm:w-44" />
 
     {/* Grid */}
-    <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-5">
+    <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {Array.from({ length: 6 }).map((_, i) => (
         <SkeletonCard key={i} />
       ))}
@@ -171,68 +170,86 @@ const ListingsPage = () => {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4 sm:space-y-5">
       {/* Header row */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-gray-900">My Listings</h2>
-          <p className="text-sm text-gray-500">Manage your service offerings</p>
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900">My Listings</h2>
+          <p className="text-xs sm:text-sm text-gray-500 mt-0.5">Manage your service offerings</p>
         </div>
         <button
           onClick={() => setShowForm(true)}
-          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-3xl bg-anzac-500 text-white text-sm hover:bg-anzac-600"
+          className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-full bg-anzac-500 text-white text-xs sm:text-sm font-medium hover:bg-anzac-600 transition-colors shadow-sm active:scale-95"
         >
-          <Plus className="w-4 h-4" /> Add
+          <Plus className="w-4 h-4" />
+          <span className="hidden sm:inline">Add Listing</span>
+          <span className="sm:hidden">Add</span>
         </button>
       </div>
 
       {/* Rounded search pill */}
-      <div className="relative max-w-xl">
-        <div className="absolute inset-0 rounded-full shadow-sm pointer-events-none" />
-        <Search className="w-4 h-4 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" />
+      <div className="relative">
+        <Search className="w-4 h-4 text-gray-400 absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="w-full pl-10 pr-4 py-3 rounded-full border focus:ring-2 focus:ring-gray-900/10 outline-none placeholder:text-gray-400"
-          placeholder="Search title, category, area, tags…"
+          className="w-full pl-9 sm:pl-11 pr-10 py-2.5 sm:py-3 rounded-full border border-gray-300 focus:ring-2 focus:ring-anzac-500/20 focus:border-anzac-500 outline-none text-sm placeholder:text-gray-400 transition-shadow"
+          placeholder="Search title, category, area..."
         />
+        {query && (
+          <button
+            onClick={() => setQuery('')}
+            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 rounded-full transition-colors"
+          >
+            <X className="w-4 h-4 text-gray-400" />
+          </button>
+        )}
       </div>
 
       {/* Meta */}
       {items.length > 0 && (
-        <div className="text-sm text-gray-500">
-          Showing {filtered.length} of {items.length} listings
+        <div className="text-xs sm:text-sm text-gray-500">
+          Showing <span className="font-medium text-gray-700">{filtered.length}</span> of{' '}
+          <span className="font-medium text-gray-700">{items.length}</span> listings
         </div>
       )}
 
       {/* Empty state */}
       {items.length === 0 ? (
-        <div className="bg-white border rounded-xl p-10 text-center">
-          <p className="text-gray-700 font-medium">No listings yet</p>
-          <p className="text-sm text-gray-500 mt-1">
-            Create your first listing to showcase services
+        <div className="bg-white border border-gray-200 rounded-xl sm:rounded-2xl p-8 sm:p-12 text-center">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-4">
+            <Plus className="w-8 h-8 sm:w-10 sm:h-10 text-gray-400" />
+          </div>
+          <p className="text-base sm:text-lg font-semibold text-gray-900">No listings yet</p>
+          <p className="text-xs sm:text-sm text-gray-500 mt-1.5 max-w-sm mx-auto">
+            Create your first listing to showcase your services to customers
           </p>
           <button
             onClick={() => setShowForm(true)}
-            className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gray-900 text-white text-sm hover:bg-black"
+            className="mt-5 inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-anzac-500 text-white text-sm font-medium hover:bg-anzac-600 transition-colors shadow-sm"
           >
             <Plus className="w-4 h-4" /> Create your first listing
           </button>
         </div>
       ) : filtered.length === 0 ? (
-        <div className="bg-white border rounded-xl p-10 text-center">
-          <p className="text-gray-700 font-medium">No listings match the search</p>
-          <p className="text-sm text-gray-500 mt-1">Try different keywords or clear the search</p>
+        <div className="bg-white border border-gray-200 rounded-xl sm:rounded-2xl p-8 sm:p-12 text-center">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-4">
+            <Search className="w-8 h-8 sm:w-10 sm:h-10 text-gray-400" />
+          </div>
+          <p className="text-base sm:text-lg font-semibold text-gray-900">No results found</p>
+          <p className="text-xs sm:text-sm text-gray-500 mt-1.5">
+            Try different keywords or clear your search
+          </p>
           <button
             onClick={() => setQuery('')}
-            className="mt-4 text-sm text-anzac-500 hover:text-anzac-600"
+            className="mt-4 text-sm text-anzac-500 hover:text-anzac-600 font-medium transition-colors"
           >
             Clear search
           </button>
         </div>
       ) : (
         /* Grid */
-        <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-5">
+        <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((l) => (
             <ListingCard key={l._id} listing={l} onClick={() => setSelected(l)} />
           ))}
