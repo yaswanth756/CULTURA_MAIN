@@ -79,7 +79,7 @@ export const sendOTP = async (req, res) => {
     cleanExpiredOTPs();
     console.log(otp);
     // 🔥 Send vendor OTP with proper type
- //await sendVendorOTP(emailLower, otp, otpData.userType === 'existing' ? 'login' : 'signup');
+await sendVendorOTP(emailLower, otp, otpData.userType === 'existing' ? 'login' : 'signup');
 
     // Response
     res.status(200).json({
