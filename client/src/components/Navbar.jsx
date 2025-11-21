@@ -26,6 +26,25 @@ const Navbar = () => {
     return true;
   });
 
+  // Handle hash navigation scroll
+  const handleHashClick = (e, hash) => {
+    e.preventDefault();
+    const id = hash.replace('#', '');
+    const element = document.getElementById(id);
+    
+    if (element) {
+      element.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
+      
+      // Update URL without triggering navigation
+      window.history.pushState(null, '', hash);
+    }
+    
+    setIsOpen(false);
+  };
+
   // Handle outside click
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -42,6 +61,22 @@ const Navbar = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isDrop]);
+
+  // Handle scroll on page load if hash exists
+  useEffect(() => {
+    if (location.hash) {
+      setTimeout(() => {
+        const id = location.hash.replace('#', '');
+        const element = document.getElementById(id);
+        if (element) {
+          element.scrollIntoView({ 
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+      }, 100);
+    }
+  }, [location]);
 
   // Handle logout
   const handleLogout = () => {
@@ -77,7 +112,8 @@ const Navbar = () => {
                   ) : (
                     <a
                       href={path}
-                      className="pb-1 text-sm lg:text-base text-black hover:text-anzac-500 transition-colors duration-300 font-medium"
+                      onClick={(e) => handleHashClick(e, path)}
+                      className="pb-1 text-sm lg:text-base text-black hover:text-anzac-500 transition-colors duration-300 font-medium cursor-pointer"
                     >
                       {label}
                     </a>
@@ -205,8 +241,8 @@ const Navbar = () => {
                 ) : (
                   <a
                     href={path}
-                    className="block text-base text-gray-600 hover:text-gray-900 transition-colors duration-300 py-2"
-                    onClick={() => setIsOpen(false)}
+                    onClick={(e) => handleHashClick(e, path)}
+                    className="block text-base text-gray-600 hover:text-gray-900 transition-colors duration-300 py-2 cursor-pointer"
                   >
                     {label}
                   </a>

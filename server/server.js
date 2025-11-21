@@ -58,7 +58,7 @@ const limiter = rateLimit({
 })
 
 // Apply rate limiting to all routes
-app.use(limiter)
+//app.use(limiter)
 
 // More strict rate limiting for auth routes
 

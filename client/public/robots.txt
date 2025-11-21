@@ -7,7 +7,7 @@ Disallow: /profile/
 Disallow: /securepayment/
 
 # Sitemap location
-Sitemap: https://utsavlokam.app/sitemap.xml
+Sitemap: https://www.utsavlokam.com/sitemap.xml
 
 # Crawl delay (optional)
 Crawl-delay: 1

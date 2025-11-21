@@ -110,7 +110,31 @@ const listingSchema = new mongoose.Schema({
     default: 0,
     min: 0,
     index: true  // For analytics queries
-  }
+  },
+  dynamicPricing: {
+    enabled: {
+      type: Boolean,
+      default: false // vendor can opt in
+    },
+    minPrice: {
+      type: Number,
+      default: 0
+    },
+    maxPrice: {
+      type: Number,
+      default: 0
+    },
+    recommendedPrice: {
+      type: Number,
+      default: 0,
+      index: true
+    },
+    lastUpdated: {
+      type: Date
+    },
+    
+  },
+  
   
 }, {
   timestamps: true,

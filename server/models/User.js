@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema(
       required: true
     },
 
-    // 🔥 NEW: Google OAuth ID
+  
     googleId: {
       type: String,
       sparse: true,
