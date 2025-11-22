@@ -71,7 +71,10 @@ app.use(cors({
     origin: [
         "https://utsavlokam.app",
         "https://www.utsavlokam.app",
-        "http://localhost:5173"  // for local development
+        "http://localhost:5173" ,
+        "https://utsavlokam.com",
+        "https://www.utsavlokam.com",
+         // for local development
     ],
     credentials: true,
     optionsSuccessStatus: 200
